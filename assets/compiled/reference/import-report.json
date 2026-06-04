@@ -1,0 +1,711 @@
+{
+  "generatedAt": "2026-06-04T14:45:46.195Z",
+  "sourceDir": "/workspace/ST-Little_Painter/文料参考",
+  "fileCount": 116,
+  "rawEntryCount": 2711,
+  "assetCount": 2711,
+  "byType": {
+    "prompt_fragment": 1447,
+    "retrieval_card": 322,
+    "tag": 924,
+    "skill": 18
+  },
+  "documents": [
+    {
+      "sourcePath": "../文料参考/1/- (主体)文生图1.17[3].json",
+      "type": "json",
+      "entryCount": 21,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/1/二次处理专用（茶茶插件专用别乱用）/- 绘图剧情参考(挂酒馆全局)11.16[1].json",
+      "type": "json",
+      "entryCount": 1,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/1/旧本体/- (主体)文生图1.1[7].json",
+      "type": "json",
+      "entryCount": 21,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/1/旧本体/- (主体)文生图1.10[2].json",
+      "type": "json",
+      "entryCount": 19,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/1/旧本体/- (主体)文生图1.11[10].json",
+      "type": "json",
+      "entryCount": 20,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/1/旧本体/- (主体)文生图1.12[2].json",
+      "type": "json",
+      "entryCount": 20,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/1/旧本体/- (主体)文生图1.16[3].json",
+      "type": "json",
+      "entryCount": 21,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/1/旧本体/- (主体)文生图1.4[6].json",
+      "type": "json",
+      "entryCount": 21,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/1/旧本体/- (主体)文生图1.5[7].json",
+      "type": "json",
+      "entryCount": 26,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/1/旧本体/- (主体)文生图1.8[1].json",
+      "type": "json",
+      "entryCount": 19,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/1/旧本体/- (主体)文生图1.9[5].json",
+      "type": "json",
+      "entryCount": 19,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/1/旧本体/- (主体)文生图10.19[4].json",
+      "type": "json",
+      "entryCount": 14,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/1/旧本体/- (主体)文生图10.20[1].json",
+      "type": "json",
+      "entryCount": 14,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/1/旧本体/- (主体)文生图10.21[2].json",
+      "type": "json",
+      "entryCount": 15,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/1/旧本体/- (主体)文生图10.24[3].json",
+      "type": "json",
+      "entryCount": 15,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/1/旧本体/- (主体)文生图10.25[1].json",
+      "type": "json",
+      "entryCount": 15,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/1/旧本体/- (主体)文生图10.27[1].json",
+      "type": "json",
+      "entryCount": 14,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/1/旧本体/- (主体)文生图10.28[9].json",
+      "type": "json",
+      "entryCount": 14,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/1/旧本体/- (主体)文生图10.29[2].json",
+      "type": "json",
+      "entryCount": 14,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/1/旧本体/- (主体)文生图10.31[5].json",
+      "type": "json",
+      "entryCount": 14,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/1/旧本体/- (主体)文生图11.07[1].json",
+      "type": "json",
+      "entryCount": 14,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/1/旧本体/- (主体)文生图11.08[2].json",
+      "type": "json",
+      "entryCount": 14,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/1/旧本体/- (主体)文生图11.09[11].json",
+      "type": "json",
+      "entryCount": 13,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/1/旧本体/- (主体)文生图11.10[1].json",
+      "type": "json",
+      "entryCount": 13,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/1/旧本体/- (主体)文生图11.12[1].json",
+      "type": "json",
+      "entryCount": 13,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/1/旧本体/- (主体)文生图11.13[4].json",
+      "type": "json",
+      "entryCount": 16,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/1/旧本体/- (主体)文生图11.15[6] （气泡拟声词）.json",
+      "type": "json",
+      "entryCount": 18,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/1/旧本体/- (主体)文生图11.16[3].json",
+      "type": "json",
+      "entryCount": 19,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/1/旧本体/- (主体)文生图11.18[2].json",
+      "type": "json",
+      "entryCount": 19,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/1/旧本体/- (主体)文生图11.19[2].json",
+      "type": "json",
+      "entryCount": 19,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/1/旧本体/- (主体)文生图11.20[2].json",
+      "type": "json",
+      "entryCount": 19,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/1/旧本体/- (主体)文生图11.22[1].json",
+      "type": "json",
+      "entryCount": 19,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/1/旧本体/- (主体)文生图11.23[3].json",
+      "type": "json",
+      "entryCount": 23,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/1/旧本体/- (主体)文生图11.25[2].json",
+      "type": "json",
+      "entryCount": 23,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/1/旧本体/- (主体)文生图11.28[1] .json",
+      "type": "json",
+      "entryCount": 23,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/1/旧本体/- (主体)文生图11.30[4] .json",
+      "type": "json",
+      "entryCount": 23,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/1/旧本体/- (主体)文生图12.1[1] .json",
+      "type": "json",
+      "entryCount": 20,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/1/旧本体/- (主体)文生图12.10[7] .json",
+      "type": "json",
+      "entryCount": 20,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/1/旧本体/- (主体)文生图12.11[1] .json",
+      "type": "json",
+      "entryCount": 20,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/1/旧本体/- (主体)文生图12.12[1].json",
+      "type": "json",
+      "entryCount": 21,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/1/旧本体/- (主体)文生图12.14[5] .json",
+      "type": "json",
+      "entryCount": 20,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/1/旧本体/- (主体)文生图12.18[5] .json",
+      "type": "json",
+      "entryCount": 20,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/1/旧本体/- (主体)文生图12.22[2] .json",
+      "type": "json",
+      "entryCount": 21,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/1/旧本体/- (主体)文生图12.24[3]权重格式未改.json",
+      "type": "json",
+      "entryCount": 22,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/1/旧本体/- (主体)文生图12.25[5].json",
+      "type": "json",
+      "entryCount": 21,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/1/旧本体/- (主体)文生图12.26[1].json",
+      "type": "json",
+      "entryCount": 21,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/1/旧本体/- (主体)文生图12.27[5].json",
+      "type": "json",
+      "entryCount": 22,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/1/旧本体/- (主体)文生图12.9[1] .json",
+      "type": "json",
+      "entryCount": 20,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/1/旧本体/- (主体)文生图6.06[1](旧版本保留).json",
+      "type": "json",
+      "entryCount": 10,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/1/旧本体/- (主体)文生图7.15[2].json",
+      "type": "json",
+      "entryCount": 12,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/1/旧本体/- (主体)文生图7.21[1].json",
+      "type": "json",
+      "entryCount": 12,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/1/旧本体/- (主体)文生图7.25[9].json",
+      "type": "json",
+      "entryCount": 11,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/1/旧本体/- (主体)文生图8.1[3].json",
+      "type": "json",
+      "entryCount": 11,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/1/旧本体/- (主体)文生图8.10[1].json",
+      "type": "json",
+      "entryCount": 10,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/1/旧本体/- (主体)文生图8.12[6].json",
+      "type": "json",
+      "entryCount": 10,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/1/旧本体/- (主体)文生图8.13[3].json",
+      "type": "json",
+      "entryCount": 10,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/1/旧本体/- (主体)文生图8.14[4].json",
+      "type": "json",
+      "entryCount": 11,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/1/旧本体/- (主体)文生图8.15[4].json",
+      "type": "json",
+      "entryCount": 11,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/1/旧本体/- (主体)文生图8.18[2].json",
+      "type": "json",
+      "entryCount": 11,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/1/旧本体/- (主体)文生图8.20[3].json",
+      "type": "json",
+      "entryCount": 12,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/1/旧本体/- (主体)文生图8.26[7].json",
+      "type": "json",
+      "entryCount": 12,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/1/旧本体/- (主体)文生图8.27[6].json",
+      "type": "json",
+      "entryCount": 12,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/1/旧本体/- (主体)文生图8.28[5].json",
+      "type": "json",
+      "entryCount": 12,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/1/旧本体/- (主体)文生图8.29[3].json",
+      "type": "json",
+      "entryCount": 12,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/1/旧本体/- (主体)文生图8.4[3].json",
+      "type": "json",
+      "entryCount": 12,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/1/旧本体/- (主体)文生图8.5[1].json",
+      "type": "json",
+      "entryCount": 12,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/1/旧本体/- (主体)文生图8.7[1].json",
+      "type": "json",
+      "entryCount": 12,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/1/旧本体/- (主体)文生图8.8[4](lora格式未改).json",
+      "type": "json",
+      "entryCount": 10,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/1/旧本体/- (主体)文生图8.9[6].json",
+      "type": "json",
+      "entryCount": 10,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/1/旧本体/- (主体)文生图9.11[5].json",
+      "type": "json",
+      "entryCount": 13,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/1/旧本体/- (主体)文生图9.12[1].json",
+      "type": "json",
+      "entryCount": 14,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/1/旧本体/- (主体)文生图9.14[2].json",
+      "type": "json",
+      "entryCount": 12,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/1/旧本体/- (主体)文生图9.15[1].json",
+      "type": "json",
+      "entryCount": 12,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/1/旧本体/- (主体)文生图9.16[2].json",
+      "type": "json",
+      "entryCount": 14,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/1/旧本体/- (主体)文生图9.17[3].json",
+      "type": "json",
+      "entryCount": 14,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/1/旧本体/- (主体)文生图9.2[5].json",
+      "type": "json",
+      "entryCount": 12,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/1/旧本体/- (主体)文生图9.3[9].json",
+      "type": "json",
+      "entryCount": 13,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/1/旧本体/- (主体)文生图9.4[1].json",
+      "type": "json",
+      "entryCount": 12,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/1/旧本体/- (主体)文生图9.5[1].json",
+      "type": "json",
+      "entryCount": 12,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/1/旧本体/- (主体)文生图9.8[2].json",
+      "type": "json",
+      "entryCount": 12,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/1/旧本体/- (主体)文生图9.9[6].json",
+      "type": "json",
+      "entryCount": 13,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/1/旧本体/- (新主体)文生图10.10[2].json",
+      "type": "json",
+      "entryCount": 17,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/1/旧本体/- (新主体)文生图10.12[2].json",
+      "type": "json",
+      "entryCount": 18,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/1/旧本体/- (新主体)文生图10.13[1].json",
+      "type": "json",
+      "entryCount": 18,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/1/旧本体/- (新主体)文生图10.15[1].json",
+      "type": "json",
+      "entryCount": 18,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/1/旧本体/- (新主体)文生图10.18[5].json",
+      "type": "json",
+      "entryCount": 17,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/1/旧本体/- (新主体)文生图10.19[1].json",
+      "type": "json",
+      "entryCount": 15,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/1/旧本体/- (新主体)文生图10.2[1].json",
+      "type": "json",
+      "entryCount": 22,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/1/旧本体/- (新主体)文生图10.3[1].json",
+      "type": "json",
+      "entryCount": 22,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/1/旧本体/- (新主体)文生图10.5[4] .json",
+      "type": "json",
+      "entryCount": 22,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/1/旧本体/- (新主体)文生图10.8[1]（截断优化）.json",
+      "type": "json",
+      "entryCount": 22,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/1/旧本体/- (新主体)文生图9.17[2].json",
+      "type": "json",
+      "entryCount": 23,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/1/旧本体/- (新主体)文生图9.19[2].json",
+      "type": "json",
+      "entryCount": 23,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/1/旧本体/- (新主体)文生图9.20[2].json",
+      "type": "json",
+      "entryCount": 23,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/1/旧本体/- (新主体)文生图9.21[2].json",
+      "type": "json",
+      "entryCount": 24,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/1/旧本体/- (新主体)文生图9.22[1].json",
+      "type": "json",
+      "entryCount": 24,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/1/旧本体/- (新主体)文生图9.23[1].json",
+      "type": "json",
+      "entryCount": 24,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/1/旧本体/- (新主体)文生图9.24[2].json",
+      "type": "json",
+      "entryCount": 24,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/1/旧本体/- (新主体)文生图9.25[2].json",
+      "type": "json",
+      "entryCount": 24,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/1/旧本体/- (新主体)文生图9.26[1].json",
+      "type": "json",
+      "entryCount": 23,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/1/旧本体/- (新主体)文生图9.27[1].json",
+      "type": "json",
+      "entryCount": 23,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/1/旧本体/- (新主体)文生图9.29[1].json",
+      "type": "json",
+      "entryCount": 23,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/1/自然语言文生图/- - 自然语言绘图文生图[Z-iamge&banana][2].json",
+      "type": "json",
+      "entryCount": 3,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/1/附体/- (附体)同人库1.17[1].json",
+      "type": "json",
+      "entryCount": 420,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/1/附体/- (附体)姿势库1.17[1].json",
+      "type": "json",
+      "entryCount": 392,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/1/附体/- (附体)扩展库1.16[1].json",
+      "type": "json",
+      "entryCount": 57,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/1/附体/- (附体)标签库1.17[1].json",
+      "type": "json",
+      "entryCount": 89,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/1/附体/其他/- (附体)lora库10.10[1].json",
+      "type": "json",
+      "entryCount": 18,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/1/附体/其他/- {附体}替换库11.8[1].json",
+      "type": "json",
+      "entryCount": 3,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/1/附体/其他/- {附体}风格主题库(已放弃维护).json",
+      "type": "json",
+      "entryCount": 9,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/电影大师/regex-fm-ui隐藏变量标签_(1).json",
+      "type": "json",
+      "entryCount": 0,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/电影大师/regex-fm-对ai隐藏旧变量_(1).json",
+      "type": "json",
+      "entryCount": 0,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/电影大师/regex-fm-隐藏变量显示_(1).json",
+      "type": "json",
+      "entryCount": 0,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/电影大师/电影大师变量正式版.json",
+      "type": "json",
+      "entryCount": 8,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/电影大师/酒馆助手脚本-电影大师DNA-Schema验证_(7).json",
+      "type": "json",
+      "entryCount": 1,
+      "errors": []
+    },
+    {
+      "sourcePath": "../文料参考/电影大师/酒馆助手脚本-电影大师DNA-主系统_(6).json",
+      "type": "json",
+      "entryCount": 1,
+      "errors": []
+    }
+  ]
+}
