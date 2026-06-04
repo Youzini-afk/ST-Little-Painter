@@ -45,7 +45,7 @@ assert.ok(userPayload.outputSchemaExample.insertionPlan);
 assert.equal(userPayload.outputSchemaExample.params, undefined, 'default tagger schema does not ask for backend params');
 assert.match(promptText, /anchorQuote/);
 assert.match(promptText, /offsets/i);
-assert.match(promptText, /Do not suggest backend generation parameters/i);
+assert.match(promptText, /No backend generation parameters/i);
 assert.deepEqual(
   Object.keys(userPayload.outputSchemaExample.insertionPlan),
   ['anchorQuote', 'placement'],
