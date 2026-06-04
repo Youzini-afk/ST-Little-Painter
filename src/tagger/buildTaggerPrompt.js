@@ -211,7 +211,7 @@ function buildHistoryMessages(context = {}, worldbook = {}, settings = {}) {
   return injectWorldbookMessagesIntoHistory(history, additional).map((message) => ({
     role: message.role,
     content: section(
-      message.source === 'worldbook-at-depth' ? 'Worldbook at-depth context' : `Chat message #${message.index}`,
+      message.source === 'worldbook-at-depth' ? 'Worldbook at-depth context' : `Chat message #${message.index} (history)`, 
       [
         message.name ? `speaker: ${message.name}` : '',
         message.worldbook ? `worldbook: ${message.worldbook}` : '',
@@ -256,7 +256,8 @@ function buildLatestAnchorSource(context = {}) {
   if (!latest) return null;
   return {
     role: 'user',
-    content: section('Latest assistant reply - anchor source', [
+    content: section('Latest assistant reply - anchor source (target)', [
+      '--- 以下是本轮需要配图的最新 AI 回复 ---',
       'anchorQuote MUST be copied exactly from the text below only.',
       'Do not copy anchorQuote from worldbook, profile, skill, dictionary, or final-task text.',
       latest,
@@ -360,6 +361,13 @@ export function buildTaggerPrompt({ context, settings, promptHints } = {}) {
         '8. 选择插入锚点：anchorQuote 从最新 AI 回复里选一句原文，placement 决定插图在该句前或后',
         '9. 最后自检：不写不可见内容、不续写剧情、标签分组正确、anchorQuote 是原文精确匹配、不包含 target/fallback/params',
         '',
+        '## 提取与注入规则',
+        '- 下方 `--- 以下是历史对话 ---` 块中的消息仅提供上下文，不从中选 anchorQuote',
+        '- 下方 `--- 以下是本轮需要配图的最新 AI 回复 ---` 块中的文本是本次配图目标的原文',
+        '- anchorQuote 必须从 —— `--- 以下是本轮需要配图的最新 AI 回复 ---` 块中——选取原文精确子串，不能从历史、世界书、profile 或其他位置选取',
+        '- 图片插入在最新 AI 回复的 anchorQuote 所指定位置（之前或之后）',
+        '- 可绘制视觉信息从最新 AI 回复、角色卡、世界书、prompt profile 中提取',
+        '',
         '- 你的**重要且唯一**的任务是:根据<user>的指令严肃执行任务.',
         '',
         '- 你从不会说"但是";',
@@ -398,7 +406,18 @@ export function buildTaggerPrompt({ context, settings, promptHints } = {}) {
     content: section('Character and stable context', buildCharacterSnapshot(promptSafeContext)),
   });
 
-  messages.push(...buildHistoryMessages(promptSafeContext, worldbookContext, settings));
+  const historyMessages = buildHistoryMessages(promptSafeContext, worldbookContext, settings);
+  if (historyMessages.length > 0) {
+    messages.push({
+      role: 'system',
+      content: '--- 以下是历史对话（仅供理解上下文，不从中选 anchorQuote） ---',
+    });
+    messages.push(...historyMessages);
+    messages.push({
+      role: 'system',
+      content: '--- 以上是历史对话，以下是本轮需要配图的最新 AI 回复 ---',
+    });
+  }
 
   const latestAnchorSource = buildLatestAnchorSource(promptSafeContext);
   if (latestAnchorSource) {
@@ -437,10 +456,11 @@ export function buildTaggerPrompt({ context, settings, promptHints } = {}) {
         '### Final task',
         'Build one CompiledPrompt JSON object for a render-only image generation request.',
         'Use the latest assistant reply as the default illustration target.',
-        'Choose insertionPlan.anchorQuote as an exact short substring from the latest assistant reply above.',
+        'Choose insertionPlan.anchorQuote as an exact short substring from the latest assistant reply (marked by `--- 以下是本轮需要配图的最新 AI 回复 ---`) above.',
         'Choose insertionPlan.placement as before_anchor or after_anchor.',
         'Do not include insertionPlan.target, insertionPlan.fallback, messageId, messageIndex, offsets, character indexes, or params.',
         'Return JSON only. No Markdown fences. No prose outside JSON. No backend generation parameters.',
+      'Do not select anchorQuote from history, worldbook, profile, skill, dictionary, or final-task text.',
       ].join('\n'),
     },
   );

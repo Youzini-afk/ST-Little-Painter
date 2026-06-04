@@ -116,6 +116,9 @@ assert.doesNotMatch(taggerMessagesJson, /inactive all forbidden prompt leak/, 'a
 assert.match(taggerMessagesJson, /### Worldbook before context/, 'tagger prompt includes worldbook before context');
 assert(taggerMessages.some((message) => message.role === 'system' && message.content.includes('### Worldbook before context')), 'worldbook before context uses system role');
 assert(taggerMessages.some((message) => message.role === 'system' && message.content.includes('### Worldbook after context')), 'worldbook after context uses system role');
+  assert(taggerMessages.some((message) => message.content.includes('(history)')), 'history messages marked');
+  assert(taggerMessages.some((message) => message.content.includes('--- 以下是历史对话')), 'has history separator');
+  assert(taggerMessages.some((message) => message.content.includes('提取与注入规则')), 'has extraction rules');
 
 const chatMessagesOnly = await adapter.resolveWorldbookContext({
   context: {
