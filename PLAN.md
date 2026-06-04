@@ -152,4 +152,4 @@ Acceptance:
 - Same `CompiledPrompt` can compile to multiple backend payloads.
 - Generation records can be replayed or exported for debugging.
 
-Phase 8 image UX now uses `insertionPlan` records for anchor-based render-only insertion. Images are rendered as Little Painter DOM beside message anchors and never written back into SillyTavern message text, preventing generated previews from polluting later context collection.
+Phase 8 image UX now uses `insertionPlan` records for anchor-based render-only insertion. The second API is asked only for a short original `anchorQuote` and before/after anchor position; target floor selection and fallback behavior remain plugin-controlled. Images are rendered as Little Painter DOM beside message anchors and never written back into SillyTavern message text, preventing generated previews from polluting later context collection.

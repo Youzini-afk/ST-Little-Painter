@@ -19,6 +19,13 @@ function asOptionalInteger(value) {
   return Number.isInteger(number) && number >= 0 ? number : undefined;
 }
 
+function normalizePlacement(value, fallback = 'after_anchor') {
+  const normalized = String(value ?? '').trim();
+  if (normalized === 'before') return 'before_anchor';
+  if (normalized === 'after') return 'after_anchor';
+  return enumValue(normalized, PLACEMENTS, fallback);
+}
+
 export function resolveInsertionPlan({ insertionPlan, finalPrompt, context } = {}) {
   const source = insertionPlan ?? finalPrompt?.insertionPlan ?? {};
   const displaySource = source?.display && typeof source.display === 'object' ? source.display : {};
@@ -28,7 +35,7 @@ export function resolveInsertionPlan({ insertionPlan, finalPrompt, context } = {
   const resolved = {
     target,
     anchorQuote: asOptionalString(source?.anchorQuote ?? source?.anchor_quote),
-    placement: enumValue(source?.placement, PLACEMENTS, 'after_anchor'),
+    placement: normalizePlacement(source?.placement ?? source?.position, 'after_anchor'),
     fallback: enumValue(source?.fallback, FALLBACKS, 'after_message'),
     display: {
       mode: enumValue(displaySource.mode, DISPLAY_MODES, 'block'),
