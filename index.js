@@ -22,6 +22,9 @@ import {
   getLatestTrace,
 } from './src/debug/trace.js';
 import { callJson } from './src/llm/callJson.js';
+import { buildPlannerPrompt } from './src/planner/buildPlannerPrompt.js';
+import { callPlanner } from './src/planner/callPlanner.js';
+import { createEmptyScenePlan } from './src/planner/scenePlanSchema.js';
 import { buildTaggerPrompt, buildTaggerPromptHints } from './src/tagger/buildTaggerPrompt.js';
 import { postprocessCompiledPrompt } from './src/postprocess/postprocessCompiledPrompt.js';
 import { createWorldbookContextProvider } from './src/worldbook/WorldbookContextProvider.js';
@@ -104,6 +107,10 @@ function summarizeGenerationRecord(record = {}) {
     request: record.request,
     image: record.image?.summary,
   };
+}
+
+function shouldUsePlanner(settings = {}) {
+  return settings.mode === 'smart' || settings.mode === 'expert';
 }
 
 async function runBackendGeneration({ rendered, settings, trace }) {
@@ -306,13 +313,26 @@ function bindWorkbenchButtons() {
       });
       addTraceStep(trace, 'resolve-worldbook-context', resolvedWorldbook);
 
-      const taggerContext = {
+      let taggerContext = {
         ...sanitizedContext,
         worldbook: {
           ...(sanitizedContext.worldbook ?? {}),
           ...resolvedWorldbook,
         },
       };
+
+      if (shouldUsePlanner(settings)) {
+        const plannerMessages = buildPlannerPrompt({ context: taggerContext, settings });
+        addTraceStep(trace, 'build-planner-prompt', { messages: plannerMessages });
+
+        const plannerResponse = await callPlanner({ settings, messages: plannerMessages });
+        addTraceStep(trace, 'planner-response', plannerResponse);
+
+        taggerContext = {
+          ...taggerContext,
+          scenePlan: plannerResponse.parsed ?? createEmptyScenePlan(),
+        };
+      }
 
       const promptHints = buildTaggerPromptHints({ context: taggerContext, settings });
       addTraceStep(trace, 'select-skills-and-dictionary-hints', promptHints);

@@ -50,6 +50,7 @@ export function buildTaggerPrompt({ context, settings, promptHints } = {}) {
   };
 
   const hints = promptHints ?? buildTaggerPromptHints({ context, settings });
+  const scenePlan = context?.scenePlan ?? null;
 
   return [
     {
@@ -61,6 +62,7 @@ export function buildTaggerPrompt({ context, settings, promptHints } = {}) {
         'Treat adult, interactive, pose, clothing-state, and body-state content as ordinary drawing tags; do not add special content ratings or policy tiers.',
         'Do not infer hidden facts that are not supported by context.',
         'Use selected skills and dictionary hints as guidance; they are not mandatory tags.',
+        scenePlan ? 'A ScenePlan is provided. Use it as the primary visual plan while preserving direct context constraints.' : '',
       ].join('\n'),
     },
     {
@@ -76,6 +78,7 @@ export function buildTaggerPrompt({ context, settings, promptHints } = {}) {
         })),
         skillSelectionTrace: hints.skillSelection.trace,
         dictionaryHints: hints.dictionaryHints,
+        scenePlan,
         context,
       }, null, 2),
     },
