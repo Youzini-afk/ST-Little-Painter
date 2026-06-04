@@ -1,10 +1,13 @@
 import {
   extension_settings,
+  getContext,
   renderExtensionTemplateAsync,
   saveSettingsDebounced,
 } from '../../../extensions.js';
 
 import { EXTENSION_ID, EXTENSION_NAME, SELECTORS, TRACE_STATUS } from './src/core/constants.js';
+import { collectContext } from './src/context/collectContext.js';
+import { sanitizeContext } from './src/context/sanitizeContext.js';
 import {
   configureSettingsStore,
   getSettings,
@@ -18,6 +21,28 @@ import {
   finalizeTrace,
   getLatestTrace,
 } from './src/debug/trace.js';
+import { callJson } from './src/llm/callJson.js';
+import { buildTaggerPrompt } from './src/tagger/buildTaggerPrompt.js';
+
+function flattenPositiveBlocks(positiveBlocks = {}) {
+  return Object.values(positiveBlocks)
+    .filter(Array.isArray)
+    .flat()
+    .filter(Boolean);
+}
+
+function renderCompiledPrompt(compiledPrompt) {
+  if (!compiledPrompt) {
+    return { positive: '', negative: '' };
+  }
+
+  return {
+    shouldGenerate: compiledPrompt.shouldGenerate !== false,
+    positive: flattenPositiveBlocks(compiledPrompt.positiveBlocks).join(', '),
+    negative: Array.isArray(compiledPrompt.negative) ? compiledPrompt.negative.filter(Boolean).join(', ') : '',
+    warnings: Array.isArray(compiledPrompt.warnings) ? compiledPrompt.warnings : [],
+  };
+}
 
 function setControlValue(selector, value) {
   const element = document.querySelector(selector);
@@ -41,6 +66,11 @@ function populateSettingsForm() {
   setControlValue(SELECTORS.tagApiUrl, settings.tagApi.url);
   setControlValue(SELECTORS.tagApiKey, settings.tagApi.key);
   setControlValue(SELECTORS.tagApiModel, settings.tagApi.model);
+  setControlValue(SELECTORS.historyCount, settings.historyCount);
+  setControlValue(SELECTORS.temperature, settings.temperature);
+  setControlValue(SELECTORS.maxTokens, settings.maxTokens);
+  setControlValue(SELECTORS.timeoutMs, settings.timeoutMs);
+  setControlValue(SELECTORS.retryCount, settings.retryCount);
   setControlValue(SELECTORS.debugEnabled, settings.debug.enabled);
   renderTraceOutput();
 }
@@ -74,6 +104,11 @@ function bindSettingsForm() {
     ...settings,
     tagApi: { ...settings.tagApi, model: value },
   }));
+  bindSetting(SELECTORS.historyCount, (settings, value) => ({ ...settings, historyCount: Number(value) || 8 }));
+  bindSetting(SELECTORS.temperature, (settings, value) => ({ ...settings, temperature: Number(value) || 0 }));
+  bindSetting(SELECTORS.maxTokens, (settings, value) => ({ ...settings, maxTokens: Number(value) || 1200 }));
+  bindSetting(SELECTORS.timeoutMs, (settings, value) => ({ ...settings, timeoutMs: Number(value) || 30000 }));
+  bindSetting(SELECTORS.retryCount, (settings, value) => ({ ...settings, retryCount: Number(value) || 0 }));
   bindSetting(SELECTORS.debugEnabled, (settings, value) => ({
     ...settings,
     debug: { ...settings.debug, enabled: value },
@@ -81,7 +116,7 @@ function bindSettingsForm() {
 }
 
 function bindWorkbenchButtons() {
-  document.querySelector(SELECTORS.manualGenerate)?.addEventListener('click', () => {
+  document.querySelector(SELECTORS.manualGenerate)?.addEventListener('click', async () => {
     const settings = getSettings();
     const trace = createTrace('manual-generate', {
       extension: EXTENSION_NAME,
@@ -89,14 +124,49 @@ function bindWorkbenchButtons() {
       tagApi: settings.tagApi,
     });
 
-    addTraceStep(trace, 'phase-1-placeholder', {
-      message: 'Phase 1 skeleton only. Generation pipeline is not implemented yet.',
-      settingsSnapshot: settings,
-    });
-    finalizeTrace(trace, TRACE_STATUS.SUCCESS, {
-      message: 'Placeholder trace finalized. Implement request pipeline in Phase 2.',
-    });
-    renderTraceOutput();
+    try {
+      const rawContext = collectContext({
+        getContext,
+        historyCount: settings.historyCount,
+        mode: 'manual',
+      });
+      addTraceStep(trace, 'collect-context', rawContext);
+
+      const sanitizedContext = sanitizeContext(rawContext);
+      addTraceStep(trace, 'sanitize-context', sanitizedContext);
+
+      const messages = buildTaggerPrompt({ context: sanitizedContext, settings });
+      addTraceStep(trace, 'build-tagger-prompt', { messages });
+
+      const response = await callJson({ settings, messages });
+      addTraceStep(trace, 'tagger-response', response);
+
+      const rendered = renderCompiledPrompt(response.parsed);
+      addTraceStep(trace, 'render-compiled-prompt', rendered);
+
+      if (!response.parsed || response.errors?.length) {
+        finalizeTrace(trace, TRACE_STATUS.ERROR, {
+          message: response.parsed ? 'Tagger returned JSON with extraction warnings.' : 'Tagger did not return valid CompiledPrompt JSON.',
+          errors: response.errors,
+          rendered,
+        });
+      } else {
+        finalizeTrace(trace, TRACE_STATUS.SUCCESS, {
+          message: 'CompiledPrompt generated successfully.',
+          rendered,
+        });
+      }
+    } catch (error) {
+      addTraceStep(trace, 'pipeline-error', {
+        message: error?.message || String(error),
+        stack: error?.stack,
+      });
+      finalizeTrace(trace, TRACE_STATUS.ERROR, {
+        message: error?.message || String(error),
+      });
+    } finally {
+      renderTraceOutput();
+    }
   });
 
   document.querySelector(SELECTORS.exportTrace)?.addEventListener('click', () => {

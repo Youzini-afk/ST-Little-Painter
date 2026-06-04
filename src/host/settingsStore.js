@@ -7,6 +7,11 @@ export const defaultSettings = Object.freeze({
   enabled: true,
   autoGenerate: false,
   mode: 'fast',
+  historyCount: 8,
+  temperature: 0.2,
+  maxTokens: 1200,
+  timeoutMs: 30000,
+  retryCount: 1,
   tagApi: {
     url: '',
     key: '',

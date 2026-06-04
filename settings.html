@@ -27,6 +27,18 @@
 
         <label for="stlp-tag-api-model">Model</label>
         <input id="stlp-tag-api-model" class="text_pole" type="text" placeholder="tagger-model-name" />
+
+        <label for="stlp-temperature">Temperature</label>
+        <input id="stlp-temperature" class="text_pole" type="number" min="0" max="2" step="0.1" />
+
+        <label for="stlp-max-tokens">Max Tokens</label>
+        <input id="stlp-max-tokens" class="text_pole" type="number" min="128" step="128" />
+
+        <label for="stlp-timeout-ms">Timeout (ms)</label>
+        <input id="stlp-timeout-ms" class="text_pole" type="number" min="1000" step="1000" />
+
+        <label for="stlp-retry-count">Retry Count</label>
+        <input id="stlp-retry-count" class="text_pole" type="number" min="0" max="5" step="1" />
       </section>
 
       <section class="stlp-section">
@@ -37,6 +49,9 @@
           <option value="smart">Smart</option>
           <option value="expert">Expert</option>
         </select>
+
+        <label for="stlp-history-count">Recent message count</label>
+        <input id="stlp-history-count" class="text_pole" type="number" min="1" max="100" step="1" />
 
         <div class="stlp-actions">
           <button id="stlp-manual-generate" class="menu_button" type="button">Manual Generate</button>
