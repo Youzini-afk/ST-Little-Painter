@@ -1,15 +1,27 @@
-import { getDictionaryHints } from '../dictionary/tagDictionary.js';
+import { loadTagDictionary } from '../dictionary/tagDictionary.js';
 import { dictionaryHintsForText } from '../dictionary/tagSearch.js';
-import { getFallbackSkills } from '../skills/skillRegistry.js';
+import { loadSkillRegistry } from '../skills/skillRegistry.js';
 import { selectSkills } from '../skills/skillSelector.js';
 
-export function buildTaggerPromptHints({ context, settings } = {}) {
-  const skillSelection = selectSkills({ context, settings, skills: getFallbackSkills() });
+function getDictionaryHintsFrom(dictionary = [], { categories = [], limit = 24 } = {}) {
+  const wanted = new Set(categories.filter(Boolean));
+  return dictionary
+    .filter((entry) => !wanted.size || wanted.has(entry.category))
+    .slice(0, limit)
+    .map((entry) => `${entry.category}:${entry.tag}`);
+}
+
+export async function buildTaggerPromptHints({ context, settings } = {}) {
+  const [skills, dictionary] = await Promise.all([
+    loadSkillRegistry(),
+    loadTagDictionary(),
+  ]);
+  const skillSelection = selectSkills({ context, settings, skills });
   const contextText = JSON.stringify(context ?? {});
-  const dictionaryHits = dictionaryHintsForText(contextText, { limit: 20 });
+  const dictionaryHits = dictionaryHintsForText(contextText, { dictionary, limit: 20 });
   const dictionaryHints = dictionaryHits.length
     ? dictionaryHits.map((hit) => `${hit.category}:${hit.tag}`)
-    : getDictionaryHints({
+    : getDictionaryHintsFrom(dictionary, {
       categories: ['quality', 'composition', 'camera', 'lighting', 'body', 'clothingState', 'pose', 'interaction', 'environment', 'style', 'negative'],
       limit: 36,
     });
@@ -49,7 +61,7 @@ export function buildTaggerPrompt({ context, settings, promptHints } = {}) {
     debug: { dictionaryHits: [], skillsUsed: [] },
   };
 
-  const hints = promptHints ?? buildTaggerPromptHints({ context, settings });
+  const hints = promptHints ?? { skillSelection: { skills: [], trace: [] }, dictionaryHints: [] };
   const scenePlan = context?.scenePlan ?? null;
 
   return [

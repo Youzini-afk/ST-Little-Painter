@@ -17,25 +17,44 @@ export async function postprocessCompiledPrompt(compiledPrompt = {}, { settings 
 
   const fixedPositive = ensureArray(settings.fixedPositive);
   const fixedNegative = ensureArray(settings.fixedNegative);
-  const rawPositive = mergeTags(compiledPrompt.positiveBlocks, compiledPrompt.positive, fixedPositive);
-  const rawNegative = mergeTags(compiledPrompt.negative, fixedNegative);
+  const rawPositive = mergeTags(fixedPositive, compiledPrompt.positiveBlocks, compiledPrompt.positive);
+  const rawNegative = mergeTags(fixedNegative, compiledPrompt.negative);
   trace.push({ step: 'flatten', positiveCount: rawPositive.length, negativeCount: rawNegative.length });
 
-  const replacedPositive = applyReplacements(rawPositive, settings);
-  const replacedNegative = applyReplacements(rawNegative, settings);
-  trace.push({ step: 'replacements', positive: replacedPositive.trace, negative: replacedNegative.trace });
-
-  const normalizedPositive = normalizeTags(replacedPositive.tags, { aliases });
-  const normalizedNegative = normalizeTags(replacedNegative.tags, { aliases });
+  const normalizedPositive = normalizeTags(rawPositive, { aliases });
+  const normalizedNegative = normalizeTags(rawNegative, { aliases });
   trace.push({ step: 'normalize-dedupe', positive: normalizedPositive.trace, negative: normalizedNegative.trace });
 
-  const conflictedPositive = resolveConflicts(normalizedPositive.tags, conflicts);
+  const replacedPositive = applyReplacements(normalizedPositive.tags, settings);
+  const replacedNegative = applyReplacements(normalizedNegative.tags, settings);
+  trace.push({ step: 'replacements', positive: replacedPositive.trace, negative: replacedNegative.trace });
+
+  const finalNormalizedPositive = normalizeTags(replacedPositive.tags, { aliases });
+  const finalNormalizedNegative = normalizeTags(replacedNegative.tags, { aliases });
+  trace.push({ step: 'normalize-after-replacements', positive: finalNormalizedPositive.trace, negative: finalNormalizedNegative.trace });
+
+  const policyPositive = applyReplacements(finalNormalizedPositive.tags, { ...settings, replacements: [] });
+  const policyNegative = applyReplacements(finalNormalizedNegative.tags, { ...settings, replacements: [] });
+  trace.push({ step: 'policy-after-normalize', positive: policyPositive.trace, negative: policyNegative.trace });
+
+  const fixedPositiveAfterPolicy = normalizeTags(
+    applyReplacements(normalizeTags(fixedPositive, { aliases }).tags, settings).tags,
+    { aliases },
+  );
+  const fixedNegativeAfterPolicy = normalizeTags(
+    applyReplacements(normalizeTags(fixedNegative, { aliases }).tags, settings).tags,
+    { aliases },
+  );
+
+  const conflictedPositive = resolveConflicts(policyPositive.tags, conflicts);
   trace.push({ step: 'conflicts', positive: conflictedPositive.trace });
 
   const budgeted = applyTagBudget({
     positive: conflictedPositive.tags,
-    negative: normalizedNegative.tags,
+    negative: policyNegative.tags,
     budget: settings.tagBudget,
+    fixedPositive: fixedPositiveAfterPolicy.tags,
+    fixedNegative: fixedNegativeAfterPolicy.tags,
   });
   trace.push({ step: 'budget', changes: budgeted.trace });
 

@@ -103,11 +103,28 @@ export async function generate(compiledRequest = {}, settings = {}) {
     headers.Authorization = `Basic ${encodeBasicAuth(sdWebui.username, sdWebui.password)}`;
   }
 
-  const response = await fetch(endpoint, {
-    method: 'POST',
-    headers,
-    body: JSON.stringify(compiledRequest.payload ?? {}),
-  });
+  const controller = typeof AbortController === 'function' ? new AbortController() : null;
+  const timeoutMs = Math.max(1000, Number(settings.timeoutMs) || 30000);
+  const timeout = controller ? setTimeout(() => controller.abort(), timeoutMs) : null;
+
+  let response;
+  try {
+    response = await fetch(endpoint, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify(compiledRequest.payload ?? {}),
+      ...(controller ? { signal: controller.signal } : {}),
+    });
+  } catch (error) {
+    if (error?.name === 'AbortError') {
+      throw new Error(`SD WebUI request timed out after ${timeoutMs}ms.`);
+    }
+    throw error;
+  } finally {
+    if (timeout) {
+      clearTimeout(timeout);
+    }
+  }
 
   const responseText = await response.text();
   if (!response.ok) {

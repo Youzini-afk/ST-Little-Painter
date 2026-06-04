@@ -1,4 +1,5 @@
 const generationRecords = [];
+const MAX_GENERATION_RECORDS = 20;
 let nextRecordId = 1;
 
 function clone(value) {
@@ -44,6 +45,9 @@ export function saveGenerationRecord({ backendType, finalPrompt, compiledRequest
 
   nextRecordId += 1;
   generationRecords.unshift(record);
+  if (generationRecords.length > MAX_GENERATION_RECORDS) {
+    generationRecords.splice(MAX_GENERATION_RECORDS);
+  }
   return clone(record);
 }
 
