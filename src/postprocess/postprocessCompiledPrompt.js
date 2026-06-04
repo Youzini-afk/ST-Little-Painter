@@ -68,6 +68,7 @@ export async function postprocessCompiledPrompt(compiledPrompt = {}, { settings 
     negative: finalPrompt.negative,
     warnings: Array.isArray(compiledPrompt.warnings) ? compiledPrompt.warnings : [],
     params: compiledPrompt.params ?? {},
+    insertionPlan: compiledPrompt.insertionPlan,
     trace,
   };
 }

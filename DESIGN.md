@@ -12,10 +12,12 @@ SillyTavern chat / character / worldbook / regex / user settings
   -> structured scene/tag plan
   -> canonicalized tag blocks
   -> backend-specific request
-  -> image result and chat insertion
+  -> image result and render-only chat insertion
 ```
 
 The main chat model should not be required to emit image tags in story text. The plugin builds a dedicated second-API request and applies its structured response.
+
+Phase 8 image insertion is anchor-based and render-only: generated image DOM is attached around an `insertionPlan.anchorQuote` target in the chat UI without modifying `message.mes` or contaminating future prompt context.
 
 ## 2. Architecture principles
 

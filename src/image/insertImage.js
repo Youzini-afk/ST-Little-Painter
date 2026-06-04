@@ -1,7 +1,25 @@
 import { SELECTORS } from '../core/constants.js';
+import { getGenerationRecords } from './imageStore.js';
+import { resolveInsertionPlan } from './insertionPlan.js';
+import { resolveMessageAnchor } from './messageAnchor.js';
+import { renderImageAttachment } from './renderImageAttachment.js';
 
 function getImageDataUrl(record = {}) {
   return record.image?.dataUrl || record.dataUrl || '';
+}
+
+function hasValidImageData(record = {}) {
+  return /^data:image\/[a-z0-9.+-]+;base64,[a-z0-9+/]+=*$/i.test(getImageDataUrl(record));
+}
+
+function getExistingRenderedNode(record = {}) {
+  const id = String(record.id ?? '');
+  if (!id || typeof document === 'undefined') {
+    return null;
+  }
+
+  return Array.from(document.querySelectorAll?.('[data-stlp-generation-id]') ?? [])
+    .find((node) => node.dataset?.stlpGenerationId === id) ?? null;
 }
 
 function createImageElement(record = {}) {
@@ -47,7 +65,7 @@ export function appendSettingsPreview(record = {}) {
   }
 
   const dataUrl = getImageDataUrl(record);
-  if (!dataUrl) {
+  if (!hasValidImageData(record)) {
     return { ...trace, reason: 'image data unavailable' };
   }
 
@@ -69,26 +87,6 @@ export function appendSettingsPreview(record = {}) {
   return { ...trace, inserted: true, recordId: record.id };
 }
 
-function findChatTarget() {
-  const selectors = [
-    '#chat .mes:last-child .mes_text',
-    '#chat .mes:last-child',
-    '#chat',
-    '.chat .mes:last-child .mes_text',
-    '.chat .mes:last-child',
-    '.chat',
-  ];
-
-  for (const selector of selectors) {
-    const target = document.querySelector(selector);
-    if (target) {
-      return { selector, target };
-    }
-  }
-
-  return { selector: '', target: null };
-}
-
 export function insertToChatShell(record = {}) {
   const trace = [appendSettingsPreview(record)];
 
@@ -97,25 +95,61 @@ export function insertToChatShell(record = {}) {
     return trace;
   }
 
-  const dataUrl = getImageDataUrl(record);
-  if (!dataUrl) {
+  if (!hasValidImageData(record)) {
     trace.push({ target: 'chat-shell', inserted: false, reason: 'image data unavailable' });
     return trace;
   }
 
-  const { selector, target } = findChatTarget();
-  if (!target) {
-    trace.push({ target: 'chat-shell', inserted: false, reason: 'chat shell unavailable' });
-    return trace;
-  }
+  const insertionPlan = resolveInsertionPlan({ insertionPlan: record.insertionPlan, finalPrompt: record.prompt });
+  const anchor = resolveMessageAnchor(insertionPlan);
+  const renderResult = renderImageAttachment(record, anchor, { insertionPlan });
 
-  const wrapper = document.createElement('div');
-  wrapper.className = 'stlp-chat-image-preview';
-  wrapper.append(createImageElement(record));
-  target.append(wrapper);
-
-  trace.push({ target: 'chat-shell', inserted: true, selector, recordId: record.id });
+  trace.push({
+    target: 'chat-shell',
+    inserted: renderResult.inserted,
+    reason: renderResult.reason,
+    recordId: record.id,
+    targetMessageFound: anchor.targetMessageFound,
+    anchorFound: anchor.anchorFound,
+    fallbackUsed: anchor.fallbackUsed,
+    renderedDomNodeId: renderResult.node?.id || '',
+  });
   return trace;
 }
 
-export default { appendSettingsPreview, insertToChatShell };
+export function rerenderAllGenerationRecords() {
+  return getGenerationRecords().map((record) => {
+    if (!hasValidImageData(record)) {
+      return {
+        recordId: record.id,
+        inserted: false,
+        reason: 'image data unavailable',
+      };
+    }
+
+    const existingNode = getExistingRenderedNode(record);
+    if (existingNode) {
+      return {
+        recordId: record.id,
+        inserted: false,
+        reason: 'already inserted',
+        renderedDomNodeId: existingNode.id || '',
+      };
+    }
+
+    const insertionPlan = resolveInsertionPlan({ insertionPlan: record.insertionPlan, finalPrompt: record.prompt });
+    const anchor = resolveMessageAnchor(insertionPlan);
+    const renderResult = renderImageAttachment(record, anchor, { insertionPlan });
+    return {
+      recordId: record.id,
+      inserted: renderResult.inserted,
+      reason: renderResult.reason,
+      targetMessageFound: anchor.targetMessageFound,
+      anchorFound: anchor.anchorFound,
+      fallbackUsed: anchor.fallbackUsed,
+      renderedDomNodeId: renderResult.node?.id || '',
+    };
+  });
+}
+
+export default { appendSettingsPreview, insertToChatShell, rerenderAllGenerationRecords };

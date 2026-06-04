@@ -52,6 +52,47 @@
   gap: 0.25rem;
 }
 
+.stlp-chat-image-preview {
+  margin: 0.5rem 0;
+}
+
+.stlp-image-mode-inline {
+  display: inline-flex;
+  vertical-align: middle;
+  margin: 0 0.25rem;
+}
+
+.stlp-image-mode-float {
+  float: right;
+  max-width: 50%;
+  margin: 0.25rem 0 0.5rem 0.75rem;
+}
+
+.stlp-image-align-left {
+  align-items: flex-start;
+}
+
+.stlp-image-align-center {
+  align-items: center;
+}
+
+.stlp-image-align-right {
+  align-items: flex-end;
+}
+
+.stlp-image-size-small .stlp-generated-image {
+  max-width: min(100%, 256px);
+}
+
+.stlp-image-size-medium .stlp-generated-image {
+  max-width: min(100%, 512px);
+}
+
+.stlp-image-size-large .stlp-generated-image,
+.stlp-image-size-custom .stlp-generated-image {
+  max-width: 100%;
+}
+
 .stlp-generated-image {
   max-width: 100%;
   height: auto;

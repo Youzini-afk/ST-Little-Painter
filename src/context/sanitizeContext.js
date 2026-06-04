@@ -3,6 +3,7 @@ import { input_cleanup } from '../regex/regexStages.js';
 import { applyTaskRegex } from '../regex/taskRegex.js';
 
 const IMAGE_BLOCK_PATTERN = /<image\b[^>]*>[\s\S]*?<\/image>|<img\b[^>]*>/gi;
+const STLP_RENDER_ONLY_PATTERN = /<[^>]*class=["'][^"']*(?:stlp-chat-image-preview|stlp-generated-image)[^"']*["'][^>]*>[\s\S]*?<\/[^>]+>/gi;
 const HTML_TAG_PATTERN = /<[^>]+>/g;
 const LONG_WHITESPACE_PATTERN = /[ \t]{3,}|\n{3,}/g;
 
@@ -14,6 +15,11 @@ function sanitizeText(value, removedBlocks, regexTransforms, regexRules) {
   const mvuResult = cleanMvuBlocks(value);
   let text = mvuResult.text;
   removedBlocks.push(...mvuResult.removedBlocks);
+
+  text = text.replace(STLP_RENDER_ONLY_PATTERN, (match) => {
+    removedBlocks.push({ type: 'stlpRenderOnlyImage', preview: match.slice(0, 120), length: match.length });
+    return ' ';
+  });
 
   text = text.replace(IMAGE_BLOCK_PATTERN, (match) => {
     removedBlocks.push({ type: 'image', preview: match.slice(0, 120), length: match.length });

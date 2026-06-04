@@ -31,7 +31,7 @@ import { postprocessCompiledPrompt } from './src/postprocess/postprocessCompiled
 import { createWorldbookContextProvider } from './src/worldbook/WorldbookContextProvider.js';
 import { compile as compileBackendRequest, generate as generateBackendImage } from './src/backend/backendRegistry.js';
 import { saveGenerationRecord } from './src/image/imageStore.js';
-import { insertToChatShell } from './src/image/insertImage.js';
+import { insertToChatShell, rerenderAllGenerationRecords } from './src/image/insertImage.js';
 
 const worldbookContextProvider = createWorldbookContextProvider();
 
@@ -44,7 +44,7 @@ function flattenPositiveBlocks(positiveBlocks = {}) {
 
 function renderCompiledPrompt(compiledPrompt) {
   if (!compiledPrompt) {
-    return { positive: '', negative: '' };
+    return { positive: '', negative: '', insertionPlan: undefined };
   }
 
   return {
@@ -52,6 +52,7 @@ function renderCompiledPrompt(compiledPrompt) {
     positive: flattenPositiveBlocks(compiledPrompt.positiveBlocks).join(', '),
     negative: Array.isArray(compiledPrompt.negative) ? compiledPrompt.negative.filter(Boolean).join(', ') : '',
     warnings: Array.isArray(compiledPrompt.warnings) ? compiledPrompt.warnings : [],
+    insertionPlan: compiledPrompt.insertionPlan,
   };
 }
 
@@ -65,6 +66,7 @@ function renderFinalPrompt(finalPrompt) {
     positive: finalPrompt.positive ?? '',
     negative: finalPrompt.negative ?? '',
     warnings: Array.isArray(finalPrompt.warnings) ? finalPrompt.warnings : [],
+    insertionPlan: finalPrompt.insertionPlan,
   };
 }
 
@@ -194,6 +196,8 @@ function summarizeGenerationRecord(record = {}) {
     prompt: summarizeRenderedPrompt(record.prompt),
     request: summarizeBackendRequest(record.request),
     image: record.image?.summary,
+    insertionPlan: record.insertionPlan,
+    chat: record.chat,
   };
 }
 
@@ -214,7 +218,7 @@ function shouldUsePlanner(settings = {}) {
   return settings.mode === 'smart' || settings.mode === 'expert';
 }
 
-async function runBackendGeneration({ rendered, settings, trace }) {
+async function runBackendGeneration({ rendered, settings, trace, context }) {
   if (!settings.backend?.enabled) {
     addTraceStep(trace, 'backend-skipped', { reason: 'backend disabled' });
     return null;
@@ -243,12 +247,50 @@ async function runBackendGeneration({ rendered, settings, trace }) {
     finalPrompt: rendered,
     compiledRequest: request,
     result,
+    context,
   });
   addTraceStep(trace, 'image-store', tracePayload(settings, record, summarizeGenerationRecord(record)));
 
   const insertionTrace = insertToChatShell(record);
   addTraceStep(trace, 'image-preview-insert', insertionTrace);
   return record;
+}
+
+function registerImageRerenderBridge() {
+  if (typeof document === 'undefined') {
+    return;
+  }
+
+  let scheduled = false;
+  const containsOnlyPluginMutations = (mutations = []) => mutations.length > 0 && mutations.every((mutation) => {
+    const nodes = [...Array.from(mutation.addedNodes ?? []), ...Array.from(mutation.removedNodes ?? [])];
+    return nodes.length > 0 && nodes.every((node) => {
+      if (node.nodeType !== 1) return true;
+      return node.classList?.contains?.('stlp-chat-image-preview')
+        || node.classList?.contains?.('stlp-generated-image')
+        || Boolean(node.querySelector?.('.stlp-chat-image-preview, .stlp-generated-image'));
+    });
+  });
+  const rerenderSoon = () => {
+    if (scheduled) return;
+    scheduled = true;
+    setTimeout(() => {
+      scheduled = false;
+      rerenderAllGenerationRecords();
+    }, 150);
+  };
+
+  document.addEventListener?.('stlp:rerender-images', rerenderSoon);
+  const chat = document.querySelector('#chat') || document.querySelector('.chat');
+  if (chat && typeof MutationObserver !== 'undefined') {
+    const observer = new MutationObserver((mutations) => {
+      if (containsOnlyPluginMutations(mutations)) {
+        return;
+      }
+      rerenderSoon();
+    });
+    observer.observe(chat, { childList: true, subtree: true });
+  }
 }
 
 function populateSettingsForm() {
@@ -474,7 +516,7 @@ function bindWorkbenchButtons() {
         summarizeCallJsonResponse(response),
       ));
 
-      const normalizedCompiledPrompt = normalizeCompiledPrompt(response.parsed);
+      const normalizedCompiledPrompt = normalizeCompiledPrompt(response.parsed, { context: taggerContext });
       const compiledPromptUsable = isCompiledPromptUsable(normalizedCompiledPrompt);
       addTraceStep(trace, 'normalize-compiled-prompt', tracePayload(
         settings,
@@ -499,7 +541,7 @@ function bindWorkbenchButtons() {
       addTraceStep(trace, 'render-final-prompt', tracePayload(settings, rendered, summarizeRenderedPrompt(rendered)));
 
       const generationRecord = compiledPromptUsable
-        ? await runBackendGeneration({ rendered, settings, trace })
+        ? await runBackendGeneration({ rendered, settings, trace, context: taggerContext })
         : null;
       if (!compiledPromptUsable) {
         addTraceStep(trace, 'backend-skipped', { reason: 'tagger parsed prompt unavailable or invalid' });
@@ -572,4 +614,5 @@ jQuery(async () => {
   populateSettingsForm();
   bindSettingsForm();
   bindWorkbenchButtons();
+  registerImageRerenderBridge();
 });

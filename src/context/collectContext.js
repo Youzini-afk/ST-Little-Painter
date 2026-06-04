@@ -98,6 +98,9 @@ function resolveContext(getContext) {
 
 export function collectContext({ getContext, historyCount = 8, mode = 'manual' } = {}) {
   const context = resolveContext(getContext);
+  // Prefer SillyTavern chat data from getContext/global chat. Do not scrape chat DOM here;
+  // render-only image previews live under .stlp-chat-image-preview/.stlp-generated-image
+  // and must never re-enter prompt context.
   const messages = getChatMessages(context);
   const normalizedHistoryCount = Math.max(1, Number(historyCount) || 8);
   const recentMessages = messages.slice(-normalizedHistoryCount);

@@ -1,6 +1,7 @@
 const generationRecords = [];
 const MAX_GENERATION_RECORDS = 20;
 let nextRecordId = 1;
+const SCHEMA_VERSION = 2;
 
 function clone(value) {
   if (value === undefined) {
@@ -18,9 +19,32 @@ function summarizeImage(result = {}) {
   };
 }
 
-export function saveGenerationRecord({ backendType, finalPrompt, compiledRequest, result } = {}) {
+function createRecordId() {
+  const timestamp = Date.now().toString(36);
+  const random = Math.random().toString(36).slice(2, 10);
+  return `stlp-generation-${timestamp}-${random}`;
+}
+
+function resolveChatTarget(insertionPlan = null, context = {}) {
+  const chat = {
+    chatId: context?.metadata?.chatId ?? context?.metadata?.chat_id ?? '',
+    target: insertionPlan?.target ?? 'latest_assistant',
+  };
+
+  if (insertionPlan?.target === 'message_id') {
+    chat.messageId = insertionPlan.messageId ?? '';
+  } else if (insertionPlan?.target === 'message_index') {
+    chat.messageIndex = insertionPlan.messageIndex;
+  }
+
+  return chat;
+}
+
+export function saveGenerationRecord({ backendType, finalPrompt, compiledRequest, result, context } = {}) {
+  const insertionPlan = finalPrompt?.insertionPlan ?? null;
   const record = {
-    id: `stlp-generation-${nextRecordId}`,
+    schemaVersion: SCHEMA_VERSION,
+    id: createRecordId(),
     sequence: nextRecordId,
     createdAt: new Date().toISOString(),
     backendType: backendType || compiledRequest?.type || result?.backendType || 'unknown',
@@ -28,7 +52,11 @@ export function saveGenerationRecord({ backendType, finalPrompt, compiledRequest
       positive: finalPrompt?.positive ?? '',
       negative: finalPrompt?.negative ?? '',
       warnings: Array.isArray(finalPrompt?.warnings) ? finalPrompt.warnings : [],
+      insertionPlan,
     },
+    insertionPlan,
+    resolvedInsertion: insertionPlan ? { ...insertionPlan } : null,
+    chat: resolveChatTarget(insertionPlan, context),
     request: compiledRequest ? {
       type: compiledRequest.type,
       endpoint: compiledRequest.endpoint,
