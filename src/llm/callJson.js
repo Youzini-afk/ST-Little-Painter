@@ -14,7 +14,19 @@ function normalizeEndpoint(url) {
     : `${trimmed.replace(/\/$/, '')}/chat/completions`;
 }
 
-async function requestJson({ settings, messages }) {
+function shouldFallbackWithoutJsonMode(error) {
+  const message = String(error?.message || error || '').toLowerCase();
+  return message.includes('response_format')
+    || message.includes('json_object')
+    || message.includes('json mode')
+    || message.includes('unsupported')
+    || message.includes('not support')
+    || message.includes('invalid parameter')
+    || message.includes('unknown parameter')
+    || message.includes('extra inputs are not permitted');
+}
+
+async function requestJson({ settings, messages, jsonMode = true }) {
   const api = settings?.tagApi ?? {};
   const endpoint = normalizeEndpoint(api.url);
 
@@ -37,7 +49,7 @@ async function requestJson({ settings, messages }) {
         messages,
         temperature: Number(settings.temperature) || 0,
         max_tokens: Number(settings.maxTokens) || 1200,
-        response_format: { type: 'json_object' },
+        ...(jsonMode ? { response_format: { type: 'json_object' } } : {}),
       }),
       signal: controller.signal,
     });
@@ -57,25 +69,36 @@ async function requestJson({ settings, messages }) {
 export async function callJson({ settings, messages } = {}) {
   const errors = [];
   const retryCount = Math.max(0, Number(settings?.retryCount) || 0);
+  let jsonMode = settings?.tagApi?.jsonMode !== false;
+  let fallbackUsed = false;
 
   for (let attempt = 0; attempt <= retryCount; attempt += 1) {
     try {
-      const raw = await requestJson({ settings, messages });
+      const raw = await requestJson({ settings, messages, jsonMode });
       const extracted = extractJson(raw);
       return {
         raw,
         parsed: extracted.parsed,
-        errors: extracted.errors,
+        errors: [...(fallbackUsed ? ['JSON mode unsupported; fell back to text response extraction.'] : []), ...extracted.errors],
+        fallbackUsed,
+        jsonModeUsed: jsonMode,
       };
     } catch (error) {
-      errors.push(error?.message || String(error));
+      const message = error?.message || String(error);
+      errors.push(message);
+      if (jsonMode && shouldFallbackWithoutJsonMode(error)) {
+        jsonMode = false;
+        fallbackUsed = true;
+        attempt -= 1;
+        continue;
+      }
       if (attempt < retryCount) {
         await sleep(300 * (attempt + 1));
       }
     }
   }
 
-  return { raw: '', parsed: null, errors };
+  return { raw: '', parsed: null, errors, fallbackUsed, jsonModeUsed: jsonMode };
 }
 
 export default callJson;
