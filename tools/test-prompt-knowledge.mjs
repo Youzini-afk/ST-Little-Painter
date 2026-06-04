@@ -158,7 +158,9 @@ async function testBuildTaggerPrompt() {
   assert(messages.at(-1).content.includes('Do not include insertionPlan.target'));
   const knowledgeMessage = messages.find((message) => message.content.includes('### Tag knowledge and selected skills'));
   const payload = JSON.parse(knowledgeMessage.content.replace(/^### Tag knowledge and selected skills\n/, ''));
-  assert(messages[1].content.includes('结构化画图标签编译器'));
+  assert(messages[1].content.includes('负责结构化画图标签的编译者'));
+  assert(!messages[1].content.includes('客观层'));
+  assert(!messages[1].content.includes('标签层'));
   assert.equal(payload.promptProfile.id, 'sd');
   assert(Array.isArray(payload.tagOrdering));
   assert(Array.isArray(payload.negativeGuidance));
