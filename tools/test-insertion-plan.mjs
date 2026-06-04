@@ -43,18 +43,19 @@ assert.match(prompt[0].content, /anchorQuote/);
 assert.match(prompt[0].content, /offsets/i);
 assert.deepEqual(
   Object.keys(userPayload.outputSchemaExample.insertionPlan),
-  ['anchorQuote', 'position'],
-  'tagger schema exposes only anchorQuote and position',
+  ['anchorQuote', 'placement'],
+  'tagger schema exposes only anchorQuote and placement',
 );
-assert.equal(userPayload.outputSchemaExample.insertionPlan.position, 'after_anchor');
+assert.equal(userPayload.outputSchemaExample.insertionPlan.placement, 'after_anchor');
 assert.doesNotMatch(JSON.stringify(userPayload.outputSchemaExample.insertionPlan), /target|fallback|messageIndex|messageId/);
-assert.doesNotMatch(prompt[0].content, /return target|return fallback|messageIndex|messageId/i);
+assert.doesNotMatch(prompt[0].content, /return target|return fallback/i);
 
-const minimalPlan = normalizeInsertionPlan({ anchorQuote: 'opens the gate', position: 'before' }, { context });
+const minimalPlan = normalizeInsertionPlan({ anchorQuote: 'opens the gate', placement: 'before' }, { context });
 assert.equal(minimalPlan.anchorQuote, 'opens the gate');
-assert.equal(minimalPlan.placement, 'before_anchor', 'position before maps to before_anchor');
+assert.equal(minimalPlan.placement, 'before_anchor', 'placement before maps to before_anchor');
 assert.equal(minimalPlan.target, 'latest_assistant', 'internal default target is filled');
 assert.equal(minimalPlan.fallback, 'after_message', 'internal default fallback is filled');
+assert.deepEqual(minimalPlan.internalDefaults, { target: true, fallback: true });
 assert.equal(minimalPlan.messageId, undefined);
 assert.equal(minimalPlan.messageIndex, undefined);
 
@@ -84,6 +85,14 @@ const runtimeMinimal = resolveInsertionPlan({ insertionPlan: { anchorQuote: 'ope
 assert.equal(runtimeMinimal.target, 'latest_assistant');
 assert.equal(runtimeMinimal.fallback, 'after_message');
 assert.equal(runtimeMinimal.placement, 'before_anchor', 'runtime accepts before_anchor position');
+
+const runtimeOverride = resolveInsertionPlan({
+  insertionPlan: { anchorQuote: 'opens the gate', placement: 'after_anchor' },
+  overrides: { target: 'message_index', messageIndex: 7, fallback: 'preview_only' },
+});
+assert.equal(runtimeOverride.target, 'message_index', 'runtime override can change target');
+assert.equal(runtimeOverride.messageIndex, 7, 'runtime override can set messageIndex');
+assert.equal(runtimeOverride.fallback, 'preview_only', 'runtime override can change fallback');
 
 const postprocessed = await postprocessCompiledPrompt(normalized, { settings: {} });
 assert.equal(postprocessed.insertionPlan.anchorQuote, customPlan.anchorQuote);

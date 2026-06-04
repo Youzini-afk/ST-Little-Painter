@@ -26,8 +26,8 @@ function normalizePlacement(value, fallback = 'after_anchor') {
   return enumValue(normalized, PLACEMENTS, fallback);
 }
 
-export function resolveInsertionPlan({ insertionPlan, finalPrompt, context } = {}) {
-  const source = insertionPlan ?? finalPrompt?.insertionPlan ?? {};
+export function resolveInsertionPlan({ insertionPlan, finalPrompt, context, overrides } = {}) {
+  const source = { ...(insertionPlan ?? finalPrompt?.insertionPlan ?? {}), ...(overrides ?? {}) };
   const displaySource = source?.display && typeof source.display === 'object' ? source.display : {};
   const contextMessageIndex = asOptionalInteger(context?.metadata?.messageIndex ?? context?.metadata?.message_index);
   const contextMessageId = asOptionalString(context?.metadata?.messageId ?? context?.metadata?.message_id);

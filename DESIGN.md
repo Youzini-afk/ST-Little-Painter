@@ -17,7 +17,7 @@ SillyTavern chat / character / worldbook / regex / user settings
 
 The main chat model should not be required to emit image tags in story text. The plugin builds a dedicated second-API request and applies its structured response.
 
-Phase 8 image insertion is anchor-based and render-only: the second API only returns `insertionPlan.anchorQuote` plus a before/after anchor position, while the plugin controls the target message and fallback behavior. Generated image DOM is attached around the latest AI message anchor in the chat UI without modifying `message.mes` or contaminating future prompt context.
+Phase 8 image insertion is anchor-based and render-only: the second API only returns `insertionPlan.anchorQuote` plus `placement` (`before_anchor` or `after_anchor`), while the plugin controls target message and fallback behavior. Generated image DOM is attached around the latest AI message anchor in the chat UI without modifying `message.mes` or contaminating future prompt context.
 
 ## 2. Architecture principles
 

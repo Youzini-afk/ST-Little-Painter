@@ -92,6 +92,10 @@ export function normalizeInsertionPlan(input, { context } = {}) {
   const target = enumValue(source.target, INSERTION_TARGETS, 'latest_assistant');
   const normalized = {
     target,
+    internalDefaults: {
+      target: source.target === undefined,
+      fallback: source.fallback === undefined,
+    },
     anchorQuote: asOptionalString(source.anchorQuote ?? source.anchor_quote),
     placement: normalizePlacement(source.placement ?? source.position, 'after_anchor'),
     fallback: enumValue(source.fallback, INSERTION_FALLBACKS, 'after_message'),
