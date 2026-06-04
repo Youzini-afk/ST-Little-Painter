@@ -21,6 +21,15 @@ export const defaultSettings = Object.freeze({
     enabled: false,
     keepTraces: 20,
   },
+  regex: {
+    enabled: true,
+    rules: [],
+  },
+  worldbook: {
+    enabled: true,
+    manualVisualFacts: [],
+    manualConstraints: [],
+  },
 });
 
 function isPlainObject(value) {

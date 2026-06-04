@@ -106,6 +106,14 @@ export function collectContext({ getContext, historyCount = 8, mode = 'manual' }
       recentMessages,
     },
     character: getCharacter(context),
+    worldbook: pickFirst(
+      context?.worldbook,
+      context?.worldBook,
+      context?.worldInfo,
+      context?.world_info,
+      context?.worldbookContext,
+      {},
+    ),
     userIntent: {
       mode,
     },

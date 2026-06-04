@@ -23,6 +23,9 @@ import {
 } from './src/debug/trace.js';
 import { callJson } from './src/llm/callJson.js';
 import { buildTaggerPrompt } from './src/tagger/buildTaggerPrompt.js';
+import { createWorldbookContextProvider } from './src/worldbook/WorldbookContextProvider.js';
+
+const worldbookContextProvider = createWorldbookContextProvider();
 
 function flattenPositiveBlocks(positiveBlocks = {}) {
   return Object.values(positiveBlocks)
@@ -132,10 +135,25 @@ function bindWorkbenchButtons() {
       });
       addTraceStep(trace, 'collect-context', rawContext);
 
-      const sanitizedContext = sanitizeContext(rawContext);
+      const sanitizedContext = sanitizeContext(rawContext, { settings });
       addTraceStep(trace, 'sanitize-context', sanitizedContext);
 
-      const messages = buildTaggerPrompt({ context: sanitizedContext, settings });
+      // 完整 BME 语义通过 adapter 未来接入，不在业务层简化。
+      const resolvedWorldbook = await worldbookContextProvider.resolveWorldbookContext({
+        context: sanitizedContext,
+        settings,
+      });
+      addTraceStep(trace, 'resolve-worldbook-context', resolvedWorldbook);
+
+      const taggerContext = {
+        ...sanitizedContext,
+        worldbook: {
+          ...(sanitizedContext.worldbook ?? {}),
+          ...resolvedWorldbook,
+        },
+      };
+
+      const messages = buildTaggerPrompt({ context: taggerContext, settings });
       addTraceStep(trace, 'build-tagger-prompt', { messages });
 
       const response = await callJson({ settings, messages });
