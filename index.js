@@ -123,6 +123,19 @@ function summarizeMessages(messages = []) {
   };
 }
 
+function sanitizeWorldbookForPromptMerge(worldbook = {}) {
+  const source = worldbook?.resolvedPromptContext && typeof worldbook.resolvedPromptContext === 'object'
+    ? worldbook.resolvedPromptContext
+    : worldbook;
+  return {
+    beforeText: String(source?.beforeText || ''),
+    afterText: String(source?.afterText || ''),
+    additionalMessages: Array.isArray(source?.additionalMessages) ? source.additionalMessages : [],
+    activatedEntryNames: Array.isArray(source?.activatedEntryNames) ? source.activatedEntryNames : [],
+    activatedEntries: Array.isArray(source?.activatedEntries) ? source.activatedEntries : [],
+  };
+}
+
 function summarizeCompiledPrompt(compiledPrompt = {}) {
   const positiveBlocks = compiledPrompt?.positiveBlocks && typeof compiledPrompt.positiveBlocks === 'object'
     ? compiledPrompt.positiveBlocks
@@ -403,10 +416,7 @@ function bindWorkbenchButtons() {
 
       let taggerContext = {
         ...sanitizedContext,
-        worldbook: {
-          ...(sanitizedContext.worldbook ?? {}),
-          ...resolvedWorldbook,
-        },
+        worldbook: sanitizeWorldbookForPromptMerge(resolvedWorldbook),
       };
 
       if (shouldUsePlanner(settings)) {

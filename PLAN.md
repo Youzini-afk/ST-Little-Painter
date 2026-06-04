@@ -59,7 +59,7 @@ Deliverables:
 - regex host facade
 - sanitizer facade
 - worldbook resolver facade
-- BME adapter shell
+- vendored ST-BME `resolveTaskWorldInfo` delegate adapter
 - compatibility diagnostics
 - golden test fixtures where possible
 
@@ -68,6 +68,7 @@ Acceptance:
 - The compatibility layer exposes stable Little Painter interfaces.
 - Worldbook / regex / sanitizer results are traceable.
 - The implementation is designed to preserve BME semantics rather than replace them with a simplified subset.
+- Little Painter worldbook settings include BME filter/resolve defaults and `tools/test-worldbook-delegate.mjs` validates constant/selective/secondary/group/probability/atDepth/EJS/lazy/MVU/custom-filter semantics.
 
 ## Phase 4 — Knowledge runtime
 

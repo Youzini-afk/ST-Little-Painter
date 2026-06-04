@@ -55,6 +55,9 @@ function getCharacter(context) {
   );
 
   return {
+    raw: character && typeof character === 'object' ? character : {},
+    data: character?.data && typeof character.data === 'object' ? character.data : {},
+    extensions: character?.extensions && typeof character.extensions === 'object' ? character.extensions : {},
     name: safeString(pickFirst(character?.name, context?.name2, readGlobal(['name2']))),
     aliases: Array.isArray(character?.aliases) ? character.aliases.map(safeString) : [],
     description: safeString(pickFirst(character?.description, character?.data?.description, character?.desc)),
@@ -101,6 +104,15 @@ export function collectContext({ getContext, historyCount = 8, mode = 'manual' }
   const latest = [...messages].reverse().find((message) => message.content)?.content ?? '';
 
   return {
+    name1: safeString(pickFirst(context?.name1, readGlobal(['name1']))),
+    name2: safeString(pickFirst(context?.name2, getCharacter(context)?.name, readGlobal(['name2']))),
+    this_chid: pickFirst(context?.this_chid, context?.characterId, readGlobal(['this_chid'])),
+    characters: context?.characters ?? readGlobal(['characters']) ?? [],
+    chatMetadata: context?.chatMetadata ?? {},
+    extensionSettings: context?.extensionSettings ?? {},
+    powerUserSettings: context?.powerUserSettings ?? {},
+    persona: context?.persona,
+    user: context?.user ?? {},
     chat: {
       latestMessage: latest,
       recentMessages,
