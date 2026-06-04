@@ -1,0 +1,50 @@
+{
+  "id": "reference_tag_extraction",
+  "label": "Reference Tag Extraction",
+  "category": "reference",
+  "priority": 45,
+  "keywords": [
+    "tag",
+    "prompt",
+    "提示词",
+    "标签",
+    "a-line dress",
+    "abandoned",
+    "abandoned building",
+    "abattoirs",
+    "abdominal armor",
+    "abdominal panel",
+    "abortion mark",
+    "abortion mark b",
+    "above",
+    "above around",
+    "above head",
+    "above viewer"
+  ],
+  "patterns": [
+    "\\b(tag|prompt|danbooru|quality|lighting|camera)\\b"
+  ],
+  "instructions": [
+    "Use curated reference tags as canonical English vocabulary.",
+    "Prefer short comma-style tags over long prose."
+  ],
+  "outputBlocks": [
+    "quality",
+    "character",
+    "pose",
+    "environment",
+    "camera",
+    "lighting",
+    "style"
+  ],
+  "examples": [
+    {
+      "input": "半身特写, 逆光",
+      "output": [
+        "upper body",
+        "close-up",
+        "backlighting"
+      ]
+    }
+  ]
+}

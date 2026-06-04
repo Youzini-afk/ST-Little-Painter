@@ -4,6 +4,8 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "import:reference": "node tools/import-reference.mjs"
+    "import:reference": "node tools/import-reference.mjs",
+    "compile:reference": "node tools/compile-reference-assets.mjs",
+    "test:prompt-knowledge": "node tools/test-prompt-knowledge.mjs"
   }
 }

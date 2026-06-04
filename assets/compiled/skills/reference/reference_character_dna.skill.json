@@ -1,0 +1,39 @@
+{
+  "id": "reference_character_dna",
+  "label": "Reference Character DNA",
+  "category": "identity",
+  "priority": 60,
+  "keywords": [
+    "dna",
+    "identity",
+    "角色",
+    "外貌",
+    "服饰",
+    "hair",
+    "eyes"
+  ],
+  "patterns": [
+    "\\b(character|identity|hair|eyes|clothing)\\b|角色|外貌|服饰"
+  ],
+  "instructions": [
+    "Keep stable character identity, hair, eyes, and outfit tags before temporary action tags."
+  ],
+  "outputBlocks": [
+    "identity",
+    "character",
+    "hair",
+    "eyes",
+    "clothing",
+    "clothingState"
+  ],
+  "examples": [
+    {
+      "input": "银发红眼白裙",
+      "output": [
+        "silver hair",
+        "red eyes",
+        "white dress"
+      ]
+    }
+  ]
+}

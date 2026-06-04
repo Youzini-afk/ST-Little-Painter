@@ -86,8 +86,9 @@ Acceptance:
 
 - Chinese/natural-language aliases can retrieve canonical tags.
 - Tagger output can be canonicalized and deduped.
-- Skills can be enabled/disabled and their contribution appears in trace.
+- Skills can be enabled/disabled and their contribution appears in trace. The selector supports priority/category/backend/conflict metadata while preserving older skill JSON.
 - Postprocessor produces final positive and negative prompts.
+- Prompt profiles select backend-specific guidance from `settings.backend.type` while preserving the unified `CompiledPrompt` schema.
 
 ## Phase 5 — First backend and image loop
 
@@ -136,6 +137,7 @@ Acceptance:
 
 - Source assets are traceable by file and entry.
 - Raw reference text is not injected wholesale into runtime prompts.
+- `tools/compile-reference-assets.mjs` compiles raw reference assets into reference tag dictionaries, aliases, negative packs, prompt profiles, and reference skills; `tools/test-prompt-knowledge.mjs` validates the initial knowledge runtime behavior without network access.
 
 ## Phase 8 — Multi-backend and UX refinement
 

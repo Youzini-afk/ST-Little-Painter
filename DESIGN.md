@@ -79,6 +79,7 @@ ST Host Layer
   -> Knowledge Runtime
        - Tag Dictionary
        - Skills
+       - Prompt Profiles
        - Retrieval Cards
        - Prompt / Negative / Backend Packs
   -> Fast or Smart Mode
@@ -252,6 +253,15 @@ The postprocessor applies only engineering transformations:
 13. backend syntax compilation
 
 Tags are not removed or downgraded due to a separate content grading layer.
+
+## 6.1 Prompt/skills/tag knowledge profiles
+
+The knowledge runtime now keeps backend presentation guidance separate from the unified IR:
+
+- `assets/compiled/prompt-profiles/*.json` and `src/promptProfiles/promptProfileRegistry.js` select a profile from `settings.backend.type` (`generic`, `sd`, `novelai`, `comfyui`, `naturalImage`). Profiles provide system/user guidance, preferred blocks, negative guidance, and tag ordering, but never override `CompiledPrompt` schema.
+- Skills are selected with priority, category quotas, backend applicability, conflicts, required baseline/profile skills, context hit scoring, and trace details (`reason`, `score`, `hits`, `category`). Legacy skill JSON remains valid and is enriched at load time.
+- The curated compiler converts `assets/compiled/reference/raw-assets.json` into reference dictionaries, aliases, negative packs, prompt profiles, and reference skills. Raw prompt books are not injected wholesale into tagger prompts.
+- Dictionary runtime merges base and reference dictionaries/aliases/negative packs, including Chinese alias (`zhAliases`) lookup to canonical English tags.
 
 ## 7. Debug trace
 

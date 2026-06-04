@@ -1,0 +1,60 @@
+{
+  "id": "novelai",
+  "label": "Reference NovelAI Profile",
+  "backendTypes": [
+    "novelai",
+    "nai"
+  ],
+  "systemInstructions": [
+    "Use curated reference knowledge as quality guidance only.",
+    "Return the unified CompiledPrompt schema without backend parameters."
+  ],
+  "userGuidance": [
+    "Translate Chinese aliases to canonical English tags.",
+    "Keep visible character DNA before transient pose/expression details."
+  ],
+  "preferredBlocks": [
+    "quality",
+    "subject",
+    "identity",
+    "character",
+    "clothing",
+    "pose",
+    "interaction",
+    "environment",
+    "camera",
+    "lighting",
+    "style",
+    "backendSpecific"
+  ],
+  "negativeGuidance": [
+    "Use low quality, blurry, bad anatomy, extra fingers, missing fingers, watermark, and text as compact negatives when needed."
+  ],
+  "tagOrdering": [
+    "quality",
+    "subject",
+    "identity",
+    "character",
+    "face",
+    "hair",
+    "eyes",
+    "body",
+    "clothing",
+    "clothingState",
+    "pose",
+    "interaction",
+    "expression",
+    "environment",
+    "props",
+    "camera",
+    "lighting",
+    "style",
+    "backendSpecific",
+    "lora"
+  ],
+  "requiredSkills": [
+    "visual_extraction",
+    "character_identity_lock",
+    "backend_novelai_pack"
+  ]
+}

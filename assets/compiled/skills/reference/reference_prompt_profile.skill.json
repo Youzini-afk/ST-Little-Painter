@@ -1,0 +1,37 @@
+{
+  "id": "reference_prompt_profile",
+  "label": "Reference Prompt Profile",
+  "category": "profile",
+  "priority": 65,
+  "appliesToBackend": [
+    "sd",
+    "novelai",
+    "comfyui",
+    "naturalImage"
+  ],
+  "keywords": [
+    "sd",
+    "novelai",
+    "nai",
+    "comfyui",
+    "backend",
+    "后端"
+  ],
+  "patterns": [
+    "\\b(sd|novelai|nai|comfyui|backend)\\b|后端"
+  ],
+  "instructions": [
+    "Apply backend profile style guidance while preserving the unified schema."
+  ],
+  "outputBlocks": [
+    "backendSpecific"
+  ],
+  "examples": [
+    {
+      "input": "SD format",
+      "output": [
+        "danbooru-style tags"
+      ]
+    }
+  ]
+}

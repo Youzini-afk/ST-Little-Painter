@@ -5,6 +5,7 @@ export const FALLBACK_ALIASES = Object.freeze(Object.fromEntries(
 ));
 
 const ALIAS_URL = new URL('../../assets/compiled/tags/aliases.json', import.meta.url);
+const REFERENCE_ALIAS_URL = new URL('../../assets/compiled/tags/reference_aliases.json', import.meta.url);
 let cachedAliases = null;
 
 export function cleanTag(tag) {
@@ -27,11 +28,12 @@ export async function loadAliases() {
   }
   if (typeof fetch === 'function') {
     try {
-      const response = await fetch(ALIAS_URL);
-      if (response.ok) {
-        cachedAliases = { ...FALLBACK_ALIASES, ...(await response.json()) };
-        return cachedAliases;
-      }
+      const [base, reference] = await Promise.all([ALIAS_URL, REFERENCE_ALIAS_URL].map(async (url) => {
+        const response = await fetch(url);
+        return response.ok ? response.json() : {};
+      }));
+      cachedAliases = { ...FALLBACK_ALIASES, ...base, ...reference };
+      return cachedAliases;
     } catch {
       // Use static fallback.
     }

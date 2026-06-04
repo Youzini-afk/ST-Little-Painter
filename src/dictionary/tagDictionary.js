@@ -1,4 +1,5 @@
 const ASSET_URL = new URL('../../assets/compiled/tags/tag_dictionary.jsonl', import.meta.url);
+const REFERENCE_ASSET_URL = new URL('../../assets/compiled/tags/reference_tag_dictionary.jsonl', import.meta.url);
 
 export const FALLBACK_TAGS = Object.freeze([
   { tag: 'masterpiece', category: 'quality', aliases: ['best quality'] },
@@ -57,24 +58,61 @@ function parseJsonl(text) {
     .map((line) => JSON.parse(line));
 }
 
+function mergeDictionaries(...dictionaries) {
+  const byTag = new Map();
+  for (const dictionary of dictionaries) {
+    for (const entry of dictionary ?? []) {
+      if (!entry?.tag) continue;
+      const tag = String(entry.tag).trim();
+      const key = tag.toLowerCase();
+      const existing = byTag.get(key);
+      if (!existing) {
+        byTag.set(key, {
+          ...entry,
+          tag,
+          aliases: [...new Set((entry.aliases ?? []).filter(Boolean))],
+          zhAliases: [...new Set((entry.zhAliases ?? []).filter(Boolean))],
+          keywords: [...new Set((entry.keywords ?? []).filter(Boolean))],
+        });
+      } else {
+        existing.aliases = [...new Set([...(existing.aliases ?? []), ...(entry.aliases ?? [])].filter(Boolean))];
+        existing.zhAliases = [...new Set([...(existing.zhAliases ?? []), ...(entry.zhAliases ?? [])].filter(Boolean))];
+        existing.keywords = [...new Set([...(existing.keywords ?? []), ...(entry.keywords ?? [])].filter(Boolean))];
+        existing.weight = Math.max(Number(existing.weight ?? 1), Number(entry.weight ?? 1));
+        existing.sources = [...new Set([...(existing.sources ?? []), ...(entry.sources ?? []), entry.source].filter(Boolean))];
+      }
+    }
+  }
+  return [...byTag.values()];
+}
+
+async function fetchJsonl(url) {
+  if (typeof fetch !== 'function') return [];
+  try {
+    const response = await fetch(url);
+    return response.ok ? parseJsonl(await response.text()) : [];
+  } catch {
+    return [];
+  }
+}
+
 export async function loadTagDictionary() {
   if (cachedDictionary) {
     return cachedDictionary;
   }
 
   if (typeof fetch === 'function') {
-    try {
-      const response = await fetch(ASSET_URL);
-      if (response.ok) {
-        cachedDictionary = parseJsonl(await response.text());
-        return cachedDictionary;
-      }
-    } catch {
-      // Browser/host may not expose extension assets during checks; fall back below.
+    const [base, reference] = await Promise.all([
+      fetchJsonl(ASSET_URL),
+      fetchJsonl(REFERENCE_ASSET_URL),
+    ]);
+    if (base.length || reference.length) {
+      cachedDictionary = mergeDictionaries(FALLBACK_TAGS, base, reference);
+      return cachedDictionary;
     }
   }
 
-  cachedDictionary = [...FALLBACK_TAGS];
+  cachedDictionary = mergeDictionaries(FALLBACK_TAGS);
   return cachedDictionary;
 }
 
