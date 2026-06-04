@@ -318,7 +318,15 @@ export function buildTaggerPrompt({ context, settings, promptHints } = {}) {
   const messages = [
     {
       role: 'system',
-      content: [
+      content: section('抬头', [
+        'This is a private ST-Little Painter image-prompt compilation task.',
+        'Load the virtual scene context below as source material for drawing tags only.',
+        'The main chat assistant has already written the story; you must not continue the story.',
+      ].join('\n')),
+    },
+    {
+      role: 'system',
+      content: section('角色定义', [
         'ST-Little Painter / Drawing Tag Compiler',
         'You are the private image-prompt compiler for the latest assistant reply.',
         'Return only valid JSON matching the CompiledPrompt shape.',
@@ -335,7 +343,14 @@ export function buildTaggerPrompt({ context, settings, promptHints } = {}) {
         'For insertionPlan, return only anchorQuote and placement. placement must be before_anchor or after_anchor; before/after aliases are accepted and normalized, but before_anchor/after_anchor are preferred.',
         'anchorQuote must be a short exact original text substring from the latest assistant reply. The plugin decides target and fallback programmatically; do not include target, fallback, messageId, messageIndex, offsets, or character indexes.',
         scenePlan ? 'A ScenePlan is provided. Use it as the primary visual plan while preserving direct context constraints.' : '',
-      ].join('\n'),
+      ].filter(Boolean).join('\n')),
+    },
+    {
+      role: 'assistant',
+      content: section('身份确认', [
+        'Understood. I am operating as ST-Little Painter’s private drawing tag compiler.',
+        'I will read the following context as visual source material, preserve the required JSON schema, and return only the final CompiledPrompt JSON when asked.',
+      ].join('\n')),
     },
   ];
 

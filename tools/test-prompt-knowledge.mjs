@@ -140,6 +140,10 @@ async function testBuildTaggerPrompt() {
   });
   const system = messages[0].content;
   const roles = messages.map((message) => message.role);
+  assert.deepEqual(roles.slice(0, 3), ['system', 'system', 'assistant']);
+  assert(messages[0].content.includes('### 抬头'));
+  assert(messages[1].content.includes('### 角色定义'));
+  assert(messages[2].content.includes('### 身份确认'));
   assert(roles.includes('assistant'));
   assert(roles.includes('user'));
   const worldbookMessages = messages.filter((message) => message.content.includes('### Worldbook'));
@@ -154,7 +158,7 @@ async function testBuildTaggerPrompt() {
   assert(messages.at(-1).content.includes('Do not include insertionPlan.target'));
   const knowledgeMessage = messages.find((message) => message.content.includes('### Tag knowledge and selected skills'));
   const payload = JSON.parse(knowledgeMessage.content.replace(/^### Tag knowledge and selected skills\n/, ''));
-  assert(system.includes('Prompt profile guidance is format and quality guidance only'));
+  assert(messages[1].content.includes('Prompt profile guidance is format and quality guidance only'));
   assert.equal(payload.promptProfile.id, 'sd');
   assert(Array.isArray(payload.tagOrdering));
   assert(Array.isArray(payload.negativeGuidance));

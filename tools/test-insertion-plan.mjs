@@ -40,11 +40,12 @@ const prompt = buildTaggerPrompt({ context, settings: {}, promptHints: { skillSe
 const knowledgeMessage = prompt.find((message) => message.content.includes('### Tag knowledge and selected skills'));
 assert.ok(knowledgeMessage, 'tagger prompt includes knowledge payload message');
 const userPayload = JSON.parse(knowledgeMessage.content.replace(/^### Tag knowledge and selected skills\n/, ''));
+const promptText = prompt.map((message) => message.content).join('\n');
 assert.ok(userPayload.outputSchemaExample.insertionPlan);
 assert.equal(userPayload.outputSchemaExample.params, undefined, 'default tagger schema does not ask for backend params');
-assert.match(prompt[0].content, /anchorQuote/);
-assert.match(prompt[0].content, /offsets/i);
-assert.match(prompt[0].content, /Do not suggest backend generation parameters/i);
+assert.match(promptText, /anchorQuote/);
+assert.match(promptText, /offsets/i);
+assert.match(promptText, /Do not suggest backend generation parameters/i);
 assert.deepEqual(
   Object.keys(userPayload.outputSchemaExample.insertionPlan),
   ['anchorQuote', 'placement'],
@@ -52,7 +53,7 @@ assert.deepEqual(
 );
 assert.equal(userPayload.outputSchemaExample.insertionPlan.placement, 'after_anchor');
 assert.doesNotMatch(JSON.stringify(userPayload.outputSchemaExample.insertionPlan), /target|fallback|messageIndex|messageId/);
-assert.doesNotMatch(prompt[0].content, /return target|return fallback/i);
+assert.doesNotMatch(promptText, /return target|return fallback/i);
 
 const minimalPlan = normalizeInsertionPlan({ anchorQuote: 'opens the gate', placement: 'before' }, { context });
 assert.equal(minimalPlan.anchorQuote, 'opens the gate');
