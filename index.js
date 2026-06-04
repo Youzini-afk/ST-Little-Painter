@@ -25,6 +25,9 @@ import { callJson } from './src/llm/callJson.js';
 import { buildTaggerPrompt, buildTaggerPromptHints } from './src/tagger/buildTaggerPrompt.js';
 import { postprocessCompiledPrompt } from './src/postprocess/postprocessCompiledPrompt.js';
 import { createWorldbookContextProvider } from './src/worldbook/WorldbookContextProvider.js';
+import { compile as compileBackendRequest, generate as generateBackendImage } from './src/backend/backendRegistry.js';
+import { saveGenerationRecord } from './src/image/imageStore.js';
+import { insertToChatShell } from './src/image/insertImage.js';
 
 const worldbookContextProvider = createWorldbookContextProvider();
 
@@ -75,6 +78,71 @@ function setControlValue(selector, value) {
   element.value = value ?? '';
 }
 
+function numberSetting(value, fallback) {
+  const number = Number(value);
+  return Number.isFinite(number) ? number : fallback;
+}
+
+function summarizeBackendRequest(request = {}) {
+  return {
+    type: request.type,
+    endpoint: request.endpoint,
+    payload: request.payload,
+  };
+}
+
+function summarizeGenerationRecord(record = {}) {
+  if (!record) {
+    return null;
+  }
+
+  return {
+    id: record.id,
+    createdAt: record.createdAt,
+    backendType: record.backendType,
+    prompt: record.prompt,
+    request: record.request,
+    image: record.image?.summary,
+  };
+}
+
+async function runBackendGeneration({ rendered, settings, trace }) {
+  if (!settings.backend?.enabled) {
+    addTraceStep(trace, 'backend-skipped', { reason: 'backend disabled' });
+    return null;
+  }
+
+  if (rendered?.shouldGenerate === false) {
+    addTraceStep(trace, 'backend-skipped', { reason: 'final prompt marked shouldGenerate=false' });
+    return null;
+  }
+
+  const request = compileBackendRequest(rendered, settings);
+  addTraceStep(trace, 'backend-compile', summarizeBackendRequest(request));
+
+  const result = await generateBackendImage(request, settings);
+  addTraceStep(trace, 'backend-generate', {
+    backendType: result.backendType,
+    mimeType: result.mimeType,
+    image: {
+      dataUrlLength: result.dataUrl ? result.dataUrl.length : 0,
+      byteLength: result.base64 ? Math.floor(String(result.base64).length * 0.75) : 0,
+    },
+  });
+
+  const record = saveGenerationRecord({
+    backendType: request.type,
+    finalPrompt: rendered,
+    compiledRequest: request,
+    result,
+  });
+  addTraceStep(trace, 'image-store', summarizeGenerationRecord(record));
+
+  const insertionTrace = insertToChatShell(record);
+  addTraceStep(trace, 'image-preview-insert', insertionTrace);
+  return record;
+}
+
 function populateSettingsForm() {
   const settings = getSettings();
   setControlValue(SELECTORS.enabled, settings.enabled);
@@ -83,6 +151,19 @@ function populateSettingsForm() {
   setControlValue(SELECTORS.tagApiUrl, settings.tagApi.url);
   setControlValue(SELECTORS.tagApiKey, settings.tagApi.key);
   setControlValue(SELECTORS.tagApiModel, settings.tagApi.model);
+  setControlValue(SELECTORS.backendEnabled, settings.backend.enabled);
+  setControlValue(SELECTORS.backendType, settings.backend.type);
+  setControlValue(SELECTORS.sdWebuiUrl, settings.sdWebui.url);
+  setControlValue(SELECTORS.sdWebuiUsername, settings.sdWebui.username);
+  setControlValue(SELECTORS.sdWebuiPassword, settings.sdWebui.password);
+  setControlValue(SELECTORS.sdWebuiWidth, settings.sdWebui.width);
+  setControlValue(SELECTORS.sdWebuiHeight, settings.sdWebui.height);
+  setControlValue(SELECTORS.sdWebuiSteps, settings.sdWebui.steps);
+  setControlValue(SELECTORS.sdWebuiCfgScale, settings.sdWebui.cfgScale);
+  setControlValue(SELECTORS.sdWebuiSampler, settings.sdWebui.sampler);
+  setControlValue(SELECTORS.sdWebuiSeed, settings.sdWebui.seed);
+  setControlValue(SELECTORS.sdWebuiRestoreFaces, settings.sdWebui.restoreFaces);
+  setControlValue(SELECTORS.sdWebuiSendNegative, settings.sdWebui.sendNegative);
   setControlValue(SELECTORS.historyCount, settings.historyCount);
   setControlValue(SELECTORS.temperature, settings.temperature);
   setControlValue(SELECTORS.maxTokens, settings.maxTokens);
@@ -121,6 +202,58 @@ function bindSettingsForm() {
     ...settings,
     tagApi: { ...settings.tagApi, model: value },
   }));
+  bindSetting(SELECTORS.backendEnabled, (settings, value) => ({
+    ...settings,
+    backend: { ...settings.backend, enabled: value },
+  }));
+  bindSetting(SELECTORS.backendType, (settings, value) => ({
+    ...settings,
+    backend: { ...settings.backend, type: value },
+  }));
+  bindSetting(SELECTORS.sdWebuiUrl, (settings, value) => ({
+    ...settings,
+    sdWebui: { ...settings.sdWebui, url: value },
+  }));
+  bindSetting(SELECTORS.sdWebuiUsername, (settings, value) => ({
+    ...settings,
+    sdWebui: { ...settings.sdWebui, username: value },
+  }));
+  bindSetting(SELECTORS.sdWebuiPassword, (settings, value) => ({
+    ...settings,
+    sdWebui: { ...settings.sdWebui, password: value },
+  }));
+  bindSetting(SELECTORS.sdWebuiWidth, (settings, value) => ({
+    ...settings,
+    sdWebui: { ...settings.sdWebui, width: numberSetting(value, 768) },
+  }));
+  bindSetting(SELECTORS.sdWebuiHeight, (settings, value) => ({
+    ...settings,
+    sdWebui: { ...settings.sdWebui, height: numberSetting(value, 1024) },
+  }));
+  bindSetting(SELECTORS.sdWebuiSteps, (settings, value) => ({
+    ...settings,
+    sdWebui: { ...settings.sdWebui, steps: numberSetting(value, 28) },
+  }));
+  bindSetting(SELECTORS.sdWebuiCfgScale, (settings, value) => ({
+    ...settings,
+    sdWebui: { ...settings.sdWebui, cfgScale: numberSetting(value, 7) },
+  }));
+  bindSetting(SELECTORS.sdWebuiSampler, (settings, value) => ({
+    ...settings,
+    sdWebui: { ...settings.sdWebui, sampler: value || 'Euler a' },
+  }));
+  bindSetting(SELECTORS.sdWebuiSeed, (settings, value) => ({
+    ...settings,
+    sdWebui: { ...settings.sdWebui, seed: numberSetting(value, -1) },
+  }));
+  bindSetting(SELECTORS.sdWebuiRestoreFaces, (settings, value) => ({
+    ...settings,
+    sdWebui: { ...settings.sdWebui, restoreFaces: value },
+  }));
+  bindSetting(SELECTORS.sdWebuiSendNegative, (settings, value) => ({
+    ...settings,
+    sdWebui: { ...settings.sdWebui, sendNegative: value },
+  }));
   bindSetting(SELECTORS.historyCount, (settings, value) => ({ ...settings, historyCount: Number(value) || 8 }));
   bindSetting(SELECTORS.temperature, (settings, value) => ({ ...settings, temperature: Number(value) || 0 }));
   bindSetting(SELECTORS.maxTokens, (settings, value) => ({ ...settings, maxTokens: Number(value) || 1200 }));
@@ -139,6 +272,20 @@ function bindWorkbenchButtons() {
       extension: EXTENSION_NAME,
       mode: settings.mode,
       tagApi: settings.tagApi,
+      backend: settings.backend,
+      sdWebui: {
+        url: settings.sdWebui.url,
+        hasUsername: Boolean(settings.sdWebui.username),
+        hasPassword: Boolean(settings.sdWebui.password),
+        width: settings.sdWebui.width,
+        height: settings.sdWebui.height,
+        steps: settings.sdWebui.steps,
+        cfgScale: settings.sdWebui.cfgScale,
+        sampler: settings.sdWebui.sampler,
+        seed: settings.sdWebui.seed,
+        restoreFaces: settings.sdWebui.restoreFaces,
+        sendNegative: settings.sdWebui.sendNegative,
+      },
     });
 
     try {
@@ -184,16 +331,27 @@ function bindWorkbenchButtons() {
       const rendered = postprocessed ? renderFinalPrompt(postprocessed) : renderCompiledPrompt(response.parsed);
       addTraceStep(trace, 'render-final-prompt', rendered);
 
+      const generationRecord = response.parsed
+        ? await runBackendGeneration({ rendered, settings, trace })
+        : null;
+      if (!response.parsed) {
+        addTraceStep(trace, 'backend-skipped', { reason: 'tagger parsed prompt unavailable' });
+      }
+
       if (!response.parsed || response.errors?.length) {
         finalizeTrace(trace, TRACE_STATUS.ERROR, {
           message: response.parsed ? 'Tagger returned JSON with extraction warnings.' : 'Tagger did not return valid CompiledPrompt JSON.',
           errors: response.errors,
           rendered,
+          generation: summarizeGenerationRecord(generationRecord),
         });
       } else {
         finalizeTrace(trace, TRACE_STATUS.SUCCESS, {
-          message: 'CompiledPrompt generated and postprocessed successfully.',
+          message: generationRecord
+            ? 'CompiledPrompt generated, postprocessed, and image generated successfully.'
+            : 'CompiledPrompt generated and postprocessed successfully.',
           rendered,
+          generation: summarizeGenerationRecord(generationRecord),
         });
       }
     } catch (error) {

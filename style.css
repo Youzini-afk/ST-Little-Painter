@@ -38,3 +38,28 @@
   font-family: var(--monoFontFamily, monospace);
   white-space: pre;
 }
+
+.stlp-image-preview-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.stlp-image-preview-item,
+.stlp-chat-image-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.stlp-generated-image {
+  max-width: 100%;
+  height: auto;
+  border: 1px solid var(--SmartThemeBorderColor, rgba(128, 128, 128, 0.35));
+  border-radius: 6px;
+}
+
+.stlp-image-preview-caption {
+  opacity: 0.75;
+  font-size: 0.85em;
+}

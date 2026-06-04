@@ -17,6 +17,23 @@ export const defaultSettings = Object.freeze({
     key: '',
     model: '',
   },
+  backend: {
+    enabled: false,
+    type: 'sdWebui',
+  },
+  sdWebui: {
+    url: '',
+    username: '',
+    password: '',
+    width: 768,
+    height: 1024,
+    steps: 28,
+    cfgScale: 7,
+    sampler: 'Euler a',
+    seed: -1,
+    restoreFaces: false,
+    sendNegative: true,
+  },
   debug: {
     enabled: false,
     keepTraces: 20,

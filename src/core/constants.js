@@ -11,6 +11,19 @@ export const SELECTORS = Object.freeze({
   tagApiUrl: '#stlp-tag-api-url',
   tagApiKey: '#stlp-tag-api-key',
   tagApiModel: '#stlp-tag-api-model',
+  backendEnabled: '#stlp-backend-enabled',
+  backendType: '#stlp-backend-type',
+  sdWebuiUrl: '#stlp-sdwebui-url',
+  sdWebuiUsername: '#stlp-sdwebui-username',
+  sdWebuiPassword: '#stlp-sdwebui-password',
+  sdWebuiWidth: '#stlp-sdwebui-width',
+  sdWebuiHeight: '#stlp-sdwebui-height',
+  sdWebuiSteps: '#stlp-sdwebui-steps',
+  sdWebuiCfgScale: '#stlp-sdwebui-cfg-scale',
+  sdWebuiSampler: '#stlp-sdwebui-sampler',
+  sdWebuiSeed: '#stlp-sdwebui-seed',
+  sdWebuiRestoreFaces: '#stlp-sdwebui-restore-faces',
+  sdWebuiSendNegative: '#stlp-sdwebui-send-negative',
   historyCount: '#stlp-history-count',
   temperature: '#stlp-temperature',
   maxTokens: '#stlp-max-tokens',
@@ -20,6 +33,7 @@ export const SELECTORS = Object.freeze({
   manualGenerate: '#stlp-manual-generate',
   exportTrace: '#stlp-export-trace',
   traceOutput: '#stlp-trace-output',
+  imagePreviewList: '#stlp-image-preview-list',
 });
 
 export const TRACE_STATUS = Object.freeze({

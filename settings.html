@@ -42,6 +42,64 @@
       </section>
 
       <section class="stlp-section">
+        <h4>Backend</h4>
+        <label class="checkbox_label" for="stlp-backend-enabled">
+          <input id="stlp-backend-enabled" type="checkbox" />
+          Generate Image After Tags
+        </label>
+
+        <label for="stlp-backend-type">Backend type</label>
+        <select id="stlp-backend-type" class="text_pole">
+          <option value="sdWebui">SD WebUI</option>
+        </select>
+      </section>
+
+      <section class="stlp-section">
+        <h4>SD WebUI</h4>
+        <label for="stlp-sdwebui-url">WebUI URL</label>
+        <input id="stlp-sdwebui-url" class="text_pole" type="url" placeholder="http://127.0.0.1:7860" />
+
+        <label for="stlp-sdwebui-username">Username</label>
+        <input id="stlp-sdwebui-username" class="text_pole" type="text" autocomplete="username" />
+
+        <label for="stlp-sdwebui-password">Password</label>
+        <input id="stlp-sdwebui-password" class="text_pole" type="password" autocomplete="current-password" />
+
+        <label for="stlp-sdwebui-width">Width</label>
+        <input id="stlp-sdwebui-width" class="text_pole" type="number" min="64" step="8" />
+
+        <label for="stlp-sdwebui-height">Height</label>
+        <input id="stlp-sdwebui-height" class="text_pole" type="number" min="64" step="8" />
+
+        <label for="stlp-sdwebui-steps">Steps</label>
+        <input id="stlp-sdwebui-steps" class="text_pole" type="number" min="1" step="1" />
+
+        <label for="stlp-sdwebui-cfg-scale">CFG Scale</label>
+        <input id="stlp-sdwebui-cfg-scale" class="text_pole" type="number" min="0" step="0.5" />
+
+        <label for="stlp-sdwebui-sampler">Sampler</label>
+        <input id="stlp-sdwebui-sampler" class="text_pole" type="text" placeholder="Euler a" />
+
+        <label for="stlp-sdwebui-seed">Seed</label>
+        <input id="stlp-sdwebui-seed" class="text_pole" type="number" step="1" />
+
+        <label class="checkbox_label" for="stlp-sdwebui-restore-faces">
+          <input id="stlp-sdwebui-restore-faces" type="checkbox" />
+          Restore faces
+        </label>
+
+        <label class="checkbox_label" for="stlp-sdwebui-send-negative">
+          <input id="stlp-sdwebui-send-negative" type="checkbox" />
+          Send negative prompt
+        </label>
+      </section>
+
+      <section class="stlp-section">
+        <h4>Image Preview</h4>
+        <div id="stlp-image-preview-list" class="stlp-image-preview-list"></div>
+      </section>
+
+      <section class="stlp-section">
         <h4>Mode</h4>
         <label for="stlp-mode">Runtime mode</label>
         <select id="stlp-mode" class="text_pole">
