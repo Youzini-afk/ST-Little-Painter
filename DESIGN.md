@@ -55,6 +55,15 @@ Raw prompt books or worldbook exports should not be injected wholesale into runt
 
 SD, NovelAI, ComfyUI, and other adapters compile already-decided tags and settings into backend payloads. They do not decide characters, poses, scene semantics, or interaction meaning.
 
+Implemented backend families:
+
+- `sdWebui`: A1111/Forge `/sdapi/v1/txt2img` tag backend.
+- `novelai`: NovelAI `/ai/generate-image` payload with NAI-style parameters and ZIP/JSON/image response handling.
+- `comfyui`: API-workflow JSON patching with `{{positive}}`, `{{negative}}`, numeric generation placeholders, `/prompt` submission, `/history` polling, and `/view` download.
+- `naturalImage`: natural-language image providers, including OpenAI/Grok-compatible `/images/generations` and chat-style providers that return image URLs, data URLs, or markdown images.
+
+All adapters must return a renderable `dataUrl` before the image record is stored, so URL-only provider responses are downloaded by the adapter layer and never written into chat text.
+
 ### 2.5 Adult drawing assets are ordinary drawing assets
 
 If adult-oriented tags, poses, interactions, body-state tags, clothing-state tags, or negative packs exist in user assets, reference material, or tag dictionaries, they are processed as normal drawing assets. The compiler performs normal engineering steps only: dedupe, alias normalization, conflict handling, backend formatting, budget trimming, replacements, and user-configured allow/block lists.

@@ -1,3 +1,13 @@
+import {
+  fetchWithTimeout,
+  getPromptText,
+  normalizeBaseUrl,
+  numberOr,
+  parseJsonSafely,
+  readableError,
+  stripDataUrlPrefix,
+} from './backendUtils.js';
+
 const DEFAULTS = Object.freeze({
   width: 768,
   height: 1024,
@@ -8,26 +18,6 @@ const DEFAULTS = Object.freeze({
   restoreFaces: false,
   sendNegative: true,
 });
-
-function normalizeBaseUrl(url) {
-  const trimmed = String(url ?? '').trim();
-  return trimmed.replace(/\/$/, '');
-}
-
-function numberOr(value, fallback) {
-  const number = Number(value);
-  return Number.isFinite(number) ? number : fallback;
-}
-
-function getPromptText(finalPrompt = {}, key) {
-  const value = finalPrompt[key];
-  if (typeof value === 'string') {
-    return value;
-  }
-
-  const tags = finalPrompt[`${key}Tags`];
-  return Array.isArray(tags) ? tags.filter(Boolean).join(', ') : '';
-}
 
 function encodeBasicAuth(username, password) {
   const credentials = `${username ?? ''}:${password ?? ''}`;
@@ -40,25 +30,6 @@ function encodeBasicAuth(username, password) {
   }
 
   throw new Error('Basic auth encoding is not available in this runtime.');
-}
-
-function parseJsonSafely(text) {
-  try {
-    return JSON.parse(text);
-  } catch (_error) {
-    return null;
-  }
-}
-
-function readableError(status, text) {
-  const parsed = parseJsonSafely(text);
-  const message = parsed?.error
-    || parsed?.errors?.join?.('; ')
-    || parsed?.detail
-    || parsed?.message
-    || parsed?.info
-    || text;
-  return `SD WebUI HTTP ${status}: ${String(message || 'request failed').slice(0, 500)}`;
 }
 
 export function compile(finalPrompt = {}, settings = {}) {
@@ -91,10 +62,6 @@ export function compile(finalPrompt = {}, settings = {}) {
 }
 
 export async function generate(compiledRequest = {}, settings = {}) {
-  if (typeof fetch !== 'function') {
-    throw new Error('fetch is not available in this runtime.');
-  }
-
   const sdWebui = settings.sdWebui ?? {};
   const endpoint = compiledRequest.endpoint || compile({}, settings).endpoint;
   const headers = { 'Content-Type': 'application/json' };
@@ -103,32 +70,15 @@ export async function generate(compiledRequest = {}, settings = {}) {
     headers.Authorization = `Basic ${encodeBasicAuth(sdWebui.username, sdWebui.password)}`;
   }
 
-  const controller = typeof AbortController === 'function' ? new AbortController() : null;
-  const timeoutMs = Math.max(1000, Number(settings.timeoutMs) || 30000);
-  const timeout = controller ? setTimeout(() => controller.abort(), timeoutMs) : null;
-
-  let response;
-  try {
-    response = await fetch(endpoint, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify(compiledRequest.payload ?? {}),
-      ...(controller ? { signal: controller.signal } : {}),
-    });
-  } catch (error) {
-    if (error?.name === 'AbortError') {
-      throw new Error(`SD WebUI request timed out after ${timeoutMs}ms.`);
-    }
-    throw error;
-  } finally {
-    if (timeout) {
-      clearTimeout(timeout);
-    }
-  }
+  const response = await fetchWithTimeout(endpoint, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify(compiledRequest.payload ?? {}),
+  }, { timeoutMs: settings.timeoutMs, label: 'SD WebUI request' });
 
   const responseText = await response.text();
   if (!response.ok) {
-    throw new Error(readableError(response.status, responseText));
+    throw new Error(readableError('SD WebUI', response.status, responseText));
   }
 
   const envelope = parseJsonSafely(responseText);
@@ -141,7 +91,7 @@ export async function generate(compiledRequest = {}, settings = {}) {
     throw new Error('SD WebUI response did not include images[0].');
   }
 
-  const base64 = String(rawImage).replace(/^data:image\/[^;]+;base64,/, '');
+  const base64 = stripDataUrlPrefix(rawImage);
   return {
     backendType: 'sdWebui',
     mimeType: 'image/png',

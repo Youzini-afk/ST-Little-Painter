@@ -51,6 +51,9 @@
         <label for="stlp-backend-type">Backend type</label>
         <select id="stlp-backend-type" class="text_pole">
           <option value="sdWebui">SD WebUI</option>
+          <option value="novelai">NovelAI</option>
+          <option value="comfyui">ComfyUI</option>
+          <option value="naturalImage">Natural Image</option>
         </select>
       </section>
 
@@ -92,6 +95,86 @@
           <input id="stlp-sdwebui-send-negative" type="checkbox" />
           Send negative prompt
         </label>
+      </section>
+
+      <section class="stlp-section">
+        <h4>NovelAI</h4>
+        <label for="stlp-novelai-url">NovelAI URL</label>
+        <input id="stlp-novelai-url" class="text_pole" type="url" placeholder="https://image.novelai.net" />
+        <label for="stlp-novelai-api-key">API Key</label>
+        <input id="stlp-novelai-api-key" class="text_pole" type="password" autocomplete="off" />
+        <label for="stlp-novelai-model">Model</label>
+        <input id="stlp-novelai-model" class="text_pole" type="text" placeholder="nai-diffusion-3" />
+        <label for="stlp-novelai-sampler">Sampler</label>
+        <input id="stlp-novelai-sampler" class="text_pole" type="text" placeholder="k_euler_ancestral" />
+        <label for="stlp-novelai-scheduler">Scheduler</label>
+        <input id="stlp-novelai-scheduler" class="text_pole" type="text" placeholder="native" />
+        <div class="stlp-grid">
+          <label>Width <input id="stlp-novelai-width" class="text_pole" type="number" min="64" step="8" /></label>
+          <label>Height <input id="stlp-novelai-height" class="text_pole" type="number" min="64" step="8" /></label>
+          <label>Steps <input id="stlp-novelai-steps" class="text_pole" type="number" min="1" step="1" /></label>
+          <label>Scale <input id="stlp-novelai-scale" class="text_pole" type="number" min="0" step="0.1" /></label>
+          <label>Seed <input id="stlp-novelai-seed" class="text_pole" type="number" step="1" /></label>
+        </div>
+        <label for="stlp-novelai-negative-prompt">Additional negative prompt</label>
+        <textarea id="stlp-novelai-negative-prompt" class="text_pole" rows="2"></textarea>
+      </section>
+
+      <section class="stlp-section">
+        <h4>ComfyUI</h4>
+        <label for="stlp-comfyui-url">ComfyUI URL</label>
+        <input id="stlp-comfyui-url" class="text_pole" type="url" placeholder="http://127.0.0.1:8188" />
+        <label for="stlp-comfyui-workflow-json">API workflow JSON</label>
+        <textarea id="stlp-comfyui-workflow-json" class="text_pole stlp-code-input" rows="8" placeholder="Use ComfyUI Save API Format. Placeholders: {{positive}}, {{negative}}, {{width}}, {{height}}, {{steps}}, {{cfg}}, {{seed}}, {{sampler}}, {{scheduler}}, {{model}}, {{vae}}, {{clip}}"></textarea>
+        <div class="stlp-grid">
+          <label>Width <input id="stlp-comfyui-width" class="text_pole" type="number" min="64" step="8" /></label>
+          <label>Height <input id="stlp-comfyui-height" class="text_pole" type="number" min="64" step="8" /></label>
+          <label>Steps <input id="stlp-comfyui-steps" class="text_pole" type="number" min="1" step="1" /></label>
+          <label>CFG <input id="stlp-comfyui-cfg" class="text_pole" type="number" min="0" step="0.1" /></label>
+          <label>Seed <input id="stlp-comfyui-seed" class="text_pole" type="number" step="1" /></label>
+        </div>
+        <label for="stlp-comfyui-sampler">Sampler</label>
+        <input id="stlp-comfyui-sampler" class="text_pole" type="text" />
+        <label for="stlp-comfyui-scheduler">Scheduler</label>
+        <input id="stlp-comfyui-scheduler" class="text_pole" type="text" />
+        <label for="stlp-comfyui-model">Model</label>
+        <input id="stlp-comfyui-model" class="text_pole" type="text" />
+        <div class="stlp-grid">
+          <label>Poll interval ms <input id="stlp-comfyui-poll-interval-ms" class="text_pole" type="number" min="0" step="100" /></label>
+          <label>Max polls <input id="stlp-comfyui-max-polls" class="text_pole" type="number" min="1" step="1" /></label>
+        </div>
+      </section>
+
+      <section class="stlp-section">
+        <h4>Natural Image</h4>
+        <label for="stlp-natural-image-provider-mode">Provider mode</label>
+        <select id="stlp-natural-image-provider-mode" class="text_pole">
+          <option value="openaiImages">OpenAI-compatible Images</option>
+          <option value="grokImages">Grok-compatible Images</option>
+          <option value="chatMarkdownImage">Chat returns image URL/Markdown</option>
+          <option value="openaiChatImage">Legacy chat image alias</option>
+        </select>
+        <label for="stlp-natural-image-url">API Base URL</label>
+        <input id="stlp-natural-image-url" class="text_pole" type="url" placeholder="https://api.example.com/v1" />
+        <label for="stlp-natural-image-api-key">API Key</label>
+        <input id="stlp-natural-image-api-key" class="text_pole" type="password" autocomplete="off" />
+        <label for="stlp-natural-image-model">Image model</label>
+        <input id="stlp-natural-image-model" class="text_pole" type="text" placeholder="gpt-image-1 / grok-2-image" />
+        <label for="stlp-natural-image-chat-model">Chat image model</label>
+        <input id="stlp-natural-image-chat-model" class="text_pole" type="text" />
+        <div class="stlp-grid">
+          <label>Size <input id="stlp-natural-image-size" class="text_pole" type="text" placeholder="1024x1024" /></label>
+          <label>Width <input id="stlp-natural-image-width" class="text_pole" type="number" min="64" step="8" /></label>
+          <label>Height <input id="stlp-natural-image-height" class="text_pole" type="number" min="64" step="8" /></label>
+        </div>
+        <label for="stlp-natural-image-quality">Quality</label>
+        <input id="stlp-natural-image-quality" class="text_pole" type="text" placeholder="standard / hd / auto" />
+        <label for="stlp-natural-image-response-format">Response format</label>
+        <input id="stlp-natural-image-response-format" class="text_pole" type="text" placeholder="b64_json or url; leave empty if provider rejects it" />
+        <label for="stlp-natural-image-instruction-prefix">Instruction prefix</label>
+        <textarea id="stlp-natural-image-instruction-prefix" class="text_pole" rows="2"></textarea>
+        <label for="stlp-natural-image-instruction-suffix">Instruction suffix</label>
+        <textarea id="stlp-natural-image-instruction-suffix" class="text_pole" rows="2"></textarea>
       </section>
 
       <section class="stlp-section">

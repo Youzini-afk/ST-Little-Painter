@@ -1,7 +1,7 @@
 import { TRACE_LIMIT, TRACE_STATUS } from '../core/constants.js';
 
 const traces = [];
-const SENSITIVE_KEYS = /(?:api[_-]?key|authorization|bearer|cookie|password|secret|token|key)$/i;
+const SENSITIVE_KEYS = /(?:api[_-]?key|authorization|bearer|cookie|password|secret|token|key|dataurl|data_url|base64|b64_json|image)$/i;
 const REDACTED = '[REDACTED]';
 
 function clone(value) {
@@ -23,6 +23,7 @@ function redactValue(value, parentKey = '') {
 
   if (typeof value === 'string') {
     return value
+      .replace(/data:image\/[^;]+;base64,[a-z0-9+/=\r\n]+/gi, '[REDACTED_DATA_URL]')
       .replace(/(bearer\s+)[a-z0-9._~+/=-]+/gi, `$1${REDACTED}`)
       .replace(/(api[_-]?key\s*[:=]\s*)[^\s,"'}]+/gi, `$1${REDACTED}`)
       .replace(/(authorization\s*[:=]\s*)[^\n,"'}]+/gi, `$1${REDACTED}`);

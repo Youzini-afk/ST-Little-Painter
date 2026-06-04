@@ -172,15 +172,22 @@ function summarizeRenderedPrompt(rendered = {}) {
 }
 
 function summarizeBackendRequest(request = {}) {
+  const payload = request.payload ?? {};
+  const parameters = payload.parameters ?? {};
+  const prompt = payload.prompt ?? payload.input ?? parameters.prompt ?? request.prompt;
+  const negativePrompt = payload.negative_prompt ?? parameters.negative_prompt;
   return {
     type: request.type,
     endpoint: request.endpoint,
-    payload: summarizeValue(request.payload),
-    promptLength: typeof request.payload?.prompt === 'string' ? request.payload.prompt.length : 0,
-    negativePromptLength: typeof request.payload?.negative_prompt === 'string' ? request.payload.negative_prompt.length : 0,
-    width: request.payload?.width,
-    height: request.payload?.height,
-    steps: request.payload?.steps,
+    providerMode: request.providerMode,
+    historyEndpoint: request.historyEndpoint,
+    viewEndpoint: request.viewEndpoint,
+    payload: summarizeValue(payload),
+    promptLength: typeof prompt === 'string' ? prompt.length : 0,
+    negativePromptLength: typeof negativePrompt === 'string' ? negativePrompt.length : 0,
+    width: payload.width ?? parameters.width,
+    height: payload.height ?? parameters.height,
+    steps: payload.steps ?? parameters.steps,
   };
 }
 
@@ -230,7 +237,7 @@ async function runBackendGeneration({ rendered, settings, trace, context }) {
   }
 
   const request = compileBackendRequest(rendered, settings);
-  addTraceStep(trace, 'backend-compile', tracePayload(settings, request, summarizeBackendRequest(request)));
+  addTraceStep(trace, 'backend-compile', summarizeBackendRequest(request));
 
   const result = await generateBackendImage(request, settings);
   addTraceStep(trace, 'backend-generate', {
@@ -249,7 +256,7 @@ async function runBackendGeneration({ rendered, settings, trace, context }) {
     result,
     context,
   });
-  addTraceStep(trace, 'image-store', tracePayload(settings, record, summarizeGenerationRecord(record)));
+  addTraceStep(trace, 'image-store', summarizeGenerationRecord(record));
 
   const insertionTrace = insertToChatShell(record);
   addTraceStep(trace, 'image-preview-insert', insertionTrace);
@@ -314,6 +321,41 @@ function populateSettingsForm() {
   setControlValue(SELECTORS.sdWebuiSeed, settings.sdWebui.seed);
   setControlValue(SELECTORS.sdWebuiRestoreFaces, settings.sdWebui.restoreFaces);
   setControlValue(SELECTORS.sdWebuiSendNegative, settings.sdWebui.sendNegative);
+  setControlValue(SELECTORS.novelaiUrl, settings.novelai.url);
+  setControlValue(SELECTORS.novelaiApiKey, settings.novelai.apiKey);
+  setControlValue(SELECTORS.novelaiModel, settings.novelai.model);
+  setControlValue(SELECTORS.novelaiSampler, settings.novelai.sampler);
+  setControlValue(SELECTORS.novelaiScheduler, settings.novelai.scheduler);
+  setControlValue(SELECTORS.novelaiWidth, settings.novelai.width);
+  setControlValue(SELECTORS.novelaiHeight, settings.novelai.height);
+  setControlValue(SELECTORS.novelaiSteps, settings.novelai.steps);
+  setControlValue(SELECTORS.novelaiScale, settings.novelai.scale);
+  setControlValue(SELECTORS.novelaiSeed, settings.novelai.seed);
+  setControlValue(SELECTORS.novelaiNegativePrompt, settings.novelai.negativePrompt);
+  setControlValue(SELECTORS.comfyuiUrl, settings.comfyui.url);
+  setControlValue(SELECTORS.comfyuiWorkflowJson, settings.comfyui.workflowJson);
+  setControlValue(SELECTORS.comfyuiWidth, settings.comfyui.width);
+  setControlValue(SELECTORS.comfyuiHeight, settings.comfyui.height);
+  setControlValue(SELECTORS.comfyuiSteps, settings.comfyui.steps);
+  setControlValue(SELECTORS.comfyuiCfg, settings.comfyui.cfg);
+  setControlValue(SELECTORS.comfyuiSeed, settings.comfyui.seed);
+  setControlValue(SELECTORS.comfyuiSampler, settings.comfyui.sampler);
+  setControlValue(SELECTORS.comfyuiScheduler, settings.comfyui.scheduler);
+  setControlValue(SELECTORS.comfyuiModel, settings.comfyui.model);
+  setControlValue(SELECTORS.comfyuiPollIntervalMs, settings.comfyui.pollIntervalMs);
+  setControlValue(SELECTORS.comfyuiMaxPolls, settings.comfyui.maxPolls);
+  setControlValue(SELECTORS.naturalImageProviderMode, settings.naturalImage.providerMode);
+  setControlValue(SELECTORS.naturalImageUrl, settings.naturalImage.url);
+  setControlValue(SELECTORS.naturalImageApiKey, settings.naturalImage.apiKey);
+  setControlValue(SELECTORS.naturalImageModel, settings.naturalImage.model);
+  setControlValue(SELECTORS.naturalImageChatModel, settings.naturalImage.chatModel);
+  setControlValue(SELECTORS.naturalImageSize, settings.naturalImage.size);
+  setControlValue(SELECTORS.naturalImageWidth, settings.naturalImage.width);
+  setControlValue(SELECTORS.naturalImageHeight, settings.naturalImage.height);
+  setControlValue(SELECTORS.naturalImageQuality, settings.naturalImage.quality);
+  setControlValue(SELECTORS.naturalImageResponseFormat, settings.naturalImage.responseFormat);
+  setControlValue(SELECTORS.naturalImageInstructionPrefix, settings.naturalImage.instructionPrefix);
+  setControlValue(SELECTORS.naturalImageInstructionSuffix, settings.naturalImage.instructionSuffix);
   setControlValue(SELECTORS.historyCount, settings.historyCount);
   setControlValue(SELECTORS.temperature, settings.temperature);
   setControlValue(SELECTORS.maxTokens, settings.maxTokens);
@@ -404,6 +446,41 @@ function bindSettingsForm() {
     ...settings,
     sdWebui: { ...settings.sdWebui, sendNegative: value },
   }));
+  bindSetting(SELECTORS.novelaiUrl, (settings, value) => ({ ...settings, novelai: { ...settings.novelai, url: value } }));
+  bindSetting(SELECTORS.novelaiApiKey, (settings, value) => ({ ...settings, novelai: { ...settings.novelai, apiKey: value } }));
+  bindSetting(SELECTORS.novelaiModel, (settings, value) => ({ ...settings, novelai: { ...settings.novelai, model: value } }));
+  bindSetting(SELECTORS.novelaiSampler, (settings, value) => ({ ...settings, novelai: { ...settings.novelai, sampler: value } }));
+  bindSetting(SELECTORS.novelaiScheduler, (settings, value) => ({ ...settings, novelai: { ...settings.novelai, scheduler: value } }));
+  bindSetting(SELECTORS.novelaiWidth, (settings, value) => ({ ...settings, novelai: { ...settings.novelai, width: numberSetting(value, 832) } }));
+  bindSetting(SELECTORS.novelaiHeight, (settings, value) => ({ ...settings, novelai: { ...settings.novelai, height: numberSetting(value, 1216) } }));
+  bindSetting(SELECTORS.novelaiSteps, (settings, value) => ({ ...settings, novelai: { ...settings.novelai, steps: numberSetting(value, 28) } }));
+  bindSetting(SELECTORS.novelaiScale, (settings, value) => ({ ...settings, novelai: { ...settings.novelai, scale: numberSetting(value, 5) } }));
+  bindSetting(SELECTORS.novelaiSeed, (settings, value) => ({ ...settings, novelai: { ...settings.novelai, seed: numberSetting(value, -1) } }));
+  bindSetting(SELECTORS.novelaiNegativePrompt, (settings, value) => ({ ...settings, novelai: { ...settings.novelai, negativePrompt: value } }));
+  bindSetting(SELECTORS.comfyuiUrl, (settings, value) => ({ ...settings, comfyui: { ...settings.comfyui, url: value } }));
+  bindSetting(SELECTORS.comfyuiWorkflowJson, (settings, value) => ({ ...settings, comfyui: { ...settings.comfyui, workflowJson: value } }));
+  bindSetting(SELECTORS.comfyuiWidth, (settings, value) => ({ ...settings, comfyui: { ...settings.comfyui, width: numberSetting(value, 768) } }));
+  bindSetting(SELECTORS.comfyuiHeight, (settings, value) => ({ ...settings, comfyui: { ...settings.comfyui, height: numberSetting(value, 1024) } }));
+  bindSetting(SELECTORS.comfyuiSteps, (settings, value) => ({ ...settings, comfyui: { ...settings.comfyui, steps: numberSetting(value, 28) } }));
+  bindSetting(SELECTORS.comfyuiCfg, (settings, value) => ({ ...settings, comfyui: { ...settings.comfyui, cfg: numberSetting(value, 7) } }));
+  bindSetting(SELECTORS.comfyuiSeed, (settings, value) => ({ ...settings, comfyui: { ...settings.comfyui, seed: numberSetting(value, -1) } }));
+  bindSetting(SELECTORS.comfyuiSampler, (settings, value) => ({ ...settings, comfyui: { ...settings.comfyui, sampler: value } }));
+  bindSetting(SELECTORS.comfyuiScheduler, (settings, value) => ({ ...settings, comfyui: { ...settings.comfyui, scheduler: value } }));
+  bindSetting(SELECTORS.comfyuiModel, (settings, value) => ({ ...settings, comfyui: { ...settings.comfyui, model: value } }));
+  bindSetting(SELECTORS.comfyuiPollIntervalMs, (settings, value) => ({ ...settings, comfyui: { ...settings.comfyui, pollIntervalMs: numberSetting(value, 1000) } }));
+  bindSetting(SELECTORS.comfyuiMaxPolls, (settings, value) => ({ ...settings, comfyui: { ...settings.comfyui, maxPolls: numberSetting(value, 60) } }));
+  bindSetting(SELECTORS.naturalImageProviderMode, (settings, value) => ({ ...settings, naturalImage: { ...settings.naturalImage, providerMode: value } }));
+  bindSetting(SELECTORS.naturalImageUrl, (settings, value) => ({ ...settings, naturalImage: { ...settings.naturalImage, url: value } }));
+  bindSetting(SELECTORS.naturalImageApiKey, (settings, value) => ({ ...settings, naturalImage: { ...settings.naturalImage, apiKey: value } }));
+  bindSetting(SELECTORS.naturalImageModel, (settings, value) => ({ ...settings, naturalImage: { ...settings.naturalImage, model: value } }));
+  bindSetting(SELECTORS.naturalImageChatModel, (settings, value) => ({ ...settings, naturalImage: { ...settings.naturalImage, chatModel: value } }));
+  bindSetting(SELECTORS.naturalImageSize, (settings, value) => ({ ...settings, naturalImage: { ...settings.naturalImage, size: value } }));
+  bindSetting(SELECTORS.naturalImageWidth, (settings, value) => ({ ...settings, naturalImage: { ...settings.naturalImage, width: numberSetting(value, 1024) } }));
+  bindSetting(SELECTORS.naturalImageHeight, (settings, value) => ({ ...settings, naturalImage: { ...settings.naturalImage, height: numberSetting(value, 1024) } }));
+  bindSetting(SELECTORS.naturalImageQuality, (settings, value) => ({ ...settings, naturalImage: { ...settings.naturalImage, quality: value } }));
+  bindSetting(SELECTORS.naturalImageResponseFormat, (settings, value) => ({ ...settings, naturalImage: { ...settings.naturalImage, responseFormat: value } }));
+  bindSetting(SELECTORS.naturalImageInstructionPrefix, (settings, value) => ({ ...settings, naturalImage: { ...settings.naturalImage, instructionPrefix: value } }));
+  bindSetting(SELECTORS.naturalImageInstructionSuffix, (settings, value) => ({ ...settings, naturalImage: { ...settings.naturalImage, instructionSuffix: value } }));
   bindSetting(SELECTORS.historyCount, (settings, value) => ({ ...settings, historyCount: Number(value) || 8 }));
   bindSetting(SELECTORS.temperature, (settings, value) => ({ ...settings, temperature: Number(value) || 0 }));
   bindSetting(SELECTORS.maxTokens, (settings, value) => ({ ...settings, maxTokens: Number(value) || 1200 }));
@@ -435,6 +512,36 @@ function bindWorkbenchButtons() {
         seed: settings.sdWebui.seed,
         restoreFaces: settings.sdWebui.restoreFaces,
         sendNegative: settings.sdWebui.sendNegative,
+      },
+      novelai: {
+        url: settings.novelai.url,
+        hasApiKey: Boolean(settings.novelai.apiKey),
+        model: settings.novelai.model,
+        sampler: settings.novelai.sampler,
+        scheduler: settings.novelai.scheduler,
+        width: settings.novelai.width,
+        height: settings.novelai.height,
+        steps: settings.novelai.steps,
+      },
+      comfyui: {
+        url: settings.comfyui.url,
+        hasWorkflow: Boolean(String(settings.comfyui.workflowJson || '').trim()),
+        width: settings.comfyui.width,
+        height: settings.comfyui.height,
+        steps: settings.comfyui.steps,
+        cfg: settings.comfyui.cfg,
+        sampler: settings.comfyui.sampler,
+        scheduler: settings.comfyui.scheduler,
+      },
+      naturalImage: {
+        providerMode: settings.naturalImage.providerMode,
+        url: settings.naturalImage.url,
+        hasApiKey: Boolean(settings.naturalImage.apiKey),
+        model: settings.naturalImage.model,
+        chatModel: settings.naturalImage.chatModel,
+        size: settings.naturalImage.size,
+        width: settings.naturalImage.width,
+        height: settings.naturalImage.height,
       },
     });
 

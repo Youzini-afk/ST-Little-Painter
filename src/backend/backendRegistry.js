@@ -1,7 +1,13 @@
 import sdWebuiAdapter from './sdWebuiAdapter.js';
+import novelaiAdapter from './novelaiAdapter.js';
+import comfyuiAdapter from './comfyuiAdapter.js';
+import naturalImageAdapter from './naturalImageAdapter.js';
 
 const adapters = Object.freeze({
   sdWebui: sdWebuiAdapter,
+  novelai: novelaiAdapter,
+  comfyui: comfyuiAdapter,
+  naturalImage: naturalImageAdapter,
 });
 
 function resolveType(settings = {}, explicitType) {

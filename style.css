@@ -25,6 +25,24 @@
   font-weight: 400;
 }
 
+.stlp-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr));
+  gap: 0.5rem;
+}
+
+.stlp-grid label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.stlp-code-input {
+  min-height: 8rem;
+  font-family: var(--monoFontFamily, monospace);
+  white-space: pre;
+}
+
 .stlp-actions {
   display: flex;
   flex-wrap: wrap;
