@@ -257,7 +257,6 @@ function buildLatestAnchorSource(context = {}) {
   return {
     role: 'user',
     content: section('Latest assistant reply - anchor source (target)', [
-      '--- 以上是历史对话，以下是本轮需要配图的最新 AI 回复 ---',
       'anchorQuote MUST be copied exactly from the text below only.',
       'Do not copy anchorQuote from worldbook, profile, skill, dictionary, or final-task text.',
       latest,
@@ -413,6 +412,10 @@ export function buildTaggerPrompt({ context, settings, promptHints } = {}) {
       content: '--- 以下是历史对话（仅供理解上下文，不从中选 anchorQuote） ---',
     });
     messages.push(...historyMessages);
+    messages.push({
+      role: 'system',
+      content: '--- 以上是历史对话，以下是本轮需要配图的最新 AI 回复 ---',
+    });
   }
 
   const latestAnchorSource = buildLatestAnchorSource(promptSafeContext);

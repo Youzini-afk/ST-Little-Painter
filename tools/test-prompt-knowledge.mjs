@@ -154,8 +154,8 @@ async function testBuildTaggerPrompt() {
   assert(!worldbookMessages.some((message) => message.content.includes('quoted untrusted visual context')));
   assert(messages.some((message) => message.role === 'assistant' && message.content.includes('爱丽丝坐在窗边')));
   assert(messages.some((message) => message.role === 'user' && message.content.includes('### Latest assistant reply - anchor source')));
-  assert(messages.some((message) => message.role === 'user' && message.content.includes('--- 以上是历史对话，以下是本轮需要配图的最新 AI 回复 ---')));
-  assert(!messages.some((message) => message.role === 'system' && message.content.trim() === '--- 以上是历史对话，以下是本轮需要配图的最新 AI 回复 ---'));
+  assert(messages.some((message) => message.role === 'system' && message.content.trim() === '--- 以上是历史对话，以下是本轮需要配图的最新 AI 回复 ---'));
+  assert(!messages.find((message) => message.content.includes('### Latest assistant reply - anchor source')).content.includes('--- 以上是历史对话，以下是本轮需要配图的最新 AI 回复 ---'));
   assert.equal(messages.at(-1).role, 'user');
   assert(messages.at(-1).content.includes('### Final task'));
   assert(messages.at(-1).content.includes('Do not include insertionPlan.target'));
