@@ -1,0 +1,12 @@
+{
+  "display_name": "ST-Little Painter",
+  "name": "ST-Little Painter",
+  "loading_order": 0,
+  "requires": [],
+  "optional": [],
+  "js": "index.js",
+  "css": "style.css",
+  "author": "ST-Little Painter contributors",
+  "version": "0.1.0",
+  "homePage": "https://github.com/Youzini-afk/ST-Little-Painter"
+}

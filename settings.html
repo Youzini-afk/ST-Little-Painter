@@ -1,0 +1,62 @@
+<div id="st-little-painter-settings" class="stlp-settings">
+  <div class="inline-drawer">
+    <div class="inline-drawer-toggle inline-drawer-header">
+      <b>ST-Little Painter</b>
+      <div class="inline-drawer-icon fa-solid fa-circle-chevron-down down"></div>
+    </div>
+    <div class="inline-drawer-content">
+      <section class="stlp-section">
+        <h4>Main</h4>
+        <label class="checkbox_label" for="stlp-enabled">
+          <input id="stlp-enabled" type="checkbox" />
+          Enable ST-Little Painter
+        </label>
+        <label class="checkbox_label" for="stlp-auto-generate">
+          <input id="stlp-auto-generate" type="checkbox" />
+          Auto generate after supported chat events
+        </label>
+      </section>
+
+      <section class="stlp-section">
+        <h4>Tag API</h4>
+        <label for="stlp-tag-api-url">Endpoint URL</label>
+        <input id="stlp-tag-api-url" class="text_pole" type="url" placeholder="https://api.example.com/v1/chat/completions" />
+
+        <label for="stlp-tag-api-key">API Key</label>
+        <input id="stlp-tag-api-key" class="text_pole" type="password" autocomplete="off" placeholder="Stored in SillyTavern extension settings" />
+
+        <label for="stlp-tag-api-model">Model</label>
+        <input id="stlp-tag-api-model" class="text_pole" type="text" placeholder="tagger-model-name" />
+      </section>
+
+      <section class="stlp-section">
+        <h4>Mode</h4>
+        <label for="stlp-mode">Runtime mode</label>
+        <select id="stlp-mode" class="text_pole">
+          <option value="fast">Fast</option>
+          <option value="smart">Smart</option>
+          <option value="expert">Expert</option>
+        </select>
+
+        <div class="stlp-actions">
+          <button id="stlp-manual-generate" class="menu_button" type="button">Manual Generate</button>
+        </div>
+      </section>
+
+      <section class="stlp-section">
+        <h4>Debug</h4>
+        <label class="checkbox_label" for="stlp-debug-enabled">
+          <input id="stlp-debug-enabled" type="checkbox" />
+          Enable debug trace capture
+        </label>
+
+        <div class="stlp-actions">
+          <button id="stlp-export-trace" class="menu_button" type="button">Export Trace</button>
+        </div>
+
+        <label for="stlp-trace-output">Latest trace</label>
+        <textarea id="stlp-trace-output" class="text_pole stlp-trace-output" readonly></textarea>
+      </section>
+    </div>
+  </div>
+</div>
