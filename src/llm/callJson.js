@@ -1,4 +1,7 @@
 import { extractJson } from './extractJson.js';
+import { buildRegexRules } from '../regex/defaultRegexRules.js';
+import { llm_output_cleanup } from '../regex/regexStages.js';
+import { applyTaskRegex } from '../regex/taskRegex.js';
 
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -71,15 +74,20 @@ export async function callJson({ settings, messages } = {}) {
   const retryCount = Math.max(0, Number(settings?.retryCount) || 0);
   let jsonMode = settings?.tagApi?.jsonMode !== false;
   let fallbackUsed = false;
+  const regexRules = buildRegexRules(settings);
 
   for (let attempt = 0; attempt <= retryCount; attempt += 1) {
     try {
       const raw = await requestJson({ settings, messages, jsonMode });
-      const extracted = extractJson(raw);
+      const outputCleanup = applyTaskRegex(raw, regexRules, { stage: llm_output_cleanup });
+      const cleanedRaw = outputCleanup.text;
+      const extracted = extractJson(cleanedRaw);
       return {
         raw,
+        cleanedRaw,
         parsed: extracted.parsed,
         errors: [...(fallbackUsed ? ['JSON mode unsupported; fell back to text response extraction.'] : []), ...extracted.errors],
+        outputCleanup: outputCleanup.transforms,
         fallbackUsed,
         jsonModeUsed: jsonMode,
       };

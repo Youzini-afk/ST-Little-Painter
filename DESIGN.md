@@ -37,6 +37,8 @@ The ST-BME worldbook, regex, and sanitizer behavior is treated as an existing co
 
 Little Painter vendors the task-level ST-BME worldbook resolver under `src/vendor/st-bme/` and initializes its host adapter with a Little Painter delegate. The delegate discovers SillyTavern/global worldbook APIs when available and otherwise builds a local provider from `context.worldbook` / `context.worldInfo` entry arrays or maps, preserving BME activation, EJS `getwi` / `activewi`, lazy worldbook loading, at-depth messages, and MVU/custom filter behavior without runtime imports outside the extension.
 
+Little Painter also ships BME-inspired default regex cleanup rules. They are enabled for input cleanup and final tag cleanup by default, removing common prompt-pollution artifacts such as `<think>/<analysis>/<reasoning>`, `<choice>`, `<UpdateVariable>`, `<status_current_variable>`, `<StatusPlaceHolderImpl/>`, and MVU state macros. Output cleanup uses the same rule family but remains opt-in because BME also keeps output-stage regex disabled by default.
+
 ### 2.3 Assets are compiled, not pasted
 
 Reference material under `文料参考` is source material. It should be converted into curated runtime assets:

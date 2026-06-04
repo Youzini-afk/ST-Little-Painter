@@ -5,9 +5,25 @@ import { normalizeTags } from './normalizeTags.js';
 import { applyReplacements } from './applyReplacements.js';
 import { applyTagBudget } from './tagBudget.js';
 import { compilePrompt } from './compilePrompt.js';
+import { buildRegexRules } from '../regex/defaultRegexRules.js';
+import { final_tag_cleanup } from '../regex/regexStages.js';
+import { applyTaskRegex } from '../regex/taskRegex.js';
 
 function ensureArray(value) {
   return flattenTags(value);
+}
+
+function applyFinalTagCleanup(tags = [], settings = {}) {
+  const rules = buildRegexRules(settings);
+  const trace = [];
+  const cleaned = [];
+  for (const tag of tags) {
+    const result = applyTaskRegex(tag, rules, { stage: final_tag_cleanup });
+    trace.push(...result.transforms.map((item) => ({ ...item, tag })));
+    const text = String(result.text || '').trim();
+    if (text) cleaned.push(text);
+  }
+  return { tags: cleaned, trace };
 }
 
 export async function postprocessCompiledPrompt(compiledPrompt = {}, { settings = {} } = {}) {
@@ -33,8 +49,12 @@ export async function postprocessCompiledPrompt(compiledPrompt = {}, { settings 
   const finalNormalizedNegative = normalizeTags(replacedNegative.tags, { aliases });
   trace.push({ step: 'normalize-after-replacements', positive: finalNormalizedPositive.trace, negative: finalNormalizedNegative.trace });
 
-  const policyPositive = applyReplacements(finalNormalizedPositive.tags, { ...settings, replacements: [] });
-  const policyNegative = applyReplacements(finalNormalizedNegative.tags, { ...settings, replacements: [] });
+  const cleanedPositive = applyFinalTagCleanup(finalNormalizedPositive.tags, settings);
+  const cleanedNegative = applyFinalTagCleanup(finalNormalizedNegative.tags, settings);
+  trace.push({ step: 'final-tag-cleanup', positive: cleanedPositive.trace, negative: cleanedNegative.trace });
+
+  const policyPositive = applyReplacements(cleanedPositive.tags, { ...settings, replacements: [] });
+  const policyNegative = applyReplacements(cleanedNegative.tags, { ...settings, replacements: [] });
   trace.push({ step: 'policy-after-normalize', positive: policyPositive.trace, negative: policyNegative.trace });
 
   const fixedPositiveAfterPolicy = normalizeTags(

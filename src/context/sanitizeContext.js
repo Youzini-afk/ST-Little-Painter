@@ -1,6 +1,7 @@
 import { cleanMvuBlocks } from './mvuCleaner.js';
 import { input_cleanup } from '../regex/regexStages.js';
 import { applyTaskRegex } from '../regex/taskRegex.js';
+import { buildRegexRules } from '../regex/defaultRegexRules.js';
 
 const IMAGE_BLOCK_PATTERN = /<image\b[^>]*>[\s\S]*?<\/image>|<img\b[^>]*>/gi;
 const STLP_RENDER_ONLY_PATTERN = /<[^>]*class=["'][^"']*(?:stlp-chat-image-preview|stlp-generated-image)[^"']*["'][^>]*>[\s\S]*?<\/[^>]+>/gi;
@@ -15,6 +16,10 @@ function sanitizeText(value, removedBlocks, regexTransforms, regexRules) {
   const mvuResult = cleanMvuBlocks(value);
   let text = mvuResult.text;
   removedBlocks.push(...mvuResult.removedBlocks);
+
+  const preHtmlRegexResult = applyTaskRegex(text, regexRules, { stage: input_cleanup });
+  regexTransforms.push(...preHtmlRegexResult.transforms);
+  text = preHtmlRegexResult.text;
 
   text = text.replace(STLP_RENDER_ONLY_PATTERN, (match) => {
     removedBlocks.push({ type: 'stlpRenderOnlyImage', preview: match.slice(0, 120), length: match.length });
@@ -51,7 +56,7 @@ function sanitizeArray(values, removedBlocks, regexTransforms, regexRules) {
 export function sanitizeContext(context = {}, { settings } = {}) {
   const removedBlocks = [];
   const regexTransforms = [];
-  const regexRules = Array.isArray(settings?.regex?.rules) ? settings.regex.rules : [];
+  const regexRules = buildRegexRules(settings);
   const recentMessages = Array.isArray(context?.chat?.recentMessages)
     ? context.chat.recentMessages.map((message) => ({
       ...message,

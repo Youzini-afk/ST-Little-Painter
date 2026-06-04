@@ -40,6 +40,8 @@ export const defaultSettings = Object.freeze({
   },
   regex: {
     enabled: true,
+    enableDefaultRules: true,
+    enableOutputCleanup: false,
     rules: [],
   },
   worldbook: {
