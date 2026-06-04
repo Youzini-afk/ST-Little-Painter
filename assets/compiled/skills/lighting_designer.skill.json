@@ -1,0 +1,7 @@
+{
+  "id": "lighting_designer",
+  "label": "Lighting Designer",
+  "keywords": ["light", "lighting", "shadow", "sunset", "neon", "灯光", "光影", "阴影"],
+  "patterns": ["\\b(light(?:ing)?|shadow|sunset|neon|backlit)\\b"],
+  "instructions": ["Choose lighting tags that match the scene mood and time.", "Do not over-stack incompatible lighting moods."]
+}

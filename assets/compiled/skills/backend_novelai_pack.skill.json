@@ -1,0 +1,7 @@
+{
+  "id": "backend_novelai_pack",
+  "label": "NovelAI Pack",
+  "keywords": ["novelai", "nai", "quality tags", "undesired", "nai"],
+  "patterns": ["\\b(novelai|\\bnai\\b|undesired content)\\b"],
+  "instructions": ["Prefer concise anime-oriented tags for NovelAI style backends.", "Use negative tags for undesired content only."]
+}

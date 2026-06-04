@@ -1,0 +1,7 @@
+{
+  "id": "interaction_resolver",
+  "label": "Interaction Resolver",
+  "keywords": ["hug", "kiss", "hold", "touch", "together", "straddle", "pin", "抱", "吻", "牵手", "互动"],
+  "patterns": ["\\b(hug(?:ging)?|kiss(?:ing)?|holding hands|touch(?:ing)?|straddl(?:e|ing)|pinn(?:ed|ing))\\b"],
+  "instructions": ["Represent character-to-character interactions as ordinary prompt tags.", "Preserve clear spatial relationships and contact poses."]
+}

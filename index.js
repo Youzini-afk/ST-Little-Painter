@@ -22,7 +22,8 @@ import {
   getLatestTrace,
 } from './src/debug/trace.js';
 import { callJson } from './src/llm/callJson.js';
-import { buildTaggerPrompt } from './src/tagger/buildTaggerPrompt.js';
+import { buildTaggerPrompt, buildTaggerPromptHints } from './src/tagger/buildTaggerPrompt.js';
+import { postprocessCompiledPrompt } from './src/postprocess/postprocessCompiledPrompt.js';
 import { createWorldbookContextProvider } from './src/worldbook/WorldbookContextProvider.js';
 
 const worldbookContextProvider = createWorldbookContextProvider();
@@ -44,6 +45,19 @@ function renderCompiledPrompt(compiledPrompt) {
     positive: flattenPositiveBlocks(compiledPrompt.positiveBlocks).join(', '),
     negative: Array.isArray(compiledPrompt.negative) ? compiledPrompt.negative.filter(Boolean).join(', ') : '',
     warnings: Array.isArray(compiledPrompt.warnings) ? compiledPrompt.warnings : [],
+  };
+}
+
+function renderFinalPrompt(finalPrompt) {
+  if (!finalPrompt) {
+    return { shouldGenerate: false, positive: '', negative: '', warnings: [] };
+  }
+
+  return {
+    shouldGenerate: finalPrompt.shouldGenerate !== false,
+    positive: finalPrompt.positive ?? '',
+    negative: finalPrompt.negative ?? '',
+    warnings: Array.isArray(finalPrompt.warnings) ? finalPrompt.warnings : [],
   };
 }
 
@@ -153,14 +167,22 @@ function bindWorkbenchButtons() {
         },
       };
 
-      const messages = buildTaggerPrompt({ context: taggerContext, settings });
+      const promptHints = buildTaggerPromptHints({ context: taggerContext, settings });
+      addTraceStep(trace, 'select-skills-and-dictionary-hints', promptHints);
+
+      const messages = buildTaggerPrompt({ context: taggerContext, settings, promptHints });
       addTraceStep(trace, 'build-tagger-prompt', { messages });
 
       const response = await callJson({ settings, messages });
       addTraceStep(trace, 'tagger-response', response);
 
-      const rendered = renderCompiledPrompt(response.parsed);
-      addTraceStep(trace, 'render-compiled-prompt', rendered);
+      const postprocessed = response.parsed
+        ? await postprocessCompiledPrompt(response.parsed, { settings })
+        : null;
+      addTraceStep(trace, 'postprocess-compiled-prompt', postprocessed);
+
+      const rendered = postprocessed ? renderFinalPrompt(postprocessed) : renderCompiledPrompt(response.parsed);
+      addTraceStep(trace, 'render-final-prompt', rendered);
 
       if (!response.parsed || response.errors?.length) {
         finalizeTrace(trace, TRACE_STATUS.ERROR, {
@@ -170,7 +192,7 @@ function bindWorkbenchButtons() {
         });
       } else {
         finalizeTrace(trace, TRACE_STATUS.SUCCESS, {
-          message: 'CompiledPrompt generated successfully.',
+          message: 'CompiledPrompt generated and postprocessed successfully.',
           rendered,
         });
       }

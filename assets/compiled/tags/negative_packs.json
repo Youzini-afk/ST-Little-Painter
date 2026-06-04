@@ -1,0 +1,6 @@
+{
+  "default": ["low quality", "blurry", "bad anatomy", "extra fingers", "missing fingers", "watermark", "text"],
+  "hands": ["bad hands", "extra fingers", "missing fingers", "fused fingers"],
+  "photo": ["jpeg artifacts", "overexposed", "underexposed", "out of focus"],
+  "anime": ["off model", "bad proportions", "deformed face"]
+}

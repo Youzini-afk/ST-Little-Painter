@@ -1,0 +1,7 @@
+{
+  "id": "film_camera",
+  "label": "Film Camera",
+  "keywords": ["camera", "shot", "lens", "angle", "close-up", "wide", "镜头", "构图", "角度"],
+  "patterns": ["\\b(camera|shot|lens|angle|close-up|wide shot|portrait)\\b"],
+  "instructions": ["Add camera distance, angle, and composition tags when supported.", "Use concise photographic tag vocabulary."]
+}

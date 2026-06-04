@@ -1,0 +1,7 @@
+{
+  "id": "visual_extraction",
+  "label": "Visual Extraction",
+  "keywords": ["look", "appear", "wear", "hair", "eyes", "body", "visual", "外观", "穿", "头发", "眼睛"],
+  "patterns": ["\\b(looks?|wear(?:ing)?|hair|eyes?)\\b"],
+  "instructions": ["Extract only visible character and scene facts.", "Prefer concrete drawing tags over prose."]
+}

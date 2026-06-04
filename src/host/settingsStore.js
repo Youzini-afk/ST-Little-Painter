@@ -30,6 +30,15 @@ export const defaultSettings = Object.freeze({
     manualVisualFacts: [],
     manualConstraints: [],
   },
+  fixedPositive: ['masterpiece', 'high quality'],
+  fixedNegative: ['low quality', 'blurry', 'bad anatomy', 'watermark', 'text'],
+  tagBudget: {
+    positive: 80,
+    negative: 40,
+  },
+  replacements: {},
+  blocklist: [],
+  allowlist: [],
 });
 
 function isPlainObject(value) {

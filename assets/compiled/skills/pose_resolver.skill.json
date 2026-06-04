@@ -1,0 +1,7 @@
+{
+  "id": "pose_resolver",
+  "label": "Pose Resolver",
+  "keywords": ["stand", "sit", "kneel", "lie", "pose", "gesture", "站", "坐", "跪", "躺", "姿势"],
+  "patterns": ["\\b(standing|sitting|kneeling|lying|pose|gesture)\\b"],
+  "instructions": ["Resolve the dominant pose and important limb gestures.", "Avoid mutually exclusive primary poses unless multiple subjects require them."]
+}

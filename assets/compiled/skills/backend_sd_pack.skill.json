@@ -1,0 +1,7 @@
+{
+  "id": "backend_sd_pack",
+  "label": "Stable Diffusion Pack",
+  "keywords": ["stable diffusion", "sd", "lora", "negative", "prompt", "采样", "模型"],
+  "patterns": ["\\b(stable diffusion|\\bsd\\b|lora|negative prompt)\\b"],
+  "instructions": ["Prefer comma-separated danbooru-style tags for Stable Diffusion backends.", "Keep positive and negative prompts separated."]
+}

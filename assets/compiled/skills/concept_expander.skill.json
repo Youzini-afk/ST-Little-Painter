@@ -1,0 +1,7 @@
+{
+  "id": "concept_expander",
+  "label": "Concept Expander",
+  "keywords": ["theme", "mood", "concept", "fantasy", "cyberpunk", "氛围", "主题", "概念"],
+  "patterns": ["\\b(theme|mood|concept|fantasy|cyberpunk)\\b"],
+  "instructions": ["Expand abstract concepts into a few visual tags.", "Keep expansions grounded in the supplied context."]
+}

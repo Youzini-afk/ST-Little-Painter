@@ -1,0 +1,68 @@
+{"tag":"masterpiece","category":"quality","aliases":["best quality"],"weight":1.2}
+{"tag":"high quality","category":"quality","aliases":["hires","highres"],"weight":1.1}
+{"tag":"detailed","category":"quality","aliases":["intricate details"],"weight":1}
+{"tag":"sharp focus","category":"quality","aliases":["crisp focus"],"weight":1}
+{"tag":"clean lineart","category":"quality","aliases":["clean lines"],"weight":1}
+{"tag":"full body","category":"composition","aliases":["whole body"],"weight":1}
+{"tag":"upper body","category":"composition","aliases":["bust shot"],"weight":1}
+{"tag":"cowboy shot","category":"composition","aliases":["thigh up"],"weight":1}
+{"tag":"portrait","category":"composition","aliases":["headshot"],"weight":1}
+{"tag":"dynamic composition","category":"composition","aliases":["dynamic framing"],"weight":1}
+{"tag":"centered composition","category":"composition","aliases":["centered subject"],"weight":1}
+{"tag":"close-up","category":"camera","aliases":["closeup"],"weight":1}
+{"tag":"wide shot","category":"camera","aliases":["long shot"],"weight":1}
+{"tag":"low angle","category":"camera","aliases":["worm's eye view"],"weight":1}
+{"tag":"high angle","category":"camera","aliases":["bird's eye view"],"weight":1}
+{"tag":"dutch angle","category":"camera","aliases":["tilted camera"],"weight":1}
+{"tag":"depth of field","category":"camera","aliases":["dof","bokeh"],"weight":1}
+{"tag":"soft lighting","category":"lighting","aliases":["soft light"],"weight":1}
+{"tag":"dramatic lighting","category":"lighting","aliases":["dramatic light"],"weight":1}
+{"tag":"rim lighting","category":"lighting","aliases":["rim light"],"weight":1}
+{"tag":"backlighting","category":"lighting","aliases":["backlit"],"weight":1}
+{"tag":"golden hour","category":"lighting","aliases":["sunset light"],"weight":1}
+{"tag":"neon lighting","category":"lighting","aliases":["neon lights"],"weight":1}
+{"tag":"slim body","category":"body","aliases":["slender body"],"weight":1}
+{"tag":"curvy body","category":"body","aliases":["curvy figure"],"weight":1}
+{"tag":"muscular","category":"body","aliases":["toned muscles"],"weight":1}
+{"tag":"large breasts","category":"body","aliases":["big breasts"],"weight":1}
+{"tag":"small breasts","category":"body","aliases":["flat chest"],"weight":1}
+{"tag":"bare shoulders","category":"clothingState","aliases":["shoulders exposed"],"weight":1}
+{"tag":"open clothes","category":"clothingState","aliases":["open shirt","unbuttoned clothes"],"weight":1}
+{"tag":"torn clothes","category":"clothingState","aliases":["ripped clothing"],"weight":1}
+{"tag":"wet clothes","category":"clothingState","aliases":["soaked clothes"],"weight":1}
+{"tag":"partially undressed","category":"clothingState","aliases":["half-dressed"],"weight":1}
+{"tag":"standing","category":"pose","aliases":["standing pose"],"weight":1}
+{"tag":"sitting","category":"pose","aliases":["seated"],"weight":1}
+{"tag":"kneeling","category":"pose","aliases":["on knees"],"weight":1}
+{"tag":"lying down","category":"pose","aliases":["reclining"],"weight":1}
+{"tag":"arms crossed","category":"pose","aliases":["crossed arms"],"weight":1}
+{"tag":"hands on hips","category":"pose","aliases":["akimbo"],"weight":1}
+{"tag":"looking at viewer","category":"pose","aliases":["eye contact"],"weight":1}
+{"tag":"reaching out","category":"pose","aliases":["outstretched hand"],"weight":1}
+{"tag":"hugging","category":"interaction","aliases":["embrace"],"weight":1}
+{"tag":"holding hands","category":"interaction","aliases":["hand holding"],"weight":1}
+{"tag":"kissing","category":"interaction","aliases":["kiss"],"weight":1}
+{"tag":"straddling","category":"interaction","aliases":["straddle"],"weight":1}
+{"tag":"pinning down","category":"interaction","aliases":["pinned down"],"weight":1}
+{"tag":"lap pillow","category":"interaction","aliases":["head on lap"],"weight":1}
+{"tag":"bedroom","category":"environment","aliases":["bed room"],"weight":1}
+{"tag":"bathroom","category":"environment","aliases":["bath room"],"weight":1}
+{"tag":"street","category":"environment","aliases":["city street"],"weight":1}
+{"tag":"forest","category":"environment","aliases":["woods"],"weight":1}
+{"tag":"beach","category":"environment","aliases":["seashore"],"weight":1}
+{"tag":"school classroom","category":"environment","aliases":["classroom"],"weight":1}
+{"tag":"fantasy castle","category":"environment","aliases":["castle"],"weight":1}
+{"tag":"anime style","category":"style","aliases":["anime"],"weight":1}
+{"tag":"manga style","category":"style","aliases":["manga"],"weight":1}
+{"tag":"watercolor","category":"style","aliases":["watercolor painting"],"weight":1}
+{"tag":"oil painting","category":"style","aliases":["oil paint"],"weight":1}
+{"tag":"cinematic","category":"style","aliases":["cinematic style"],"weight":1}
+{"tag":"photorealistic","category":"style","aliases":["realistic photo"],"weight":1}
+{"tag":"low quality","category":"negative","aliases":["worst quality"],"weight":1}
+{"tag":"blurry","category":"negative","aliases":["blur"],"weight":1}
+{"tag":"bad anatomy","category":"negative","aliases":["anatomy error"],"weight":1}
+{"tag":"extra fingers","category":"negative","aliases":["too many fingers"],"weight":1}
+{"tag":"missing fingers","category":"negative","aliases":["fewer fingers"],"weight":1}
+{"tag":"text","category":"negative","aliases":["caption","watermark text"],"weight":1}
+{"tag":"watermark","category":"negative","aliases":["signature"],"weight":1}
+{"tag":"jpeg artifacts","category":"negative","aliases":["compression artifacts"],"weight":1}

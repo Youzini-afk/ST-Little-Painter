@@ -1,0 +1,7 @@
+{
+  "id": "character_identity_lock",
+  "label": "Character Identity Lock",
+  "keywords": ["character", "name", "identity", "consistent", "same person", "角色", "身份", "姓名"],
+  "patterns": ["\\b(name|identity|same character|consistent)\\b"],
+  "instructions": ["Preserve stable identity traits from character and worldbook context.", "Do not replace established appearance unless context explicitly changes it."]
+}

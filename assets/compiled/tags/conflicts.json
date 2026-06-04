@@ -1,0 +1,10 @@
+[
+  { "tags": ["full body", "upper body", "portrait"], "keep": "first", "reason": "composition crop conflict" },
+  { "tags": ["close-up", "wide shot"], "keep": "first", "reason": "camera distance conflict" },
+  { "tags": ["low angle", "high angle"], "keep": "first", "reason": "camera angle conflict" },
+  { "tags": ["small breasts", "large breasts"], "keep": "first", "reason": "body attribute conflict" },
+  { "tags": ["standing", "sitting", "kneeling", "lying down"], "keep": "first", "reason": "primary pose conflict" },
+  { "tags": ["wet clothes", "torn clothes", "open clothes", "partially undressed"], "keep": "all", "reason": "clothing states can stack" },
+  { "tags": ["soft lighting", "dramatic lighting"], "keep": "first", "reason": "lighting mood conflict" },
+  { "tags": ["anime style", "photorealistic"], "keep": "first", "reason": "style conflict" }
+]
