@@ -187,7 +187,7 @@ type CompiledPrompt = {
     lora: string[];
   };
   negative: string[];
-  params?: Record<string, unknown>;
+  params?: Record<string, unknown>; // Advanced override only; omitted from the default tagger prompt so models focus on tags and insertion anchors.
   warnings: string[];
   dropped: { item: string; reason: string }[];
   debug: { dictionaryHits: string[]; skillsUsed: string[] };

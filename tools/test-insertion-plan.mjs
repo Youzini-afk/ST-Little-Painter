@@ -39,8 +39,10 @@ assert.deepEqual(customPlan.display, { mode: 'inline', align: 'right', size: 'la
 const prompt = buildTaggerPrompt({ context, settings: {}, promptHints: { skillSelection: { skills: [], trace: [] }, dictionaryHints: [] } });
 const userPayload = JSON.parse(prompt[1].content);
 assert.ok(userPayload.outputSchemaExample.insertionPlan);
+assert.equal(userPayload.outputSchemaExample.params, undefined, 'default tagger schema does not ask for backend params');
 assert.match(prompt[0].content, /anchorQuote/);
 assert.match(prompt[0].content, /offsets/i);
+assert.match(prompt[0].content, /Do not suggest backend generation parameters/i);
 assert.deepEqual(
   Object.keys(userPayload.outputSchemaExample.insertionPlan),
   ['anchorQuote', 'placement'],
