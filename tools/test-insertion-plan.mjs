@@ -37,7 +37,9 @@ assert.equal(customPlan.fallback, 'preview_only');
 assert.deepEqual(customPlan.display, { mode: 'inline', align: 'right', size: 'large' });
 
 const prompt = buildTaggerPrompt({ context, settings: {}, promptHints: { skillSelection: { skills: [], trace: [] }, dictionaryHints: [] } });
-const userPayload = JSON.parse(prompt[1].content);
+const knowledgeMessage = prompt.find((message) => message.content.includes('### Tag knowledge and selected skills'));
+assert.ok(knowledgeMessage, 'tagger prompt includes knowledge payload message');
+const userPayload = JSON.parse(knowledgeMessage.content.replace(/^### Tag knowledge and selected skills\n/, ''));
 assert.ok(userPayload.outputSchemaExample.insertionPlan);
 assert.equal(userPayload.outputSchemaExample.params, undefined, 'default tagger schema does not ask for backend params');
 assert.match(prompt[0].content, /anchorQuote/);

@@ -39,6 +39,8 @@ Little Painter vendors the task-level ST-BME worldbook resolver under `src/vendo
 
 Little Painter also ships BME-inspired default regex cleanup rules. They are enabled for input cleanup and final tag cleanup by default, removing common prompt-pollution artifacts such as `<think>/<analysis>/<reasoning>`, `<choice>`, `<UpdateVariable>`, `<status_current_variable>`, `<StatusPlaceHolderImpl/>`, and MVU state macros. Output cleanup uses the same rule family but remains opt-in because BME also keeps output-stage regex disabled by default.
 
+The tagger prompt composer uses a BME-inspired ordered-message layout instead of flattening all context into one large JSON user message. It sends one authoritative system header, then quoted user-context blocks for prompt profile, worldbook before/after, character context, selected skills, and dictionary hints. Real chat history remains `user`/`assistant` role-mixed, and the latest assistant reply is repeated in an explicit `Latest assistant reply - anchor source` block so `anchorQuote` cannot be selected from worldbook text. Worldbook content is untrusted visual context and is not sent as a real system instruction.
+
 ### 2.3 Assets are compiled, not pasted
 
 Reference material under `文料参考` is source material. It should be converted into curated runtime assets:

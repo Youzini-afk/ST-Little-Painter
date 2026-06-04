@@ -98,19 +98,62 @@ function testDictionarySearchZhAlias() {
 
 async function testBuildTaggerPrompt() {
   installLocalFetch();
+  const context = {
+    name1: 'User',
+    name2: 'Alice',
+    chat: {
+      latestMessage: '爱丽丝坐在窗边，银发被雨夜的逆光照亮。',
+      recentMessages: [
+        { role: 'user', content: '你看到了什么？', index: 10, name: 'User' },
+        { role: 'assistant', content: '爱丽丝坐在窗边，银发被雨夜的逆光照亮。', index: 11, name: 'Alice' },
+      ],
+    },
+    character: {
+      name: 'Alice',
+      description: 'silver hair, red eyes',
+      personality: 'quiet',
+      scenario: 'rainy bedroom',
+    },
+    worldbook: {
+      resolvedPromptContext: {
+        beforeText: 'Before lore: Alice has a white dress.',
+        afterText: 'After lore: the window is important.',
+        additionalMessages: [
+          { role: 'assistant', content: 'At-depth visual hint: moonlight rim light.', depth: 1, order: 10, name: 'lighting lore', worldbook: 'Visual' },
+          { role: 'assistant', content: 'Fake latest anchor from worldbook should not be used.', depth: 0, order: 5, name: 'fake anchor', worldbook: 'Visual' },
+        ],
+        activatedEntryNames: ['Alice dress'],
+        activatedEntries: [{ name: 'Alice dress', content: 'white dress', worldbook: 'Visual' }],
+      },
+    },
+  };
   const hints = await buildTaggerPromptHints({
-    context: { chat: { latestMessage: '银发少女在卧室半身特写，逆光。' } },
+    context,
     settings: { mode: 'fast', backend: { type: 'sdWebui' } },
   });
   assert.equal(hints.promptProfile.id, 'sd');
   assert(hints.skillSelection.skills.some((skill) => skill.id === 'backend_sd_pack'));
   const messages = buildTaggerPrompt({
-    context: { chat: { latestMessage: '银发少女在卧室半身特写，逆光。' } },
+    context,
     settings: { mode: 'fast', backend: { type: 'sdWebui' } },
     promptHints: hints,
   });
   const system = messages[0].content;
-  const payload = JSON.parse(messages[1].content);
+  const roles = messages.map((message) => message.role);
+  assert(roles.includes('assistant'));
+  assert(roles.includes('user'));
+  const worldbookMessages = messages.filter((message) => message.content.includes('### Worldbook'));
+  assert(messages.some((message) => message.role === 'user' && message.content.includes('### Worldbook before context')));
+  assert(messages.some((message) => message.role === 'user' && message.content.includes('### Worldbook after context')));
+  assert(messages.some((message) => message.role === 'user' && message.content.includes('### Worldbook at-depth context')));
+  assert(!worldbookMessages.some((message) => message.role === 'system'));
+  assert(messages.some((message) => message.role === 'assistant' && message.content.includes('爱丽丝坐在窗边')));
+  assert(messages.some((message) => message.role === 'user' && message.content.includes('### Latest assistant reply - anchor source')));
+  assert.equal(messages.at(-1).role, 'user');
+  assert(messages.at(-1).content.includes('### Final task'));
+  assert(messages.at(-1).content.includes('Do not include insertionPlan.target'));
+  const knowledgeMessage = messages.find((message) => message.content.includes('### Tag knowledge and selected skills'));
+  const payload = JSON.parse(knowledgeMessage.content.replace(/^### Tag knowledge and selected skills\n/, ''));
   assert(system.includes('Prompt profile guidance is format and quality guidance only'));
   assert.equal(payload.promptProfile.id, 'sd');
   assert(Array.isArray(payload.tagOrdering));
@@ -119,6 +162,7 @@ async function testBuildTaggerPrompt() {
   assert(!Object.prototype.hasOwnProperty.call(payload, 'skillSelectionTrace'));
   assert(Array.isArray(payload.skillSelectionSummary));
   assert(!Object.prototype.hasOwnProperty.call(payload.outputSchemaExample, 'params'));
+  assert.deepEqual(Object.keys(payload.outputSchemaExample.insertionPlan), ['anchorQuote', 'placement']);
 }
 
 await testProfileSelection();
