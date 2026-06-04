@@ -257,7 +257,7 @@ function buildLatestAnchorSource(context = {}) {
   return {
     role: 'user',
     content: section('Latest assistant reply - anchor source (target)', [
-      '--- 以下是本轮需要配图的最新 AI 回复 ---',
+      '--- 以上是历史对话，以下是本轮需要配图的最新 AI 回复 ---',
       'anchorQuote MUST be copied exactly from the text below only.',
       'Do not copy anchorQuote from worldbook, profile, skill, dictionary, or final-task text.',
       latest,
@@ -363,8 +363,8 @@ export function buildTaggerPrompt({ context, settings, promptHints } = {}) {
         '',
         '## 提取与注入规则',
         '- 下方 `--- 以下是历史对话 ---` 块中的消息仅提供上下文，不从中选 anchorQuote',
-        '- 下方 `--- 以下是本轮需要配图的最新 AI 回复 ---` 块中的文本是本次配图目标的原文',
-        '- anchorQuote 必须从 —— `--- 以下是本轮需要配图的最新 AI 回复 ---` 块中——选取原文精确子串，不能从历史、世界书、profile 或其他位置选取',
+        '- 下方 `--- 以上是历史对话，以下是本轮需要配图的最新 AI 回复 ---` 块中的文本是本次配图目标的原文',
+        '- anchorQuote 必须从 —— `--- 以上是历史对话，以下是本轮需要配图的最新 AI 回复 ---` 块中——选取原文精确子串，不能从历史、世界书、profile 或其他位置选取',
         '- 图片插入在最新 AI 回复的 anchorQuote 所指定位置（之前或之后）',
         '- 可绘制视觉信息从最新 AI 回复、角色卡、世界书、prompt profile 中提取',
         '',
@@ -413,10 +413,6 @@ export function buildTaggerPrompt({ context, settings, promptHints } = {}) {
       content: '--- 以下是历史对话（仅供理解上下文，不从中选 anchorQuote） ---',
     });
     messages.push(...historyMessages);
-    messages.push({
-      role: 'system',
-      content: '--- 以上是历史对话，以下是本轮需要配图的最新 AI 回复 ---',
-    });
   }
 
   const latestAnchorSource = buildLatestAnchorSource(promptSafeContext);
@@ -456,11 +452,11 @@ export function buildTaggerPrompt({ context, settings, promptHints } = {}) {
         '### Final task',
         'Build one CompiledPrompt JSON object for a render-only image generation request.',
         'Use the latest assistant reply as the default illustration target.',
-        'Choose insertionPlan.anchorQuote as an exact short substring from the latest assistant reply (marked by `--- 以下是本轮需要配图的最新 AI 回复 ---`) above.',
+        'Choose insertionPlan.anchorQuote as an exact short substring from the latest assistant reply (marked by `--- 以上是历史对话，以下是本轮需要配图的最新 AI 回复 ---`) above.',
         'Choose insertionPlan.placement as before_anchor or after_anchor.',
         'Do not include insertionPlan.target, insertionPlan.fallback, messageId, messageIndex, offsets, character indexes, or params.',
         'Return JSON only. No Markdown fences. No prose outside JSON. No backend generation parameters.',
-      'Do not select anchorQuote from history, worldbook, profile, skill, dictionary, or final-task text.',
+        'Do not select anchorQuote from history, worldbook, profile, skill, dictionary, or final-task text.',
       ].join('\n'),
     },
   );
