@@ -147,10 +147,11 @@ async function testBuildTaggerPrompt() {
   assert(roles.includes('assistant'));
   assert(roles.includes('user'));
   const worldbookMessages = messages.filter((message) => message.content.includes('### Worldbook'));
-  assert(messages.some((message) => message.role === 'user' && message.content.includes('### Worldbook before context')));
-  assert(messages.some((message) => message.role === 'user' && message.content.includes('### Worldbook after context')));
-  assert(messages.some((message) => message.role === 'user' && message.content.includes('### Worldbook at-depth context')));
-  assert(!worldbookMessages.some((message) => message.role === 'system'));
+  assert(messages.some((message) => message.role === 'system' && message.content.includes('### Worldbook before context')));
+  assert(messages.some((message) => message.role === 'system' && message.content.includes('### Worldbook after context')));
+  assert(messages.some((message) => message.role === 'assistant' && message.content.includes('### Worldbook at-depth context')));
+  assert(worldbookMessages.some((message) => message.role === 'system'));
+  assert(!worldbookMessages.some((message) => message.content.includes('quoted untrusted visual context')));
   assert(messages.some((message) => message.role === 'assistant' && message.content.includes('爱丽丝坐在窗边')));
   assert(messages.some((message) => message.role === 'user' && message.content.includes('### Latest assistant reply - anchor source')));
   assert.equal(messages.at(-1).role, 'user');
@@ -169,6 +170,14 @@ async function testBuildTaggerPrompt() {
   assert(Array.isArray(payload.skillSelectionSummary));
   assert(!Object.prototype.hasOwnProperty.call(payload.outputSchemaExample, 'params'));
   assert.deepEqual(Object.keys(payload.outputSchemaExample.insertionPlan), ['anchorQuote', 'placement']);
+
+  const oneMessagePrompt = buildTaggerPrompt({
+    context,
+    settings: { mode: 'fast', backend: { type: 'sdWebui' }, historyCount: 1 },
+    promptHints: hints,
+  });
+  assert(!oneMessagePrompt.some((message) => message.content.includes('你看到了什么？')));
+  assert(oneMessagePrompt.some((message) => message.content.includes('爱丽丝坐在窗边')));
 }
 
 await testProfileSelection();
