@@ -9,7 +9,7 @@ const TABS = [
   { id: 'dashboard', labelKey: 'dashboard', badge: '' },
   { id: 'tag-api', labelKey: 'tagApi', badge: 'api' },
   { id: 'compiler', labelKey: 'compiler', badge: '' },
-  { id: 'backends', labelKey: 'backends', badge: 'sd' },
+  { id: 'backends', labelKey: 'backends', badge: 'backend' },
   { id: 'knowledge', labelKey: 'knowledge', badge: '12' },
   { id: 'regex', labelKey: 'regex', badge: '' },
   { id: 'debug', labelKey: 'debug', badge: '3' },
@@ -30,14 +30,32 @@ function activeClass(active) {
   return active ? ' stlp-active' : '';
 }
 
+function backendShortLabel(type = 'sdWebui') {
+  return {
+    sdWebui: 'SD',
+    novelai: 'NAI',
+    comfyui: 'Comfy',
+    naturalImage: 'Natural',
+  }[type] || String(type || 'SD');
+}
+
+function resolveTabBadge(tab, settings = {}) {
+  if (!tab.badge) return '';
+  if (tab.badge === 'backend') return backendShortLabel(settings.backend?.type || 'sdWebui');
+  return tab.badge;
+}
+
 function renderRail(settings = {}, activeTab = 'dashboard') {
   const t = createTranslator(settings);
-  const nav = TABS.map((tab) => `
-    <button class="stlp-rail-item${activeClass(tab.id === activeTab)}" type="button" data-stlp-console-tab="${tab.id}">
-      <span>${escapeHtml(t(tab.labelKey))}</span>
-      ${tab.badge ? `<span class="stlp-mini-pill">${escapeHtml(tab.badge)}</span>` : ''}
-    </button>
-  `).join('');
+  const nav = TABS.map((tab) => {
+    const badge = resolveTabBadge(tab, settings);
+    return `
+      <button class="stlp-rail-item${activeClass(tab.id === activeTab)}" type="button" data-stlp-console-tab="${tab.id}">
+        <span>${escapeHtml(t(tab.labelKey))}</span>
+        ${badge ? `<span class="stlp-mini-pill">${escapeHtml(badge)}</span>` : ''}
+      </button>
+    `;
+  }).join('');
 
   return `
     <aside class="stlp-rail" aria-label="Little Painter navigation">
@@ -119,6 +137,7 @@ function renderPipeline(settings = {}) {
 
 function renderDashboardPanel(settings = {}) {
   const t = createTranslator(settings);
+  const backendLabel = backendShortLabel(settings.backend?.type || 'sdWebui');
   return `
     <section class="stlp-tab-panel" data-stlp-console-panel="dashboard">
       <div class="stlp-grid-12">
@@ -136,7 +155,7 @@ function renderDashboardPanel(settings = {}) {
           <div class="stlp-chip-row"><span class="stlp-chip stlp-chip-active">after_anchor</span><span class="stlp-chip">latest_assistant</span><span class="stlp-chip">fallback after_message</span></div>
           <p class="stlp-muted">${escapeHtml(t('renderOnlyNote'))}</p>
         </section>
-        <section class="stlp-module stlp-col-4"><h2>${escapeHtml(t('recentGeneration'))}</h2><div class="stlp-thumb"></div><p class="stlp-mono">sdWebui · 512×768 · ${escapeHtml(t('saved'))}</p></section>
+        <section class="stlp-module stlp-col-4"><h2>${escapeHtml(t('recentGeneration'))}</h2><div class="stlp-thumb"></div><p class="stlp-mono">${escapeHtml(backendLabel)} · 512×768 · ${escapeHtml(t('saved'))}</p></section>
         <section class="stlp-module stlp-col-8"><h2>${escapeHtml(t('configurationLaunchers'))}</h2><div class="stlp-launcher-grid">${TABS.filter((tab) => ['tag-api', 'backends', 'knowledge', 'debug'].includes(tab.id)).map((tab) => `<button class="stlp-launcher" type="button" data-stlp-console-tab="${tab.id}">${escapeHtml(t(tab.labelKey))}<small>${escapeHtml(t('open'))}</small></button>`).join('')}</div></section>
       </div>
     </section>
