@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { callJson } from '../src/llm/callJson.js';
+import { callJson, listTagApiModels, normalizeModelsEndpoint } from '../src/llm/callJson.js';
 
 function createSettings(overrides = {}) {
   const { tagApi: tagApiOverrides = {}, ...rest } = overrides;
@@ -83,6 +83,26 @@ try {
   assert.equal(textModeResult.fallbackUsed, false);
   assert.equal(textModeResult.jsonModeUsed, false);
   assert.deepEqual(textModeResult.parsed.positive, ['solo']);
+
+  assert.equal(normalizeModelsEndpoint('https://example.test/v1'), 'https://example.test/v1/models');
+  assert.equal(normalizeModelsEndpoint('https://example.test/v1/chat/completions'), 'https://example.test/v1/models');
+  assert.equal(normalizeModelsEndpoint('https://example.test/v1/models'), 'https://example.test/v1/models');
+
+  let modelsRequest = null;
+  globalThis.fetch = async (url, options = {}) => {
+    modelsRequest = { url, options };
+    return {
+      ok: true,
+      async text() {
+        return JSON.stringify({ data: [{ id: 'tagger-a' }, { id: 'tagger-b' }, { id: 'tagger-a' }] });
+      },
+    };
+  };
+  const models = await listTagApiModels(createSettings({ tagApi: { headers: { 'X-Test': '1' } } }));
+  assert.deepEqual(models, ['tagger-a', 'tagger-b']);
+  assert.equal(modelsRequest.url, 'https://example.test/v1/models');
+  assert.equal(modelsRequest.options.headers.Authorization, 'Bearer test-key');
+  assert.equal(modelsRequest.options.headers['X-Test'], '1');
 } finally {
   if (previousFetch === undefined) delete globalThis.fetch;
   else globalThis.fetch = previousFetch;

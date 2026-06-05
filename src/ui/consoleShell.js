@@ -3,6 +3,7 @@ import { compile as compileBackendRequest, listResources as listBackendResources
 import { getDefaultRegexRules } from '../regex/defaultRegexRules.js';
 import { getLatestTrace, getTraceHistory } from '../debug/trace.js';
 import { saveSettings, updateSettings } from '../host/settingsStore.js';
+import { listTagApiModels } from '../llm/callJson.js';
 import { createTranslator } from './i18n.js';
 
 const TABS = [
@@ -50,6 +51,10 @@ const NATURAL_MODEL_PRESETS = ['gpt-image-1', 'dall-e-3', 'dall-e-2'];
 const NATURAL_CHAT_MODEL_PRESETS = ['gpt-4.1', 'gpt-4.1-mini', 'gpt-4o', 'gpt-4o-mini'];
 const NATURAL_QUALITY_PRESETS = ['auto', 'low', 'medium', 'high', 'standard', 'hd'];
 const NATURAL_RESPONSE_FORMAT_PRESETS = ['b64_json', 'url'];
+
+const runtimeResources = {
+  tagApiModels: [],
+};
 
 const PIPELINE_ICONS = {
   stageContext: `<svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>`,
@@ -495,25 +500,26 @@ function renderBackendsPanel(settings = {}, resources = {}) {
   `;
 }
 
-function renderTagApiPanel(settings = {}) {
+function renderTagApiPanel(settings = {}, resources = {}) {
   const t = createTranslator(settings);
   const tagApi = settings.tagApi ?? {};
+  const modelOptions = mergeOptions(resources.tagApiModels ?? [], runtimeResources.tagApiModels);
   return `
     <section class="stlp-tab-panel" data-stlp-console-panel="tag-api" hidden>
       <div class="stlp-grid-12">
         <section class="stlp-module stlp-col-7">
           <div class="stlp-module-head"><div><p class="stlp-kicker">${escapeHtml(t('tagApi'))}</p><h2>${escapeHtml(t('secondApiEndpoint'))}</h2></div><span class="stlp-mini-pill">${escapeHtml(tagApi.jsonMode || 'auto')}</span></div>
           <div class="stlp-form-grid stlp-form-grid-2">
-            ${renderField(t('endpointUrl'), tagApi.url || '', { mono: true })}
-            ${renderField(t('model'), tagApi.model || '', { mono: true })}
-            ${renderField(t('apiKey'), tagApi.key ? '••••••••' : '', { type: 'password' })}
-            ${renderField(t('jsonMode'), tagApi.jsonMode || 'auto', { mono: true })}
-            ${renderField(t('temperature'), settings.temperature ?? 0.2, { type: 'number', mono: true })}
-            ${renderField(t('maxTokens'), settings.maxTokens ?? 1200, { type: 'number', mono: true })}
-            ${renderField(t('timeoutMs'), settings.timeoutMs ?? 30000, { type: 'number', mono: true })}
-            ${renderField(t('retries'), settings.retryCount ?? 1, { type: 'number', mono: true })}
+            ${renderField(t('endpointUrl'), tagApi.url || '', { mono: true, path: 'tagApi.url' })}
+            ${renderField(t('model'), tagApi.model || '', { mono: true, path: 'tagApi.model', options: modelOptions })}
+            ${renderField(t('apiKey'), tagApi.key || '', { type: 'password', path: 'tagApi.key' })}
+            ${renderField(t('jsonMode'), tagApi.jsonMode || 'auto', { mono: true, path: 'tagApi.jsonMode', options: ['auto', 'true', 'false'] })}
+            ${renderField(t('temperature'), settings.temperature ?? 0.2, { type: 'number', mono: true, path: 'temperature', step: '0.1' })}
+            ${renderField(t('maxTokens'), settings.maxTokens ?? 1200, { type: 'number', mono: true, path: 'maxTokens', min: 1 })}
+            ${renderField(t('timeoutMs'), settings.timeoutMs ?? 30000, { type: 'number', mono: true, path: 'timeoutMs', min: 1000 })}
+            ${renderField(t('retries'), settings.retryCount ?? 1, { type: 'number', mono: true, path: 'retryCount', min: 0 })}
           </div>
-          <div class="stlp-actions-row"><button class="stlp-button stlp-primary" type="button" data-stlp-action="compile-test">${escapeHtml(t('testApiCompile'))}</button><span class="stlp-muted">${escapeHtml(t('compileTraceHint'))}</span></div>
+          <div class="stlp-actions-row"><button class="stlp-button stlp-primary" type="button" data-stlp-action="compile-test">${escapeHtml(t('testApiCompile'))}</button><button class="stlp-button" type="button" data-stlp-action="fetch-tag-api-models">${escapeHtml(t('fetchModels'))}</button><span id="stlp-tag-api-model-status" class="stlp-muted">${modelOptions.length ? escapeHtml(t('loadedModels', { count: modelOptions.length })) : escapeHtml(t('fetchModelsHint'))}</span></div>
         </section>
         <section class="stlp-module stlp-col-5">
           <h2>${escapeHtml(t('responseContract'))}</h2>
@@ -646,7 +652,7 @@ function renderDebugPanel(settings = {}) {
 }
 
 function renderPlaceholderPanel(tab, settings = {}, resources = {}) {
-  if (tab.id === 'tag-api') return renderTagApiPanel(settings);
+  if (tab.id === 'tag-api') return renderTagApiPanel(settings, resources);
   if (tab.id === 'compiler') return renderCompilerPanel(settings);
   if (tab.id === 'backends') return renderBackendsPanel(settings, resources.sdWebui ?? resources);
   if (tab.id === 'knowledge') return renderKnowledgePanel(settings);
@@ -796,6 +802,11 @@ export function bindConsoleShell(root = document.querySelector(SELECTORS.console
       refreshSdResources(root, options.getSettings);
       return;
     }
+    const fetchModelsButton = event.target.closest('[data-stlp-action="fetch-tag-api-models"]');
+    if (fetchModelsButton) {
+      fetchTagApiModels(root, options.getSettings);
+      return;
+    }
     const generationButton = event.target.closest('[data-stlp-action="generate"], [data-stlp-action="compile-test"]');
     if (generationButton) {
       runConsolePipelineAction(root, options, generationButton.dataset.stlpAction);
@@ -851,6 +862,25 @@ async function runConsolePipelineAction(root, options = {}, action = 'compile-te
   } catch (error) {
     if (status) status.textContent = error?.message || String(error);
     options.onTraceChanged?.();
+  }
+}
+
+async function fetchTagApiModels(root, getSettings) {
+  const status = root.querySelector('#stlp-tag-api-model-status');
+  try {
+    const settings = typeof getSettings === 'function' ? getSettings() : {};
+    const t = createTranslator(settings);
+    if (status) status.textContent = t('fetchingModels');
+    const models = await listTagApiModels(settings);
+    runtimeResources.tagApiModels = models;
+    const open = !root.classList.contains('stlp-hidden');
+    root.innerHTML = renderShell(settings, 'tag-api', { tagApiModels: models });
+    root.classList.toggle('stlp-hidden', !open);
+    document.body.classList.toggle('stlp-console-open', open);
+    setActiveTab(root, 'tag-api');
+    root.querySelector('#stlp-tag-api-model-status').textContent = t('loadedModels', { count: models.length });
+  } catch (error) {
+    if (status) status.textContent = error?.message || String(error);
   }
 }
 

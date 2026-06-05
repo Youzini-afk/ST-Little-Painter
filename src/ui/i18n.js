@@ -4,6 +4,21 @@ export const UI_LANGUAGES = Object.freeze({
   EN: 'en',
 });
 
+const EXTRA_STRINGS = Object.freeze({
+  zh: {
+    fetchModels: '拉取模型',
+    fetchModelsHint: '从当前 Tag API 端点拉取 /models 列表。',
+    fetchingModels: '正在拉取模型列表…',
+    loadedModels: '已加载 {count} 个模型。',
+  },
+  en: {
+    fetchModels: 'Fetch models',
+    fetchModelsHint: 'Fetch the /models list from the current Tag API endpoint.',
+    fetchingModels: 'Fetching model list…',
+    loadedModels: 'Loaded {count} models.',
+  },
+});
+
 const STRINGS = Object.freeze({
   zh: {
     dashboard: '总览',
@@ -151,6 +166,10 @@ const STRINGS = Object.freeze({
     imageRecordsCapped: '图像记录限量保存',
     idle: '空闲',
     loadedResources: '已加载 {count} 个资源。',
+    fetchModels: '拉取模型',
+    fetchModelsHint: '从当前 Tag API 端点拉取 /models 列表。',
+    fetchingModels: '正在拉取模型列表…',
+    loadedModels: '已加载 {count} 个模型。',
   },
   en: {
     dashboard: 'Dashboard', tagApi: 'Tag API', compiler: 'Compiler', backends: 'Backends', knowledge: 'Knowledge', regex: 'Regex', debug: 'Debug', settings: 'Settings', docs: 'Docs', enabled: 'Enabled', backend: 'Backend', mode: 'Mode', ready: 'ready', generateReply: 'Generate reply', testCompile: 'Test compile', closeConsole: 'Close Little Painter console', pipelineReadiness: 'Pipeline readiness', tagApiConnected: 'Tag API connected', worldbookEntries: 'Worldbook 9 entries', dictionaryHints: 'Dictionary 56 hints', compiledVisualBrief: 'Compiled visual brief', openCompiler: 'Open compiler', insertionTarget: 'Insertion target', pickTarget: 'Pick target', renderOnlyNote: 'Render-only image insertion; chat text remains unchanged.', recentGeneration: 'Recent generation', configurationLaunchers: 'Configuration launchers', open: 'open', backendConfiguration: 'Backend Configuration', sdAdapter: 'SD WebUI / Forge adapter', apiUrl: 'API URL', username: 'Username', password: 'Password', timeout: 'Timeout', refreshResources: 'Refresh resources', sdResourceHelp: 'Fetch model / sampler / VAE / scheduler / upscaler / LoRA lists from the active SD endpoint.', resources: 'Resources', loaded: 'loaded', model: 'Model', vae: 'VAE', sampler: 'Sampler', scheduler: 'Scheduler', upscaler: 'Upscaler', loraSearch: 'LoRA search', connection: 'Connection', generationDefaults: 'Generation defaults', settingsOwnedParams: 'settings-owned params', width: 'Width', height: 'Height', steps: 'Steps', cfg: 'CFG', seed: 'Seed', clipSkip: 'CLIP skip', hiresScale: 'Hires scale', denoise: 'Denoise', payloadPreview: 'Payload preview', secondApiEndpoint: 'Second API endpoint', apiKey: 'API key', jsonMode: 'JSON mode', temperature: 'Temperature', maxTokens: 'Max tokens', retries: 'Retries', testApiCompile: 'Test API / compile', responseContract: 'Response contract', diagnostics: 'Diagnostics', jsonFallbackAware: 'JSON fallback aware', promptCompiler: 'Prompt Compiler', modeAndProfile: 'Mode and prompt profile', runCompileTest: 'Run compile test', promptProfile: 'Prompt profile', targetMode: 'Target mode', fixedPositive: 'Fixed positive', fixedNegative: 'Fixed negative', compiledPromptPreview: 'CompiledPrompt preview', orderedMessages: 'Ordered tagger prompt messages', openLatestTrace: 'Open latest trace after test', knowledgeRuntime: 'Knowledge Runtime', bmeResolver: 'BME worldbook resolver', testResolve: 'Test resolve', retrievalPreview: 'Retrieval preview', skillSelector: 'Skill selector', contextRegexCleanup: 'Context Regex Cleanup', defaultRules: 'BME-inspired default rules', customRules: 'Custom rules', liveCleanupTest: 'Live cleanup test', debugTrace: 'Debug Trace', pipelineTimeline: 'Pipeline timeline', latestTraceSummary: 'Latest trace summary', insertionDebug: 'Image insertion debug', noTrace: 'No trace yet', refreshingResources: 'Refreshing SD WebUI resources…', pipelineUnavailable: 'Pipeline runner is not available in this context.', runningGeneration: 'Running full generation…', runningCompile: 'Running compile dry-run…', generationDone: 'Generation completed; latest trace saved.', compileDone: 'Compile dry-run completed; latest trace saved.', wandLabel: 'Little Painter', stageContext: 'Context', stageWorldbook: 'Worldbook', stagePlanner: 'Planner', stageTagger: 'Tagger', stageCompile: 'Compile', stageBackend: 'Backend', stageInsert: 'Insert', subjectLine: 'Subject: 1girl, upper body', identityLine: 'Identity: silver hair, red eyes, kimono', sceneLine: 'Scene: rainy bedroom, window', cameraLine: 'Camera: portrait, backlighting', sampleQuote: 'She sat by the window, watching the rain.', saved: 'saved', editableComboboxes: 'editable comboboxes', txt2imgRoute: 'txt2img route', forgeCompatible: 'Forge compatible', basicAuth: 'Basic Auth', hiresFix: 'hires fix', restoreFaces: 'restore faces', endpointUrl: 'Endpoint URL', timeoutMs: 'Timeout ms', compileTraceHint: 'Run a compile test to populate the latest trace.', backendParamsNotRequested: 'backend params not requested', send: 'Send', receive: 'Receive', parse: 'Parse', validate: 'Validate', latestAssistantAnchor: 'anchorQuote copied exactly from the latest AI reply', fallbackAfterMessage: 'fallback after_message', planner: 'planner', dictionaryHintsShort: 'dictionary hints', bmeWorldbook: 'BME worldbook', defaultRegexShort: 'default regex', beforeVisualFacts: 'Before: visual facts', atDepthRoleKept: 'At-depth: assistant role kept', afterPromptTail: 'After: prompt tail', activatedOnly: 'Diagnostics: activated entries only', worldbook: 'worldbook', filter: 'filter', maxPasses: 'max passes', inputCleanup: 'input cleanup', outputCleanup: 'llm_output_cleanup', cleanupOrder: 'order: MVU → default → image/HTML → custom', summaryDebug: 'summary debug', redactedPayloads: 'redacted payloads', imageRecordsCapped: 'image records capped', idle: 'idle', loadedResources: 'Loaded {count} resources.',
@@ -190,7 +209,7 @@ export function getLanguage(settings = {}) {
 
 export function createTranslator(settings = {}) {
   const language = getLanguage(settings);
-  const dictionary = STRINGS[language] || STRINGS.zh;
+  const dictionary = { ...(STRINGS[language] || STRINGS.zh), ...(EXTRA_STRINGS[language] || EXTRA_STRINGS.zh) };
   return (key, params = {}) => String(dictionary[key] || STRINGS.en[key] || key)
     .replace(/\{(\w+)\}/g, (_match, name) => params[name] ?? '');
 }

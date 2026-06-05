@@ -7,7 +7,7 @@ function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-function normalizeEndpoint(url) {
+export function normalizeEndpoint(url) {
   const trimmed = String(url ?? '').trim();
   if (!trimmed) {
     return '';
@@ -15,6 +15,51 @@ function normalizeEndpoint(url) {
   return /\/chat\/completions\/?$/.test(trimmed)
     ? trimmed
     : `${trimmed.replace(/\/$/, '')}/chat/completions`;
+}
+
+export function normalizeModelsEndpoint(url) {
+  const trimmed = String(url ?? '').trim();
+  if (!trimmed) return '';
+  const base = trimmed
+    .replace(/\/chat\/completions\/?$/i, '')
+    .replace(/\/models\/?$/i, '')
+    .replace(/\/$/, '');
+  return `${base}/models`;
+}
+
+function normalizeModelList(envelope) {
+  const values = Array.isArray(envelope?.data) ? envelope.data : Array.isArray(envelope) ? envelope : [];
+  return [...new Set(values
+    .map((item) => (typeof item === 'string' ? item : item?.id || item?.name || item?.model))
+    .map((item) => String(item ?? '').trim())
+    .filter(Boolean))];
+}
+
+export async function listTagApiModels(settings = {}) {
+  const api = settings?.tagApi ?? {};
+  const endpoint = normalizeModelsEndpoint(api.url);
+  if (!endpoint || !api.key) {
+    throw new Error('Tag API URL and API key are required to fetch models.');
+  }
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), Math.max(1000, Number(settings.timeoutMs) || 30000));
+  try {
+    const response = await fetch(endpoint, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${api.key}`,
+        ...(api.headers && typeof api.headers === 'object' ? api.headers : {}),
+      },
+      signal: controller.signal,
+    });
+    const text = await response.text();
+    if (!response.ok) {
+      throw new Error(`Tag API models HTTP ${response.status}: ${text.slice(0, 500)}`);
+    }
+    return normalizeModelList(JSON.parse(text));
+  } finally {
+    clearTimeout(timeout);
+  }
 }
 
 function shouldFallbackWithoutJsonMode(error) {
@@ -72,7 +117,7 @@ async function requestJson({ settings, messages, jsonMode = true }) {
 export async function callJson({ settings, messages } = {}) {
   const errors = [];
   const retryCount = Math.max(0, Number(settings?.retryCount) || 0);
-  let jsonMode = settings?.tagApi?.jsonMode !== false;
+  let jsonMode = settings?.tagApi?.jsonMode !== false && settings?.tagApi?.jsonMode !== 'false';
   let fallbackUsed = false;
   const regexRules = buildRegexRules(settings);
 
