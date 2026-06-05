@@ -100,9 +100,23 @@ export function getLatestTrace() {
   return clone(traces[0] ?? null);
 }
 
+export function getTraceHistory(limit = TRACE_LIMIT) {
+  const count = Math.max(0, Number(limit) || TRACE_LIMIT);
+  return clone(traces.slice(0, count));
+}
+
+export function getTraceById(id) {
+  return clone(traces.find((trace) => trace.id === id) ?? null);
+}
+
 export function exportLatestTrace() {
   const latest = getLatestTrace();
   return latest ? JSON.stringify(latest, null, 2) : '';
+}
+
+export function exportTrace(id) {
+  const trace = id ? getTraceById(id) : getLatestTrace();
+  return trace ? JSON.stringify(trace, null, 2) : '';
 }
 
 function resolveTrace(traceOrId) {

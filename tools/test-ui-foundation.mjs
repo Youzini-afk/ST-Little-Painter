@@ -3,6 +3,8 @@ import assert from 'node:assert/strict';
 import { configureSettingsStore, defaultSettings, getSettings, updateSettings } from '../src/host/settingsStore.js';
 import { deleteProfile, getActiveProfile, importProfileGroup, saveProfile } from '../src/host/profileStore.js';
 import { bindFields, populateFields } from '../src/ui/bindFields.js';
+import { addTraceStep, createTrace, finalizeTrace, getTraceById, getTraceHistory } from '../src/debug/trace.js';
+import { TRACE_STATUS } from '../src/core/constants.js';
 
 const extension_settings = {};
 configureSettingsStore({ extension_settings, saveSettingsDebounced: () => {} });
@@ -58,4 +60,14 @@ elements.get('#count').dispatch();
 assert.equal(getSettings().historyCount, 14);
 
 delete globalThis.document;
+
+const trace = createTrace('ui-foundation', { apiKey: 'secret-key' });
+addTraceStep(trace, 'step-one', { dataUrl: 'data:image/png;base64,abcdef', visible: true });
+finalizeTrace(trace, TRACE_STATUS.SUCCESS, { message: 'done' });
+const history = getTraceHistory(1);
+assert.equal(history.length, 1);
+assert.equal(history[0].metadata.apiKey, '[REDACTED]');
+assert.equal(history[0].steps[0].payload.dataUrl, '[REDACTED]');
+assert.equal(getTraceById(history[0].id).summary.message, 'done');
+
 console.log('test-ui-foundation passed');

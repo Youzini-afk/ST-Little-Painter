@@ -1,5 +1,7 @@
 import { EXTENSION_NAME, SELECTORS } from '../core/constants.js';
 import { compile as compileBackendRequest, listResources as listBackendResources } from '../backend/backendRegistry.js';
+import { getDefaultRegexRules } from '../regex/defaultRegexRules.js';
+import { getLatestTrace, getTraceHistory } from '../debug/trace.js';
 
 const TABS = [
   { id: 'dashboard', label: 'Dashboard', badge: '' },
@@ -316,10 +318,87 @@ function renderCompilerPanel(settings = {}) {
   `;
 }
 
+function renderKnowledgePanel(settings = {}) {
+  const worldbookOn = settings.worldbook?.enabled !== false;
+  const knowledge = settings.knowledge ?? {};
+  return `
+    <section class="stlp-tab-panel" data-stlp-console-panel="knowledge" hidden>
+      <div class="stlp-grid-12">
+        <section class="stlp-module stlp-col-7">
+          <div class="stlp-module-head"><div><p class="stlp-kicker">Knowledge Runtime</p><h2>BME worldbook resolver</h2></div><button class="stlp-button stlp-primary" type="button" data-stlp-action="compile-test">Test resolve</button></div>
+          <div class="stlp-two-pane">
+            <div class="stlp-well stlp-list-pane">
+              ${['Character Book 4', 'Global Lore 8', 'Chat Lore 3', 'Persona 2', 'Extension Context 1'].map((row, index) => `<div><i class="stlp-dot ${worldbookOn ? 'stlp-green' : 'stlp-amber'}"></i><span>${escapeHtml(row)}</span><code>${index + 1}</code></div>`).join('')}
+            </div>
+            <div class="stlp-well stlp-list-pane">
+              ${['Before: visual facts', 'At-depth: assistant role kept', 'After: prompt tail', 'Diagnostics: activated entries only'].map((row) => `<div><span>${escapeHtml(row)}</span><code>ready</code></div>`).join('')}
+            </div>
+          </div>
+          <div class="stlp-chip-row"><span class="stlp-chip${worldbookOn ? ' stlp-chip-active' : ''}">worldbook ${worldbookOn ? 'on' : 'off'}</span><span class="stlp-chip">filter ${escapeHtml(settings.worldbook?.worldInfoFilterMode || 'default')}</span><span class="stlp-chip">max passes ${escapeHtml(settings.worldbook?.worldInfoMaxResolvePasses ?? 10)}</span></div>
+        </section>
+        <section class="stlp-module stlp-col-5">
+          <h2>Retrieval preview</h2>
+          <div class="stlp-chip-row"><span class="stlp-chip${knowledge.dictionaryHints ? ' stlp-chip-active' : ''}">dictionaryHints</span><span class="stlp-chip${knowledge.selectedSkills ? ' stlp-chip-active' : ''}">selectedSkills</span><span class="stlp-chip${knowledge.planner ? ' stlp-chip-active' : ''}">planner</span></div>
+          <div class="stlp-tag-groups stlp-form-offset">${['半身 → upper body', '逆光 → backlighting', '雨夜 → rainy night', '和服 → kimono', '湿衣 → wet clothes'].map((line) => `<div class="stlp-tag-line">${escapeHtml(line)}</div>`).join('')}</div>
+        </section>
+        <section class="stlp-module stlp-col-12"><h2>Skill selector</h2><div class="stlp-role-list">${['visual_extraction', 'character_identity_lock', 'pose_resolver', 'film_camera', 'lighting_designer', 'backend_sd_pack', 'backend_novelai_pack', 'interaction_resolver'].map((skill) => `<span>${escapeHtml(skill)}</span>`).join('')}</div></section>
+      </div>
+    </section>
+  `;
+}
+
+function renderRegexPanel(settings = {}) {
+  const regex = settings.regex ?? {};
+  const defaultRules = getDefaultRegexRules({ includeOutputCleanup: regex.enableOutputCleanup === true });
+  const userRules = Array.isArray(regex.rules) ? regex.rules : [];
+  return `
+    <section class="stlp-tab-panel" data-stlp-console-panel="regex" hidden>
+      <div class="stlp-grid-12">
+        <section class="stlp-module stlp-col-7">
+          <div class="stlp-module-head"><div><p class="stlp-kicker">Context Regex Cleanup</p><h2>BME-inspired default rules</h2></div><span class="stlp-mini-pill">${defaultRules.length} default</span></div>
+          <div class="stlp-chip-row"><span class="stlp-chip${regex.enabled !== false ? ' stlp-chip-active' : ''}">input cleanup</span><span class="stlp-chip${regex.enableDefaultRules !== false ? ' stlp-chip-active' : ''}">default rules</span><span class="stlp-chip${regex.enableOutputCleanup ? ' stlp-chip-active' : ''}">llm_output_cleanup</span></div>
+          <div class="stlp-list-pane stlp-well stlp-form-offset">${defaultRules.slice(0, 10).map((rule) => `<div><span>${escapeHtml(rule.name)}</span><code>${escapeHtml(rule.stage)}</code></div>`).join('')}</div>
+        </section>
+        <section class="stlp-module stlp-col-5">
+          <h2>Custom rules</h2>
+          <pre class="stlp-code-well">${escapeHtml(JSON.stringify(userRules.slice(0, 6), null, 2) || '[]')}</pre>
+          <div class="stlp-chip-row"><span class="stlp-chip">order: MVU → default → image/HTML → custom</span></div>
+        </section>
+        <section class="stlp-module stlp-col-12"><h2>Live cleanup test</h2><div class="stlp-two-pane"><pre class="stlp-code-well">&lt;think&gt;hidden&lt;/think&gt; She looked at the rain. &lt;StatusPlaceHolderImpl/&gt;</pre><pre class="stlp-code-well">She looked at the rain.</pre></div></section>
+      </div>
+    </section>
+  `;
+}
+
+function renderDebugPanel(settings = {}) {
+  const traces = getTraceHistory(settings.debug?.keepTraces ?? 20);
+  const latest = getLatestTrace();
+  const steps = latest?.steps ?? [];
+  return `
+    <section class="stlp-tab-panel" data-stlp-console-panel="debug" hidden>
+      <div class="stlp-grid-12">
+        <section class="stlp-module stlp-col-7">
+          <div class="stlp-module-head"><div><p class="stlp-kicker">Debug Trace</p><h2>Pipeline timeline</h2></div><span class="stlp-mini-pill">${traces.length}/${settings.debug?.keepTraces ?? 20}</span></div>
+          <div class="stlp-list-pane stlp-well">${(steps.length ? steps : [{ name: 'No trace yet', timestamp: '' }]).map((step) => `<div><span>${escapeHtml(step.name)}</span><code>${escapeHtml(step.timestamp || latest?.status || 'idle')}</code></div>`).join('')}</div>
+        </section>
+        <section class="stlp-module stlp-col-5">
+          <h2>Latest trace summary</h2>
+          <pre class="stlp-code-well">${escapeHtml(latest ? JSON.stringify({ id: latest.id, label: latest.label, status: latest.status, steps: latest.steps?.length ?? 0, summary: latest.summary }, null, 2) : '{\n  "status": "idle"\n}')}</pre>
+          <div class="stlp-chip-row"><span class="stlp-chip${settings.debug?.enabled ? ' stlp-chip-active' : ''}">summary debug</span><span class="stlp-chip">redacted payloads</span><span class="stlp-chip">image records capped</span></div>
+        </section>
+        <section class="stlp-module stlp-col-12"><h2>Image insertion debug</h2><div class="stlp-role-list">${['target latest_assistant', 'anchorQuote exact match', 'placement before/after anchor', 'fallback after_message', 'render-only DOM node', 'chat text unchanged', 'resolvedInsertion stored', 'rerender bridge active'].map((item) => `<span>${escapeHtml(item)}</span>`).join('')}</div></section>
+      </div>
+    </section>
+  `;
+}
+
 function renderPlaceholderPanel(tab, settings = {}, resources = {}) {
   if (tab.id === 'tag-api') return renderTagApiPanel(settings);
   if (tab.id === 'compiler') return renderCompilerPanel(settings);
   if (tab.id === 'backends') return renderBackendsPanel(settings, resources.sdWebui ?? resources);
+  if (tab.id === 'knowledge') return renderKnowledgePanel(settings);
+  if (tab.id === 'regex') return renderRegexPanel(settings);
+  if (tab.id === 'debug') return renderDebugPanel(settings);
   const summaries = {
     'tag-api': 'Second API profiles, JSON fallback, model behavior, and live tagger tests.',
     compiler: 'Prompt profiles, mode controls, fixed prompts, insertion defaults, and CompiledPrompt preview.',
