@@ -245,7 +245,80 @@ function renderBackendsPanel(settings = {}, resources = {}) {
   `;
 }
 
+function renderTagApiPanel(settings = {}) {
+  const tagApi = settings.tagApi ?? {};
+  return `
+    <section class="stlp-tab-panel" data-stlp-console-panel="tag-api" hidden>
+      <div class="stlp-grid-12">
+        <section class="stlp-module stlp-col-7">
+          <div class="stlp-module-head"><div><p class="stlp-kicker">Tag API</p><h2>Second API endpoint</h2></div><span class="stlp-mini-pill">${escapeHtml(tagApi.jsonMode || 'auto')}</span></div>
+          <div class="stlp-form-grid stlp-form-grid-2">
+            ${renderField('Endpoint URL', tagApi.url || '', { mono: true })}
+            ${renderField('Model', tagApi.model || '', { mono: true })}
+            ${renderField('API key', tagApi.key ? '••••••••' : '', { type: 'password' })}
+            ${renderField('JSON mode', tagApi.jsonMode || 'auto', { mono: true })}
+            ${renderField('Temperature', settings.temperature ?? 0.2, { type: 'number', mono: true })}
+            ${renderField('Max tokens', settings.maxTokens ?? 1200, { type: 'number', mono: true })}
+            ${renderField('Timeout ms', settings.timeoutMs ?? 30000, { type: 'number', mono: true })}
+            ${renderField('Retries', settings.retryCount ?? 1, { type: 'number', mono: true })}
+          </div>
+          <div class="stlp-actions-row"><button class="stlp-button stlp-primary" type="button" data-stlp-action="compile-test">Test API / compile</button><span id="stlp-console-action-status" class="stlp-muted">Run a compile test to populate the latest trace.</span></div>
+        </section>
+        <section class="stlp-module stlp-col-5">
+          <h2>Response contract</h2>
+          <pre class="stlp-code-well">${escapeHtml(JSON.stringify({ shouldGenerate: true, positiveBlocks: { subject: ['1girl'], scene: ['rainy bedroom'] }, negative: ['lowres'], insertionPlan: { anchorQuote: 'exact latest reply quote', placement: 'after_anchor' } }, null, 2))}</pre>
+          <div class="stlp-chip-row"><span class="stlp-chip stlp-chip-active">CompiledPrompt</span><span class="stlp-chip">backend params not requested</span></div>
+        </section>
+        <section class="stlp-module stlp-col-12">
+          <div class="stlp-module-head"><h2>Diagnostics</h2><span class="stlp-mini-pill">JSON fallback aware</span></div>
+          <div class="stlp-stepper stlp-well"><div class="stlp-step stlp-step-done"><span class="stlp-step-node"></span><span>Send</span></div><div class="stlp-step stlp-step-active"><span class="stlp-step-node"></span><span>Receive</span></div><div class="stlp-step"><span class="stlp-step-node"></span><span>Parse</span></div><div class="stlp-step"><span class="stlp-step-node"></span><span>Validate</span></div></div>
+        </section>
+      </div>
+    </section>
+  `;
+}
+
+function renderCompilerPanel(settings = {}) {
+  const profileId = settings.compilerProfileId || settings.backend?.type || 'sd';
+  return `
+    <section class="stlp-tab-panel" data-stlp-console-panel="compiler" hidden>
+      <div class="stlp-grid-12">
+        <section class="stlp-module stlp-col-7">
+          <div class="stlp-module-head"><div><p class="stlp-kicker">Prompt Compiler</p><h2>Mode and prompt profile</h2></div><button class="stlp-button stlp-primary" type="button" data-stlp-action="compile-test">Run compile test</button></div>
+          <div class="stlp-segmented stlp-wide-segmented">${['fast', 'smart', 'expert'].map((mode) => `<span class="stlp-segment${activeClass((settings.mode || 'fast') === mode)}">${mode}</span>`).join('')}</div>
+          <div class="stlp-form-grid stlp-form-grid-3 stlp-form-offset">
+            ${renderField('Prompt profile', profileId, { mono: true })}
+            ${renderField('historyCount', settings.historyCount ?? 8, { type: 'number', mono: true })}
+            ${renderField('Target mode', 'latest_assistant', { mono: true })}
+          </div>
+          <div class="stlp-form-grid stlp-form-grid-2 stlp-form-offset">
+            <label class="stlp-field"><span>Fixed positive</span><textarea class="stlp-console-input stlp-textarea">${escapeHtml((settings.fixedPositive ?? []).join('\n'))}</textarea></label>
+            <label class="stlp-field"><span>Fixed negative</span><textarea class="stlp-console-input stlp-textarea">${escapeHtml((settings.fixedNegative ?? []).join('\n'))}</textarea></label>
+          </div>
+          <div class="stlp-chip-row"><span class="stlp-chip${settings.knowledge?.planner ? ' stlp-chip-active' : ''}">planner</span><span class="stlp-chip${settings.knowledge?.dictionaryHints ? ' stlp-chip-active' : ''}">dictionary hints</span><span class="stlp-chip${settings.worldbook?.enabled ? ' stlp-chip-active' : ''}">BME worldbook</span><span class="stlp-chip${settings.regex?.enableDefaultRules ? ' stlp-chip-active' : ''}">default regex</span></div>
+        </section>
+        <section class="stlp-module stlp-col-5">
+          <h2>CompiledPrompt preview</h2>
+          <div class="stlp-tag-groups">
+            ${['Quality: masterpiece, high quality', 'Subject: 1girl, silver hair', 'Scene: rainy bedroom, window', 'Lighting: backlighting', 'Camera: upper body portrait'].map((line) => `<div class="stlp-tag-line">${escapeHtml(line)}</div>`).join('')}
+          </div>
+          <blockquote class="stlp-well stlp-quote">anchorQuote copied exactly from the latest AI reply</blockquote>
+          <div class="stlp-chip-row"><span class="stlp-chip stlp-chip-active">after_anchor</span><span class="stlp-chip">fallback after_message</span></div>
+        </section>
+        <section class="stlp-module stlp-col-12">
+          <div class="stlp-module-head"><h2>Ordered tagger prompt messages</h2><button class="stlp-button" type="button" data-stlp-action="compile-test">Open latest trace after test</button></div>
+          <div class="stlp-role-list">
+            ${['system 抬头', 'system 角色定义', 'assistant 身份确认', 'system worldbook before', 'history messages', 'system latest marker', 'user latest target', 'user final task'].map((role) => `<span>${escapeHtml(role)}</span>`).join('')}
+          </div>
+        </section>
+      </div>
+    </section>
+  `;
+}
+
 function renderPlaceholderPanel(tab, settings = {}, resources = {}) {
+  if (tab.id === 'tag-api') return renderTagApiPanel(settings);
+  if (tab.id === 'compiler') return renderCompilerPanel(settings);
   if (tab.id === 'backends') return renderBackendsPanel(settings, resources.sdWebui ?? resources);
   const summaries = {
     'tag-api': 'Second API profiles, JSON fallback, model behavior, and live tagger tests.',
@@ -314,11 +387,11 @@ export function closeLittlePainterConsole() {
   document.body.classList.remove('stlp-console-open');
 }
 
-export function openLittlePainterConsole({ getSettings, tab = 'dashboard' } = {}) {
+export function openLittlePainterConsole({ getSettings, runGenerationPipeline, onTraceChanged, tab = 'dashboard' } = {}) {
   const root = getConsoleRoot();
   const settings = typeof getSettings === 'function' ? getSettings() : {};
   root.innerHTML = renderShell(settings, tab);
-  bindConsoleShell(root, { getSettings });
+  bindConsoleShell(root, { getSettings, runGenerationPipeline, onTraceChanged });
   root.classList.remove('stlp-hidden');
   root.setAttribute('aria-hidden', 'false');
   document.body.classList.add('stlp-console-open');
@@ -344,6 +417,11 @@ export function bindConsoleShell(root = document.querySelector(SELECTORS.console
     const actionButton = event.target.closest('[data-stlp-action="refresh-sd-resources"]');
     if (actionButton) {
       refreshSdResources(root, options.getSettings);
+      return;
+    }
+    const generationButton = event.target.closest('[data-stlp-action="generate"], [data-stlp-action="compile-test"]');
+    if (generationButton) {
+      runConsolePipelineAction(root, options, generationButton.dataset.stlpAction);
     }
   });
   document.addEventListener('keydown', (event) => {
@@ -352,6 +430,26 @@ export function bindConsoleShell(root = document.querySelector(SELECTORS.console
     }
   });
   root.dataset.stlpOptions = Boolean(options.getSettings) ? 'settings' : 'static';
+}
+
+async function runConsolePipelineAction(root, options = {}, action = 'compile-test') {
+  const status = root.querySelector('#stlp-console-action-status');
+  if (typeof options.runGenerationPipeline !== 'function') {
+    if (status) status.textContent = 'Pipeline runner is not available in this context.';
+    return;
+  }
+  try {
+    if (status) status.textContent = action === 'generate' ? 'Running full generation…' : 'Running compile dry-run…';
+    await options.runGenerationPipeline({
+      mode: action === 'generate' ? 'console-generate' : 'console-compile-test',
+      skipBackend: action !== 'generate',
+    });
+    if (status) status.textContent = action === 'generate' ? 'Generation completed; latest trace saved.' : 'Compile dry-run completed; latest trace saved.';
+    options.onTraceChanged?.();
+  } catch (error) {
+    if (status) status.textContent = error?.message || String(error);
+    options.onTraceChanged?.();
+  }
 }
 
 async function refreshSdResources(root, getSettings) {
@@ -371,13 +469,13 @@ async function refreshSdResources(root, getSettings) {
   }
 }
 
-export function registerWandMenuButton({ getSettings } = {}) {
+export function registerWandMenuButton({ getSettings, runGenerationPipeline, onTraceChanged } = {}) {
   if (typeof document === 'undefined') return;
   if (document.querySelector(SELECTORS.wandButton)) return;
 
   const container = document.getElementById('stlp_wand_container') || document.getElementById('extensionsMenu');
   if (!(container instanceof HTMLElement)) {
-    setTimeout(() => registerWandMenuButton({ getSettings }), 500);
+    setTimeout(() => registerWandMenuButton({ getSettings, runGenerationPipeline, onTraceChanged }), 500);
     return;
   }
 
@@ -389,7 +487,7 @@ export function registerWandMenuButton({ getSettings } = {}) {
   const label = document.createElement('span');
   label.textContent = 'Little Painter';
   item.append(icon, label);
-  item.addEventListener('click', () => openLittlePainterConsole({ getSettings }));
+  item.addEventListener('click', () => openLittlePainterConsole({ getSettings, runGenerationPipeline, onTraceChanged }));
   container.appendChild(item);
 }
 

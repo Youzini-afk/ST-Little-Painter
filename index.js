@@ -312,6 +312,15 @@ jQuery(async () => {
   populateSettingsForm();
   bindSettingsForm();
   bindWorkbenchButtons();
-  registerWandMenuButton({ getSettings });
+  registerWandMenuButton({
+    getSettings,
+    runGenerationPipeline: (options = {}) => runGenerationPipeline({
+      ...options,
+      getContext,
+      getSettings,
+      worldbookContextProvider,
+    }),
+    onTraceChanged: () => renderTraceOutput(),
+  });
   registerImageRerenderBridge();
 });

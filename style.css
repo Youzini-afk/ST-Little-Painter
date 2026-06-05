@@ -636,6 +636,10 @@ body.stlp-console-open {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
+.stlp-form-grid-2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
 .stlp-form-grid-4 {
   grid-template-columns: repeat(4, minmax(0, 1fr));
 }
@@ -662,6 +666,19 @@ body.stlp-console-open {
 .stlp-console-input {
   min-height: 2.6rem;
   padding: 0.55rem 0.7rem;
+}
+
+.stlp-textarea {
+  min-height: 7rem;
+  resize: vertical;
+}
+
+.stlp-form-offset {
+  margin-top: 1rem;
+}
+
+.stlp-wide-segmented {
+  width: max-content;
 }
 
 .stlp-console-input:focus {
@@ -708,6 +725,22 @@ body.stlp-console-open {
   white-space: pre-wrap;
 }
 
+.stlp-role-list {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.65rem;
+}
+
+.stlp-role-list span {
+  padding: 0.7rem;
+  border: 1px solid var(--stlp-outline);
+  border-radius: var(--stlp-radius-well);
+  background: var(--stlp-well);
+  color: var(--stlp-text-muted);
+  font-family: var(--stlp-font-mono);
+  font-size: 0.75rem;
+}
+
 @media (max-width: 1100px) {
   .stlp-console {
     inset: 12px;
@@ -725,9 +758,11 @@ body.stlp-console-open {
     grid-column: span 12;
   }
 
+  .stlp-form-grid-2,
   .stlp-form-grid-3,
   .stlp-form-grid-4,
-  .stlp-launcher-grid {
+  .stlp-launcher-grid,
+  .stlp-role-list {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
