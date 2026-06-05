@@ -9,6 +9,7 @@ import { searchTags, dictionaryHintsForText } from '../src/dictionary/tagSearch.
 import { loadTagDictionary } from '../src/dictionary/tagDictionary.js';
 import { loadSkillRegistry } from '../src/skills/skillRegistry.js';
 import { buildTaggerPrompt, buildTaggerPromptHints } from '../src/tagger/buildTaggerPrompt.js';
+import { buildVisualVariables } from '../src/variables/visualVariables.js';
 
 const ROOT = dirname(dirname(fileURLToPath(import.meta.url)));
 
@@ -209,6 +210,9 @@ async function testBuildTaggerPrompt() {
   assert(payload.selectedSkills.some((skill) => Array.isArray(skill.outputBlocks)));
   assert(!Object.prototype.hasOwnProperty.call(payload, 'skillSelectionTrace'));
   assert(Array.isArray(payload.skillSelectionSummary));
+  assert.equal(payload.visualVariables.schemaVersion, 'lp.visualVariables.v1');
+  assert.equal(payload.visualVariables.sourcePolicy.chatWriteback, false);
+  assert(payload.visualVariables.variables.identityLock.some((item) => item.value === 'silver hair'));
   assert(!Object.prototype.hasOwnProperty.call(payload.outputSchemaExample, 'params'));
   assert.deepEqual(Object.keys(payload.outputSchemaExample.insertionPlan), ['anchorQuote', 'placement']);
 
@@ -221,11 +225,47 @@ async function testBuildTaggerPrompt() {
   assert(oneMessagePrompt.some((message) => message.content.includes('爱丽丝坐在窗边')));
 }
 
+function testVisualVariables() {
+  const visualVariables = buildVisualVariables({
+    context: {
+      name2: 'Alice',
+      character: {
+        name: 'Alice',
+        stableAppearance: ['silver hair', 'red eyes'],
+        currentState: ['wet white dress'],
+      },
+      scenePlan: {
+        setting: 'rainy bedroom',
+        camera: ['close-up'],
+        lighting: ['moonlight rim light'],
+        actions: ['sitting on bed'],
+      },
+    },
+    promptHints: {
+      dictionaryHits: [
+        { category: 'hair', tag: 'silver hair', matched: '银发', score: 100 },
+        { category: 'lighting', tag: 'moonlight', matched: '月光', score: 100 },
+        { category: 'clothingState', tag: 'wet clothes', matched: '湿透', score: 100 },
+      ],
+      skillSelection: { skills: [{ id: 'film_camera', category: 'camera', outputBlocks: ['camera', 'lighting'] }] },
+    },
+  });
+  assert.equal(visualVariables.schemaVersion, 'lp.visualVariables.v1');
+  assert.equal(visualVariables.sourcePolicy.chatWriteback, false);
+  assert.equal(visualVariables.sourcePolicy.modelUpdateFormat, 'none');
+  assert(visualVariables.variables.identityLock.some((item) => item.value === 'silver hair'));
+  assert(visualVariables.variables.clothingState.some((item) => item.value === 'wet clothes'));
+  assert(visualVariables.variables.camera.some((item) => item.value === 'close-up'));
+  assert(visualVariables.variables.lighting.some((item) => item.value === 'moonlight'));
+  assert(visualVariables.promptGuidance.some((line) => line.includes('Do not output')));
+}
+
 await testProfileSelection();
 testSkillSelector();
 testCuratedCompiler();
 testDictionarySearchZhAlias();
 await testCuratedRuntimeAssets();
 await testBuildTaggerPrompt();
+testVisualVariables();
 
 console.log(JSON.stringify({ ok: true, test: 'prompt-knowledge', root: ROOT }, null, 2));

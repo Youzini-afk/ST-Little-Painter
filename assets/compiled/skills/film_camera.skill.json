@@ -1,7 +1,18 @@
 {
   "id": "film_camera",
   "label": "Film Camera",
-  "keywords": ["camera", "shot", "lens", "angle", "close-up", "wide", "镜头", "构图", "角度"],
-  "patterns": ["\\b(camera|shot|lens|angle|close-up|wide shot|portrait)\\b"],
-  "instructions": ["Add camera distance, angle, and composition tags when supported.", "Use concise photographic tag vocabulary."]
+  "category": "camera",
+  "priority": 44,
+  "keywords": ["camera", "shot", "lens", "angle", "close-up", "wide", "foreground", "background", "depth of field", "镜头", "构图", "角度", "景别", "前景", "背景", "景深"],
+  "patterns": ["\\b(camera|shot|lens|angle|close-up|wide shot|portrait|foreground|background|depth of field)\\b"],
+  "instructions": [
+    "Resolve shot scale first: close-up, upper body, cowboy shot, full body, wide shot.",
+    "Then resolve angle and spatial layer: from above/from below/eye level, foreground/background, depth of field.",
+    "Add light direction only when visible: rim light, backlighting, soft light, moonlight, candlelight, neon lighting.",
+    "Use concise photographic tag vocabulary; do not write prose storyboards."
+  ],
+  "outputBlocks": ["camera", "lighting", "environment"],
+  "examples": [
+    { "context": "雨夜窗边的上半身特写，月光从背后勾出轮廓", "tags": ["upper body", "close-up", "backlighting", "moonlight", "depth of field"] }
+  ]
 }

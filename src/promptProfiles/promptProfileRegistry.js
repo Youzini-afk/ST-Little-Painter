@@ -14,7 +14,7 @@ export const FALLBACK_PROMPT_PROFILES = Object.freeze([
     preferredBlocks: ['quality', 'subject', 'identity', 'character', 'clothing', 'pose', 'environment', 'camera', 'lighting', 'style'],
     negativeGuidance: ['Use common quality/anatomy/artifact negatives only when relevant.'],
     tagOrdering: ['quality', 'subject', 'identity', 'character', 'face', 'hair', 'eyes', 'body', 'clothing', 'clothingState', 'pose', 'interaction', 'expression', 'environment', 'props', 'camera', 'lighting', 'style', 'backendSpecific', 'lora'],
-    requiredSkills: ['visual_extraction', 'character_identity_lock'],
+    requiredSkills: ['visual_extraction', 'character_identity_lock', 'film_camera', 'lighting_designer'],
   },
   {
     id: 'sd',
@@ -31,7 +31,7 @@ export const FALLBACK_PROMPT_PROFILES = Object.freeze([
     preferredBlocks: ['quality', 'subject', 'identity', 'character', 'body', 'clothing', 'clothingState', 'pose', 'interaction', 'environment', 'camera', 'lighting', 'style', 'backendSpecific', 'lora'],
     negativeGuidance: ['Keep a compact SD negative prompt: low quality, anatomy, hands, blur, watermark/text artifacts.'],
     tagOrdering: ['quality', 'subject', 'identity', 'character', 'face', 'hair', 'eyes', 'body', 'clothing', 'clothingState', 'pose', 'interaction', 'expression', 'environment', 'props', 'camera', 'lighting', 'style', 'backendSpecific', 'lora'],
-    requiredSkills: ['visual_extraction', 'character_identity_lock', 'backend_sd_pack'],
+    requiredSkills: ['visual_extraction', 'character_identity_lock', 'clothing_state_resolver', 'film_camera', 'lighting_designer', 'backend_sd_pack', 'negative_guardrail'],
   },
   {
     id: 'novelai',
@@ -48,7 +48,7 @@ export const FALLBACK_PROMPT_PROFILES = Object.freeze([
     preferredBlocks: ['quality', 'subject', 'identity', 'character', 'hair', 'eyes', 'clothing', 'pose', 'interaction', 'expression', 'environment', 'camera', 'lighting', 'style', 'backendSpecific'],
     negativeGuidance: ['Prefer undesired-content concepts such as low quality, bad anatomy, artifacts, text, watermark, extra/missing fingers.'],
     tagOrdering: ['quality', 'subject', 'identity', 'character', 'hair', 'eyes', 'face', 'body', 'clothing', 'clothingState', 'pose', 'interaction', 'expression', 'environment', 'props', 'camera', 'lighting', 'style', 'backendSpecific', 'lora'],
-    requiredSkills: ['visual_extraction', 'character_identity_lock', 'backend_novelai_pack'],
+    requiredSkills: ['visual_extraction', 'character_identity_lock', 'clothing_state_resolver', 'film_camera', 'lighting_designer', 'backend_novelai_pack', 'negative_guardrail'],
   },
   {
     id: 'comfyui',
@@ -65,7 +65,7 @@ export const FALLBACK_PROMPT_PROFILES = Object.freeze([
     preferredBlocks: ['quality', 'subject', 'identity', 'character', 'clothing', 'pose', 'environment', 'camera', 'lighting', 'style', 'backendSpecific', 'lora'],
     negativeGuidance: ['Use workflow-safe concise negatives: low quality, blur, bad anatomy, artifact/text/watermark issues.'],
     tagOrdering: ['quality', 'subject', 'identity', 'character', 'face', 'hair', 'eyes', 'body', 'clothing', 'clothingState', 'pose', 'interaction', 'expression', 'environment', 'props', 'camera', 'lighting', 'style', 'backendSpecific', 'lora'],
-    requiredSkills: ['visual_extraction', 'character_identity_lock', 'backend_sd_pack'],
+    requiredSkills: ['visual_extraction', 'character_identity_lock', 'clothing_state_resolver', 'film_camera', 'lighting_designer', 'backend_sd_pack', 'negative_guardrail'],
   },
   {
     id: 'naturalImage',
@@ -82,7 +82,7 @@ export const FALLBACK_PROMPT_PROFILES = Object.freeze([
     preferredBlocks: ['subject', 'identity', 'character', 'clothing', 'pose', 'interaction', 'environment', 'props', 'camera', 'lighting', 'style'],
     negativeGuidance: ['Use only broad natural-image negatives when useful: blurry, low quality, text, watermark, deformed anatomy.'],
     tagOrdering: ['subject', 'identity', 'character', 'face', 'hair', 'eyes', 'body', 'clothing', 'clothingState', 'pose', 'interaction', 'expression', 'environment', 'props', 'camera', 'lighting', 'style', 'quality', 'backendSpecific', 'lora'],
-    requiredSkills: ['visual_extraction', 'character_identity_lock'],
+    requiredSkills: ['visual_extraction', 'character_identity_lock', 'film_camera', 'lighting_designer'],
   },
 ]);
 

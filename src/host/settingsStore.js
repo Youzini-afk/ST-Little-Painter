@@ -153,6 +153,10 @@ export const defaultSettings = Object.freeze({
     selectedSkills: true,
     planner: true,
   },
+  visualVariables: {
+    enabled: true,
+    maxItemsPerBucket: 12,
+  },
   fixedPositive: ['masterpiece', 'high quality'],
   fixedNegative: ['low quality', 'blurry', 'bad anatomy', 'watermark', 'text'],
   tagBudget: {

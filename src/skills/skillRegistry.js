@@ -51,8 +51,12 @@ export const FALLBACK_SKILLS = Object.freeze([
     priority: 40,
     keywords: ['camera', 'shot', 'lens', 'angle', 'close-up', 'wide', '镜头', '构图', '角度'],
     patterns: ['\\b(camera|shot|lens|angle|close-up|wide shot|portrait)\\b'],
-    instructions: ['Add camera distance, angle, and composition tags when supported.'],
-    outputBlocks: ['camera'],
+    instructions: [
+      'Resolve shot scale first: close-up, upper body, cowboy shot, full body, wide shot.',
+      'Then resolve angle and spatial layer: from above/from below/eye level, foreground/background, depth of field.',
+      'Keep camera language concise and compatible with tag prompts; do not write prose storyboards.',
+    ],
+    outputBlocks: ['camera', 'lighting', 'environment'],
     examples: [{ context: 'close portrait from above', tags: ['close-up', 'from above'] }],
   },
   {

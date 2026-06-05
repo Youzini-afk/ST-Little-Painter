@@ -48,6 +48,8 @@
   ],
   "requiredSkills": [
     "visual_extraction",
-    "character_identity_lock"
+    "character_identity_lock",
+    "film_camera",
+    "lighting_designer"
   ]
 }

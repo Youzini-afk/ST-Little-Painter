@@ -55,6 +55,10 @@
   "requiredSkills": [
     "visual_extraction",
     "character_identity_lock",
-    "backend_sd_pack"
+    "clothing_state_resolver",
+    "film_camera",
+    "lighting_designer",
+    "backend_sd_pack",
+    "negative_guardrail"
   ]
 }

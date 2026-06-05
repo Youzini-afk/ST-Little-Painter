@@ -3,6 +3,7 @@ import { dictionaryHintsForText } from '../dictionary/tagSearch.js';
 import { loadSkillRegistry } from '../skills/skillRegistry.js';
 import { selectSkills } from '../skills/skillSelector.js';
 import { selectPromptProfileForSettings } from '../promptProfiles/promptProfileRegistry.js';
+import { buildVisualVariables } from '../variables/visualVariables.js';
 
 function getDictionaryHintsFrom(dictionary = [], { categories = [], limit = 24 } = {}) {
   const wanted = new Set(categories.filter(Boolean));
@@ -236,7 +237,7 @@ function buildCharacterSnapshot(context = {}) {
   };
 }
 
-function buildKnowledgePayload({ settings, schemaHint, promptProfile, hints, scenePlan }) {
+function buildKnowledgePayload({ settings, schemaHint, promptProfile, hints, scenePlan, visualVariables }) {
   return {
     mode: settings?.mode ?? 'fast',
     promptProfile: promptProfile ? compactProfileForPrompt(promptProfile) : null,
@@ -247,6 +248,7 @@ function buildKnowledgePayload({ settings, schemaHint, promptProfile, hints, sce
     dictionaryHints: hints.dictionaryHints,
     dictionaryAliasGuidance: 'If Chinese text matches dictionary zhAliases/aliases/keywords, use the canonical English tag in positiveBlocks or negative.',
     scenePlan: compactStructuredValue(scenePlan),
+    visualVariables: compactStructuredValue(visualVariables),
     outputSchemaExample: schemaHint,
   };
 }
@@ -304,6 +306,9 @@ export function buildTaggerPrompt({ context, settings, promptHints } = {}) {
   const promptSafeContext = sanitizeContextForPrompt(context ?? {});
   const scenePlan = promptSafeContext?.scenePlan ?? null;
   const worldbookContext = promptSafeContext?.worldbook ?? sanitizeWorldbookForPrompt({});
+  const visualVariables = settings?.visualVariables?.enabled === false
+    ? null
+    : buildVisualVariables({ context: promptSafeContext, promptHints: hints, settings });
 
   const messages = [
     {
@@ -348,9 +353,11 @@ export function buildTaggerPrompt({ context, settings, promptHints } = {}) {
         '   - 是否特写/全身/远景 → 决定构图相关标签',
         '   - 是否逆光/柔光/霓虹 → 决定光线标签',
         '   - 一切以当前聊天正文 + 角色卡 + 世界书 + scenePlan 中明确存在的视觉信息为准',
+        '   - visualVariables 是插件整理出的当前绘图变量快照：用于保持角色辨识度、服装状态、身体状态、镜头光照一致性；它不是 MVU 指令，也不要输出变量更新块',
         '',
         '## 执行步骤',
         '1. 扫描最新 AI 回复、角色卡、世界书，提取可绘制视觉元素',
+        '1.5 参考 visualVariables 中的 identityLock / clothingState / bodyState / camera / lighting，补齐当前画面中明确可见且应保持一致的绘图变量',
         '2. 将视觉元素按 positiveBlocks 分类编组',
         '3. 质量标签放在 quality 块最前',
         '4. 角色身份和固定特征放在 identity / character / hair / eyes 等块',
@@ -365,7 +372,7 @@ export function buildTaggerPrompt({ context, settings, promptHints } = {}) {
         '- 下方 `--- 以上是历史对话，以下是本轮需要配图的最新 AI 回复 ---` 块中的文本是本次配图目标的原文',
         '- anchorQuote 必须从 —— `--- 以上是历史对话，以下是本轮需要配图的最新 AI 回复 ---` 块中——选取原文精确子串，不能从历史、世界书、profile 或其他位置选取',
         '- 图片插入在最新 AI 回复的 anchorQuote 所指定位置（之前或之后）',
-        '- 可绘制视觉信息从最新 AI 回复、角色卡、世界书、prompt profile 中提取',
+        '- 可绘制视觉信息从最新 AI 回复、角色卡、世界书、prompt profile、visualVariables 中提取',
         '',
         '- 你的**重要且唯一**的任务是:根据<user>的指令严肃执行任务.',
         '',
@@ -447,7 +454,7 @@ export function buildTaggerPrompt({ context, settings, promptHints } = {}) {
   messages.push(
     {
       role: 'user',
-      content: section('Tag knowledge and selected skills', buildKnowledgePayload({ settings, schemaHint, promptProfile, hints, scenePlan })),
+      content: section('Tag knowledge and selected skills', buildKnowledgePayload({ settings, schemaHint, promptProfile, hints, scenePlan, visualVariables })),
     },
     {
       role: 'user',

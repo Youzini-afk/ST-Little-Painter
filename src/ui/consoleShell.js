@@ -609,10 +609,10 @@ function renderKnowledgePanel(settings = {}) {
         </section>
         <section class="stlp-module stlp-col-5">
           <h2>${escapeHtml(t('retrievalPreview'))}</h2>
-          <div class="stlp-chip-row"><span class="stlp-chip${knowledge.dictionaryHints ? ' stlp-chip-active' : ''}">dictionaryHints</span><span class="stlp-chip${knowledge.selectedSkills ? ' stlp-chip-active' : ''}">selectedSkills</span><span class="stlp-chip${knowledge.planner ? ' stlp-chip-active' : ''}">planner</span></div>
+          <div class="stlp-chip-row"><span class="stlp-chip${knowledge.dictionaryHints ? ' stlp-chip-active' : ''}">dictionaryHints</span><span class="stlp-chip${knowledge.selectedSkills ? ' stlp-chip-active' : ''}">selectedSkills</span><span class="stlp-chip${knowledge.planner ? ' stlp-chip-active' : ''}">planner</span><span class="stlp-chip${settings.visualVariables?.enabled !== false ? ' stlp-chip-active' : ''}">visualVariables</span></div>
           <div class="stlp-tag-groups stlp-form-offset">${['半身 → upper body', '逆光 → backlighting', '雨夜 → rainy night', '和服 → kimono', '湿衣 → wet clothes'].map((line) => `<div class="stlp-tag-line">${escapeHtml(line)}</div>`).join('')}</div>
         </section>
-        <section class="stlp-module stlp-col-12"><h2>${escapeHtml(t('skillSelector'))}</h2><div class="stlp-role-list">${['visual_extraction', 'character_identity_lock', 'pose_resolver', 'film_camera', 'lighting_designer', 'backend_sd_pack', 'backend_novelai_pack', 'interaction_resolver'].map((skill) => `<span>${escapeHtml(skill)}</span>`).join('')}</div></section>
+        <section class="stlp-module stlp-col-12"><h2>${escapeHtml(t('skillSelector'))}</h2><div class="stlp-role-list">${['visual_extraction', 'character_identity_lock', 'clothing_state_resolver', 'body_visibility_resolver', 'pose_resolver', 'film_camera', 'lighting_designer', 'scene_composition_director', 'negative_guardrail', 'backend_sd_pack', 'backend_novelai_pack', 'interaction_resolver'].map((skill) => `<span>${escapeHtml(skill)}</span>`).join('')}</div></section>
       </div>
     </section>
   `;
