@@ -1,0 +1,16 @@
+{
+  "id": "body_visibility_resolver",
+  "label": "Body Visibility Resolver",
+  "keywords": ["nude", "explicit", "exposed", "breasts", "thighs", "underwear", "cleavage", "裸", "裸体", "乳", "胸", "大腿", "内衣", "露出"],
+  "patterns": ["\\b(nude|explicit|exposed|breasts?|thighs?|underwear|panties|cleavage)\\b"],
+  "instructions": [
+    "Describe visible body exposure and body-state facts accurately when they are present.",
+    "Do not suppress explicit visible facts; if the scene visibly contains exposure or body details, keep them in the appropriate body/clothingState blocks.",
+    "Do not invent unseen exposure from mood, relationship, desire, or past events."
+  ],
+  "outputBlocks": ["body", "clothingState"],
+  "examples": [
+    { "context": "她的肩膀和大腿在画面中清晰可见。", "tags": ["bare shoulders", "thighs"] },
+    { "context": "wet shirt clings to her shoulders", "tags": ["wet clothes", "bare shoulders"] }
+  ]
+}

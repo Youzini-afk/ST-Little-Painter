@@ -124,6 +124,15 @@ async function testCuratedRuntimeAssets() {
   assert(ids.includes('clothing_state_resolver'));
   assert(ids.includes('scene_composition_director'));
   assert(ids.includes('backend_novelai_pack'));
+
+  const bodySelected = selectSkills({
+    context: { text: '她的肩膀和大腿在画面中清晰露出。' },
+    settings: { backend: { type: 'novelai' } },
+    promptProfile: { id: 'novelai', backendTypes: ['novelai'] },
+    skills,
+    limit: 8,
+  });
+  assert(bodySelected.skills.some((skill) => skill.id === 'body_visibility_resolver'));
 }
 
 async function testBuildTaggerPrompt() {

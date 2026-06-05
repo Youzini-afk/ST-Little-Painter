@@ -132,13 +132,13 @@ export const FALLBACK_SKILLS = Object.freeze([
     outputBlocks: ['camera', 'composition'],
   },
   {
-    id: 'nsfw_visibility_boundary',
-    label: 'NSFW Visibility Boundary',
-    category: 'safety',
+    id: 'body_visibility_resolver',
+    label: 'Body Visibility Resolver',
+    category: 'body',
     priority: 60,
-    keywords: ['nude', 'nsfw', 'sexual', 'breasts', 'thighs', '裸', '色情', '乳', '大腿', '露出'],
-    patterns: ['\\b(nude|nsfw|sexual|breasts?|thighs?|underwear)\\b'],
-    instructions: ['Only output NSFW/body exposure tags when the latest scene visibly contains them.', 'Do not infer nudity or sexual content from mood, desire, or past events alone.'],
+    keywords: ['nude', 'explicit', 'exposed', 'breasts', 'thighs', 'underwear', '裸', '裸体', '乳', '胸', '大腿', '内衣', '露出'],
+    patterns: ['\\b(nude|explicit|exposed|breasts?|thighs?|underwear)\\b'],
+    instructions: ['Describe visible body exposure and body-state facts accurately when they are present.', 'Do not suppress explicit visible facts; do not invent unseen exposure from mood or past events.'],
     outputBlocks: ['body', 'clothingState', 'negative'],
   },
   {
@@ -166,7 +166,7 @@ const SKILL_FILES = [
   'expression_gaze_resolver',
   'clothing_state_resolver',
   'scene_composition_director',
-  'nsfw_visibility_boundary',
+  'body_visibility_resolver',
   'negative_guardrail',
 ];
 
