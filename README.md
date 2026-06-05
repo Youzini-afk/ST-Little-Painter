@@ -1,5 +1,7 @@
 # ST-Little Painter
 
+简体中文 | [English](./README_EN.md)
+
 SillyTavern 扩展 —— 自动从聊天上下文生成 Stable Diffusion 配图提示词，并调用图像后端出图。
 
 > 不污染主聊天模型的角色扮演/故事输出。通过独立的 tagger LLM 管线提取标签 → 编译提示词 → 调用图像后端 → 将结果插入聊天。
