@@ -17,6 +17,16 @@ const TABS = [
 
 const PIPELINE_STAGE_KEYS = ['stageContext', 'stageWorldbook', 'stagePlanner', 'stageTagger', 'stageCompile', 'stageBackend', 'stageInsert'];
 
+const PIPELINE_ICONS = {
+  stageContext: `<svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>`,
+  stageWorldbook: `<svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"></path></svg>`,
+  stagePlanner: `<svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v3"></path><path d="M12 18v3"></path><path d="M3 12h3"></path><path d="M18 12h3"></path><circle cx="12" cy="12" r="3.4"></circle><path d="m16.5 7.5-2.1 2.1"></path><path d="m7.5 16.5 2.1-2.1"></path><path d="m7.5 7.5 2.1 2.1"></path><path d="m16.5 16.5-2.1-2.1"></path></svg>`,
+  stageTagger: `<svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41 13.42 20.58a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82Z"></path><circle cx="7" cy="7" r="1.2"></circle></svg>`,
+  stageCompile: `<svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline><path d="m14 4-4 16"></path></svg>`,
+  stageBackend: `<svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="7" rx="2"></rect><rect x="3" y="14" width="18" height="7" rx="2"></rect><path d="M7 6.5h.01"></path><path d="M7 17.5h.01"></path><path d="M11 6.5h6"></path><path d="M11 17.5h6"></path></svg>`,
+  stageInsert: `<svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v12"></path><polyline points="17 12 12 17 7 12"></polyline><path d="M5 21h14"></path></svg>`
+};
+
 function escapeHtml(value) {
   return String(value ?? '')
     .replaceAll('&', '&amp;')
@@ -106,10 +116,14 @@ function renderPipeline(settings = {}) {
   const t = createTranslator(settings);
   const stages = PIPELINE_STAGE_KEYS.map((stageKey, index) => {
     const state = index < 3 ? 'done' : index === 3 ? 'active' : 'pending';
+    const icon = PIPELINE_ICONS[stageKey] || '';
     return `
       <div class="stlp-step stlp-step-${state}">
-        <span class="stlp-step-node"></span>
-        <span>${escapeHtml(t(stageKey))}</span>
+        <span class="stlp-step-node">${icon}</span>
+        <div class="stlp-step-label">
+          <small>0${index + 1}</small>
+          <span>${escapeHtml(t(stageKey))}</span>
+        </div>
       </div>
     `;
   }).join('');
@@ -124,7 +138,9 @@ function renderPipeline(settings = {}) {
           <span><i class="stlp-dot stlp-amber"></i>${escapeHtml(t('dictionaryHints'))}</span>
         </div>
       </div>
-      <div class="stlp-well stlp-stepper">${stages}</div>
+      <div class="stlp-pipeline-card">
+        <div class="stlp-stepper">${stages}</div>
+      </div>
       <div class="stlp-chip-row">
         <span class="stlp-chip">historyCount 8</span>
         <span class="stlp-chip">JSON auto</span>
