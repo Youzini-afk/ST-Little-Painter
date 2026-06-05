@@ -69,6 +69,12 @@ export const SELECTORS = Object.freeze({
   exportTrace: '#stlp-export-trace',
   traceOutput: '#stlp-trace-output',
   imagePreviewList: '#stlp-image-preview-list',
+  wandButton: '#stlp-wand-button',
+  consoleRoot: '#stlp-console-root',
+  consoleClose: '#stlp-console-close',
+  consoleBackdrop: '#stlp-console-backdrop',
+  consoleTabs: '[data-stlp-console-tab]',
+  consoleTabPanels: '[data-stlp-console-panel]',
 });
 
 export const TRACE_STATUS = Object.freeze({

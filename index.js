@@ -32,6 +32,7 @@ import { createWorldbookContextProvider } from './src/worldbook/WorldbookContext
 import { compile as compileBackendRequest, generate as generateBackendImage } from './src/backend/backendRegistry.js';
 import { saveGenerationRecord } from './src/image/imageStore.js';
 import { insertToChatShell, rerenderAllGenerationRecords } from './src/image/insertImage.js';
+import { registerWandMenuButton } from './src/ui/consoleShell.js';
 
 const worldbookContextProvider = createWorldbookContextProvider();
 
@@ -721,5 +722,6 @@ jQuery(async () => {
   populateSettingsForm();
   bindSettingsForm();
   bindWorkbenchButtons();
+  registerWandMenuButton({ getSettings });
   registerImageRerenderBridge();
 });
