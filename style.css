@@ -314,6 +314,17 @@ body.stlp-console-open {
   gap: 0.45rem;
 }
 
+.stlp-command-clickable {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+}
+
+.stlp-command-clickable:hover .stlp-command-label {
+  color: var(--stlp-text);
+}
+
 .stlp-command-label,
 .stlp-mono,
 .stlp-kicker {
@@ -360,11 +371,18 @@ body.stlp-console-open {
 }
 
 .stlp-segment {
+  border: 0;
   border-radius: 999px;
+  background: transparent;
   color: var(--stlp-text-muted);
+  cursor: pointer;
   font-family: var(--stlp-font-mono);
   font-size: 0.72rem;
   padding: 0.38rem 0.55rem;
+}
+
+.stlp-segment:hover {
+  color: var(--stlp-text);
 }
 
 .stlp-segment.stlp-active {
@@ -379,8 +397,15 @@ body.stlp-console-open {
   border-radius: 0.75rem;
   background: var(--stlp-well);
   color: var(--stlp-text-muted);
+  cursor: pointer;
   font-family: var(--stlp-font-mono);
   font-size: 0.72rem;
+  text-align: left;
+}
+
+.stlp-select-shell:hover {
+  color: var(--stlp-text);
+  border-color: rgba(217, 138, 78, 0.55);
 }
 
 .stlp-unsaved i,

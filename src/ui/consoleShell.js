@@ -2,6 +2,7 @@ import { EXTENSION_NAME, SELECTORS } from '../core/constants.js';
 import { compile as compileBackendRequest, listResources as listBackendResources } from '../backend/backendRegistry.js';
 import { getDefaultRegexRules } from '../regex/defaultRegexRules.js';
 import { getLatestTrace, getTraceHistory } from '../debug/trace.js';
+import { saveSettings, updateSettings } from '../host/settingsStore.js';
 import { createTranslator } from './i18n.js';
 
 const TABS = [
@@ -58,23 +59,24 @@ function renderCommandShelf(settings = {}) {
   const t = createTranslator(settings);
   const backendType = settings.backend?.type || 'sdWebui';
   const mode = settings.mode || 'fast';
+  const profileLabel = settings.profiles?.list?.[settings.profiles?.active]?.label || 'anime-default / SD';
   return `
     <header class="stlp-command-shelf">
-      <div class="stlp-command-group">
+      <button class="stlp-command-group stlp-command-clickable" type="button" data-stlp-command-toggle="enabled" aria-pressed="${settings.enabled !== false ? 'true' : 'false'}">
         <span class="stlp-toggle ${settings.enabled !== false ? 'stlp-on' : ''}" aria-hidden="true"></span>
         <span class="stlp-command-label">${escapeHtml(t('enabled'))}</span>
-      </div>
+      </button>
       <div class="stlp-segmented" aria-label="${escapeHtml(t('backend'))}">
         ${['sdWebui:SD', 'novelai:NAI', 'comfyui:Comfy', 'naturalImage:Natural'].map((item) => {
           const [value, label] = item.split(':');
-          return `<span class="stlp-segment${activeClass(backendType === value)}">${label}</span>`;
+          return `<button class="stlp-segment${activeClass(backendType === value)}" type="button" data-stlp-command-set="backend.type" data-stlp-command-value="${escapeHtml(value)}" aria-pressed="${backendType === value ? 'true' : 'false'}">${label}</button>`;
         }).join('')}
       </div>
       <div class="stlp-segmented" aria-label="${escapeHtml(t('mode'))}">
-        ${['fast', 'smart', 'expert'].map((value) => `<span class="stlp-segment${activeClass(mode === value)}">${value}</span>`).join('')}
+        ${['fast', 'smart', 'expert'].map((value) => `<button class="stlp-segment${activeClass(mode === value)}" type="button" data-stlp-command-set="mode" data-stlp-command-value="${escapeHtml(value)}" aria-pressed="${mode === value ? 'true' : 'false'}">${value}</button>`).join('')}
       </div>
-      <div class="stlp-select-shell">anime-default / SD</div>
-      <span class="stlp-unsaved"><i></i> ${escapeHtml(t('ready'))}</span>
+      <button class="stlp-select-shell" type="button" data-stlp-console-tab="compiler">${escapeHtml(profileLabel)}</button>
+      <span id="stlp-console-action-status" class="stlp-unsaved"><i></i> ${escapeHtml(t('ready'))}</span>
       <button class="stlp-button stlp-primary" type="button" data-stlp-action="generate">${escapeHtml(t('generateReply'))}</button>
       <button class="stlp-button" type="button" data-stlp-action="compile-test">${escapeHtml(t('testCompile'))}</button>
       <button id="stlp-console-close" class="stlp-icon-button" type="button" aria-label="${escapeHtml(t('closeConsole'))}">×</button>
@@ -271,7 +273,7 @@ function renderTagApiPanel(settings = {}) {
             ${renderField(t('timeoutMs'), settings.timeoutMs ?? 30000, { type: 'number', mono: true })}
             ${renderField(t('retries'), settings.retryCount ?? 1, { type: 'number', mono: true })}
           </div>
-          <div class="stlp-actions-row"><button class="stlp-button stlp-primary" type="button" data-stlp-action="compile-test">${escapeHtml(t('testApiCompile'))}</button><span id="stlp-console-action-status" class="stlp-muted">${escapeHtml(t('compileTraceHint'))}</span></div>
+          <div class="stlp-actions-row"><button class="stlp-button stlp-primary" type="button" data-stlp-action="compile-test">${escapeHtml(t('testApiCompile'))}</button><span class="stlp-muted">${escapeHtml(t('compileTraceHint'))}</span></div>
         </section>
         <section class="stlp-module stlp-col-5">
           <h2>${escapeHtml(t('responseContract'))}</h2>
@@ -470,6 +472,39 @@ function setActiveTab(root, tabId = 'dashboard') {
   });
 }
 
+function getActiveTab(root) {
+  return root.querySelector(`${SELECTORS.consoleTabPanels}:not([hidden])`)?.dataset.stlpConsolePanel || 'dashboard';
+}
+
+function rerenderConsole(root, settings, options = {}, activeTab = getActiveTab(root)) {
+  const open = !root.classList.contains('stlp-hidden');
+  root.innerHTML = renderShell(settings, activeTab);
+  root.classList.toggle('stlp-hidden', !open);
+  root.setAttribute('aria-hidden', open ? 'false' : 'true');
+  document.body.classList.toggle('stlp-console-open', open);
+  setActiveTab(root, activeTab);
+  options.onSettingsChanged?.(settings);
+}
+
+function setNestedValue(target, path, value) {
+  const keys = String(path).split('.').filter(Boolean);
+  let cursor = target;
+  keys.slice(0, -1).forEach((key) => {
+    cursor[key] = cursor[key] && typeof cursor[key] === 'object' && !Array.isArray(cursor[key]) ? cursor[key] : {};
+    cursor = cursor[key];
+  });
+  cursor[keys[keys.length - 1]] = value;
+}
+
+function updateConsoleSetting(root, options = {}, path, value) {
+  const settings = updateSettings((current) => {
+    setNestedValue(current, path, value);
+    return current;
+  });
+  saveSettings();
+  rerenderConsole(root, settings, options);
+}
+
 export function closeLittlePainterConsole() {
   const root = document.querySelector(SELECTORS.consoleRoot);
   if (!root) return;
@@ -503,6 +538,17 @@ export function bindConsoleShell(root = document.querySelector(SELECTORS.console
     const tabButton = event.target.closest(SELECTORS.consoleTabs);
     if (tabButton) {
       setActiveTab(root, tabButton.dataset.stlpConsoleTab);
+      return;
+    }
+    const toggleButton = event.target.closest('[data-stlp-command-toggle="enabled"]');
+    if (toggleButton) {
+      const settings = typeof options.getSettings === 'function' ? options.getSettings() : {};
+      updateConsoleSetting(root, options, 'enabled', settings.enabled === false);
+      return;
+    }
+    const setButton = event.target.closest('[data-stlp-command-set]');
+    if (setButton) {
+      updateConsoleSetting(root, options, setButton.dataset.stlpCommandSet, setButton.dataset.stlpCommandValue);
       return;
     }
     const actionButton = event.target.closest('[data-stlp-action="refresh-sd-resources"]');

@@ -330,6 +330,7 @@ jQuery(async () => {
       worldbookContextProvider,
     }),
     onTraceChanged: () => renderTraceOutput(),
+    onSettingsChanged: () => populateSettingsForm(),
   });
   registerImageRerenderBridge();
 });
