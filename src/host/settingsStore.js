@@ -8,14 +8,41 @@ export const defaultSettings = Object.freeze({
   autoGenerate: false,
   mode: 'fast',
   historyCount: 8,
+  ui: {
+    activeTab: 'dashboard',
+    consoleOpen: false,
+  },
   temperature: 0.2,
   maxTokens: 1200,
   timeoutMs: 30000,
   retryCount: 1,
+  compilerProfileId: 'sd',
+  profiles: {
+    active: 'anime-default',
+    list: {
+      'anime-default': {
+        label: 'anime-default / SD',
+        compilerProfileId: 'sd',
+        fixedPositive: ['masterpiece', 'high quality'],
+        fixedNegative: ['low quality', 'blurry', 'bad anatomy', 'watermark', 'text'],
+      },
+    },
+  },
+  backendProfiles: {
+    active: 'sd-local-forge',
+    list: {},
+  },
+  tagApiProfiles: {
+    active: 'local-router',
+    list: {},
+  },
   tagApi: {
     url: '',
     key: '',
     model: '',
+    jsonMode: 'auto',
+    headers: {},
+    body: {},
   },
   backend: {
     enabled: false,
@@ -33,6 +60,19 @@ export const defaultSettings = Object.freeze({
     seed: -1,
     restoreFaces: false,
     sendNegative: true,
+    bypassProxy: false,
+    clipSkip: 1,
+    hiresFix: {
+      enabled: false,
+      upscaler: '',
+      steps: 0,
+      denoisingStrength: 0.45,
+      scale: 1.8,
+    },
+    adetailer: {
+      enabled: false,
+      model: 'face_yolov8n.pt',
+    },
   },
   novelai: {
     url: 'https://image.novelai.net',
@@ -101,6 +141,11 @@ export const defaultSettings = Object.freeze({
     worldInfoFilterMode: 'default',
     worldInfoFilterCustomKeywords: '',
     worldInfoMaxResolvePasses: 10,
+  },
+  knowledge: {
+    dictionaryHints: true,
+    selectedSkills: true,
+    planner: true,
   },
   fixedPositive: ['masterpiece', 'high quality'],
   fixedNegative: ['low quality', 'blurry', 'bad anatomy', 'watermark', 'text'],
