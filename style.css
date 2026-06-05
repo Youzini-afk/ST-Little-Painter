@@ -144,6 +144,10 @@ body.stlp-console-open {
   box-sizing: border-box;
 }
 
+.stlp-console-root * {
+  min-width: 0;
+}
+
 .stlp-console-root {
   --stlp-canvas: #0e0f12;
   --stlp-panel: #17191e;
@@ -795,6 +799,7 @@ body.stlp-console-open {
   font-size: 0.68rem;
 }
 
+/* Tablet layout */
 @media (max-width: 1100px) {
   .stlp-console {
     inset: 12px;
@@ -802,7 +807,8 @@ body.stlp-console-open {
   }
 
   .stlp-command-shelf {
-    overflow-x: auto;
+    flex-wrap: wrap;
+    height: auto;
   }
 
   .stlp-col-8,
@@ -823,4 +829,264 @@ body.stlp-console-open {
   .stlp-two-pane {
     grid-template-columns: 1fr;
   }
+}
+
+/* Mobile/narrow layout */
+@media (max-width: 768px) {
+  .stlp-console {
+    inset: env(safe-area-inset-top, 0) env(safe-area-inset-right, 0) env(safe-area-inset-bottom, 0) env(safe-area-inset-left, 0);
+    width: auto;
+    height: auto;
+    max-height: 100dvh;
+    border-radius: 0;
+    border: none;
+    grid-template-columns: 1fr;
+    grid-template-rows: auto minmax(0, 1fr);
+  }
+
+  /* Convert rail to top brand strip + horizontal scrollable nav */
+  .stlp-rail {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    padding: 0.5rem 0.75rem;
+    gap: 0.5rem;
+    border-right: none;
+    border-bottom: 1px solid var(--stlp-outline);
+    /* Leave room for the absolute close button */
+    padding-right: 3rem;
+  }
+
+  .stlp-wordmark {
+    flex-direction: row;
+    align-items: baseline;
+    gap: 0.4rem;
+    padding: 0;
+    font-size: 1.2rem;
+  }
+
+  .stlp-wordmark small {
+    margin-top: 0;
+  }
+
+  .stlp-rail-footer {
+    display: none; /* Hide footer links on mobile or move them. Let's hide to save space */
+  }
+
+  .stlp-rail-nav {
+    grid-column: 1 / -1;
+    flex-direction: row;
+    overflow-x: auto;
+    gap: 0.5rem;
+    max-width: 100%;
+    padding-bottom: 0.25rem;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    scroll-snap-type: x proximity;
+  }
+  .stlp-rail-nav::-webkit-scrollbar {
+    display: none;
+  }
+
+  .stlp-rail-item {
+    white-space: nowrap;
+    padding: 0.5rem 0.75rem;
+    min-height: 2.8rem;
+    justify-content: center;
+    flex: 0 0 auto;
+    scroll-snap-align: start;
+  }
+
+  .stlp-rail-item.stlp-active::before {
+    left: 0.75rem;
+    right: 0.75rem;
+    top: auto;
+    bottom: -0.25rem;
+    width: auto;
+    height: 3px;
+  }
+
+  /* Command shelf reflows */
+  .stlp-console-main {
+    grid-template-rows: auto minmax(0, 1fr);
+  }
+
+  .stlp-command-shelf {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    height: auto;
+    padding: 0.75rem;
+    gap: 0.55rem;
+  }
+
+  /* Make sure the close button is visible */
+  #stlp-console-close {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    z-index: 10;
+    width: 2.8rem;
+    height: 2.8rem;
+    font-size: 1.5rem;
+  }
+
+  /* Group wide toggle and status */
+  .stlp-command-group {
+    grid-column: 1 / -1;
+    justify-content: flex-start;
+  }
+  
+  /* Segmented buttons should wrap safely but not overflow */
+  .stlp-segmented {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(4rem, 1fr));
+    width: 100%;
+  }
+
+  .stlp-segment {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    min-height: 2.4rem; /* Larger touch target */
+    min-width: 0;
+  }
+
+  .stlp-select-shell {
+    grid-column: 1 / -1;
+    min-height: 2.4rem;
+    width: 100%;
+  }
+  
+  /* Primary actions are large and reachable */
+  .stlp-command-shelf .stlp-button {
+    min-height: 3rem; /* Very large touch target */
+    font-size: 0.95rem;
+  }
+
+  #stlp-console-action-status {
+    grid-column: 1 / -1;
+    text-align: center;
+    justify-content: center;
+    padding: 0.5rem 0;
+  }
+
+  /* Main content single col */
+  .stlp-console-content {
+    padding: 1rem;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .stlp-grid-12,
+  .stlp-module,
+  .stlp-tag-groups,
+  .stlp-two-pane,
+  .stlp-list-pane,
+  .stlp-code-well {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .stlp-form-grid-2,
+  .stlp-form-grid-3,
+  .stlp-form-grid-4,
+  .stlp-launcher-grid,
+  .stlp-role-list {
+    grid-template-columns: 1fr;
+  }
+
+  /* Ensure wide segments take full width if they overflow */
+  .stlp-wide-segmented {
+    width: 100%;
+  }
+
+  /* Card paddings */
+  .stlp-module {
+    padding: 1rem;
+  }
+  
+  .stlp-module-head {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  /* Stepper vertical alignment */
+  .stlp-stepper {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1.5rem;
+    padding: 1rem 1rem 1rem 2rem;
+  }
+
+  .stlp-stepper::before {
+    left: 1.05rem;
+    top: 2rem;
+    bottom: 2rem;
+    right: auto;
+    width: 1px;
+    height: auto;
+  }
+
+  .stlp-step {
+    flex-direction: row;
+    gap: 1rem;
+  }
+
+  /* Touch friendly inputs */
+  .stlp-console-input {
+    min-height: 2.8rem;
+  }
+
+  .stlp-textarea {
+    min-height: 8rem;
+  }
+  
+  /* Code wells should not force horizontal scroll on main container */
+  .stlp-code-well {
+    max-width: 100%;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+
+  .stlp-list-pane > div,
+  .stlp-chip-row,
+  .stlp-actions-row {
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 430px) {
+  .stlp-wordmark {
+    font-size: 1rem;
+  }
+
+  .stlp-wordmark small {
+    display: none;
+  }
+
+  .stlp-rail {
+    padding: 0.45rem 0.6rem;
+    padding-right: 3rem;
+  }
+
+  .stlp-command-shelf {
+    padding: 0.6rem;
+  }
+
+  .stlp-console-content {
+    padding: 0.75rem;
+  }
+
+  .stlp-module {
+    padding: 0.85rem;
+    border-radius: 1rem;
+  }
+
+  .stlp-command-shelf .stlp-button {
+    grid-column: 1 / -1;
+  }
+}
 }
