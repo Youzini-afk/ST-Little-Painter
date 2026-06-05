@@ -159,28 +159,94 @@ function renderDatalist(id, values = []) {
 function safeBackendPayloadPreview(settings = {}) {
   try {
     const request = compileBackendRequest({ positive: '1girl, rainy bedroom, backlighting', negative: 'lowres, watermark' }, settings);
-    const payload = request.payload ?? {};
     return JSON.stringify({
-      prompt: payload.prompt,
-      negative_prompt: payload.negative_prompt,
-      width: payload.width,
-      height: payload.height,
-      steps: payload.steps,
-      cfg_scale: payload.cfg_scale,
-      sampler_name: payload.sampler_name,
-      scheduler: payload.scheduler,
-      seed: payload.seed,
-      override_settings: payload.override_settings,
-      enable_hr: payload.enable_hr,
-      alwayson_scripts: payload.alwayson_scripts ? Object.keys(payload.alwayson_scripts) : undefined,
+      type: request.type,
+      providerMode: request.providerMode,
+      endpoint: request.endpoint,
+      historyEndpoint: request.historyEndpoint,
+      payload: request.payload,
+      placeholders: request.placeholders,
     }, null, 2);
   } catch (error) {
     return JSON.stringify({ error: error?.message || String(error) }, null, 2);
   }
 }
 
+function renderGenericBackendPanel(settings = {}, backendType = 'novelai') {
+  const t = createTranslator(settings);
+  const backend = {
+    novelai: settings.novelai ?? {},
+    comfyui: settings.comfyui ?? {},
+    naturalImage: settings.naturalImage ?? {},
+  }[backendType] ?? {};
+  const title = {
+    novelai: 'NovelAI adapter',
+    comfyui: 'ComfyUI adapter',
+    naturalImage: 'Natural Image adapter',
+  }[backendType] || backendType;
+  const route = {
+    novelai: '/ai/generate-image',
+    comfyui: '/prompt + /history + /view',
+    naturalImage: backend.providerMode === 'openaiChatImage' || backend.providerMode === 'chatMarkdownImage' ? '/chat/completions' : '/images/generations',
+  }[backendType] || 'configured route';
+  const primaryFields = {
+    novelai: [
+      [t('apiUrl'), backend.url || 'https://image.novelai.net'], [t('apiKey'), backend.apiKey ? '••••••••' : ''], [t('model'), backend.model || 'nai-diffusion-3'], [t('sampler'), backend.sampler || 'k_euler_ancestral'],
+      [t('scheduler'), backend.scheduler || 'native'], [t('width'), backend.width ?? 832], [t('height'), backend.height ?? 1216], [t('steps'), backend.steps ?? 28], [t('cfg'), backend.scale ?? 5], [t('seed'), backend.seed ?? -1], ['ucPreset', backend.ucPreset ?? 0], ['cfgRescale', backend.cfgRescale ?? 0],
+    ],
+    comfyui: [
+      [t('apiUrl'), backend.url || 'http://127.0.0.1:8188'], [t('model'), backend.model || ''], [t('vae'), backend.vae || ''], ['CLIP', backend.clip || ''],
+      [t('sampler'), backend.sampler || 'euler'], [t('scheduler'), backend.scheduler || 'normal'], [t('width'), backend.width ?? 768], [t('height'), backend.height ?? 1024], [t('steps'), backend.steps ?? 28], [t('cfg'), backend.cfg ?? 7], [t('seed'), backend.seed ?? -1], ['poll/max', `${backend.pollIntervalMs ?? 1000}/${backend.maxPolls ?? 60}`],
+    ],
+    naturalImage: [
+      [t('apiUrl'), backend.url || 'https://api.openai.com/v1'], [t('apiKey'), backend.apiKey ? '••••••••' : ''], ['providerMode', backend.providerMode || 'openaiImages'], [t('model'), backend.model || 'gpt-image-1'],
+      ['chatModel', backend.chatModel || 'gpt-4.1'], ['size', backend.size || `${backend.width ?? 1024}x${backend.height ?? 1024}`], [t('width'), backend.width ?? 1024], [t('height'), backend.height ?? 1024], ['quality', backend.quality || ''], ['responseFormat', backend.responseFormat || ''],
+    ],
+  }[backendType] || [];
+  const chips = {
+    novelai: [['qualityToggle', backend.qualityToggle], ['SM', backend.sm], ['SM Dyn', backend.smDyn], ['dynamic threshold', backend.dynamicThresholding]],
+    comfyui: [['workflow JSON', Boolean(String(backend.workflowJson || '').trim())], ['placeholder replace', true], ['polling', true]],
+    naturalImage: [['OpenAI compatible', true], ['chat markdown image', backend.providerMode === 'chatMarkdownImage'], ['size resolver', true]],
+  }[backendType] || [];
+
+  return `
+    <section class="stlp-tab-panel" data-stlp-console-panel="backends" hidden>
+      <div class="stlp-grid-12">
+        <section class="stlp-module stlp-col-12">
+          <div class="stlp-module-head">
+            <div><p class="stlp-kicker">${escapeHtml(t('backendConfiguration'))}</p><h2>${escapeHtml(title)}</h2></div>
+            <div class="stlp-chip-row"><span class="stlp-chip stlp-chip-active">${escapeHtml(backendType)}</span><span class="stlp-chip">${escapeHtml(route)}</span></div>
+          </div>
+          <div class="stlp-form-grid stlp-form-grid-4">
+            ${primaryFields.slice(0, 8).map(([label, value]) => renderField(label, value, { mono: true, type: typeof value === 'number' ? 'number' : 'text' })).join('')}
+          </div>
+        </section>
+        <section class="stlp-module stlp-col-8">
+          <div class="stlp-module-head"><h2>${escapeHtml(t('generationDefaults'))}</h2><span class="stlp-mini-pill">${escapeHtml(backendType)}</span></div>
+          <div class="stlp-form-grid stlp-form-grid-4">
+            ${primaryFields.slice(8).map(([label, value]) => renderField(label, value, { mono: true, type: typeof value === 'number' ? 'number' : 'text' })).join('')}
+          </div>
+          <div class="stlp-chip-row">${chips.map(([label, active]) => `<span class="stlp-chip${active ? ' stlp-chip-active' : ''}">${escapeHtml(label)} ${active ? 'on' : 'off'}</span>`).join('')}</div>
+        </section>
+        <section class="stlp-module stlp-col-4">
+          <h2>${escapeHtml(t('connection'))}</h2>
+          <div class="stlp-status-card"><i class="stlp-dot stlp-green"></i><strong>${escapeHtml(t('ready').toUpperCase())}</strong><span>${escapeHtml(title)}</span><code>${escapeHtml(route)}</code></div>
+        </section>
+        <section class="stlp-module stlp-col-12">
+          <div class="stlp-module-head"><h2>${escapeHtml(t('payloadPreview'))}</h2></div>
+          <pre class="stlp-code-well">${escapeHtml(safeBackendPayloadPreview({ ...settings, backend: { ...(settings.backend ?? {}), type: backendType } }))}</pre>
+        </section>
+      </div>
+    </section>
+  `;
+}
+
 function renderBackendsPanel(settings = {}, resources = {}) {
   const t = createTranslator(settings);
+  const backendType = settings.backend?.type || 'sdWebui';
+  if (backendType !== 'sdWebui') {
+    return renderGenericBackendPanel(settings, backendType);
+  }
   const sd = settings.sdWebui ?? {};
   const resourceLists = {
     models: resources.models ?? [],
