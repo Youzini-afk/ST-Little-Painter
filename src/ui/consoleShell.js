@@ -297,7 +297,7 @@ function renderCompilerPanel(settings = {}) {
       <div class="stlp-grid-12">
         <section class="stlp-module stlp-col-7">
           <div class="stlp-module-head"><div><p class="stlp-kicker">${escapeHtml(t('promptCompiler'))}</p><h2>${escapeHtml(t('modeAndProfile'))}</h2></div><button class="stlp-button stlp-primary" type="button" data-stlp-action="compile-test">${escapeHtml(t('runCompileTest'))}</button></div>
-          <div class="stlp-segmented stlp-wide-segmented">${['fast', 'smart', 'expert'].map((mode) => `<span class="stlp-segment${activeClass((settings.mode || 'fast') === mode)}">${mode}</span>`).join('')}</div>
+          <div class="stlp-segmented stlp-wide-segmented">${['fast', 'smart', 'expert'].map((mode) => `<button class="stlp-segment${activeClass((settings.mode || 'fast') === mode)}" type="button" data-stlp-command-set="mode" data-stlp-command-value="${escapeHtml(mode)}" aria-pressed="${(settings.mode || 'fast') === mode ? 'true' : 'false'}">${mode}</button>`).join('')}</div>
           <div class="stlp-form-grid stlp-form-grid-3 stlp-form-offset">
             ${renderField(t('promptProfile'), profileId, { mono: true })}
             ${renderField('historyCount', settings.historyCount ?? 8, { type: 'number', mono: true })}
