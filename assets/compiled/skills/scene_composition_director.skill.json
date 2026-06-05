@@ -1,0 +1,16 @@
+{
+  "id": "scene_composition_director",
+  "label": "Scene Composition Director",
+  "keywords": ["composition", "close-up", "upper body", "full body", "angle", "lens", "shot", "构图", "特写", "半身", "上半身", "全身", "俯视", "仰视", "镜头"],
+  "patterns": ["\\b(close-up|upper body|full body|cowboy shot|from above|from below|wide shot|low angle|high angle)\\b"],
+  "instructions": [
+    "Choose camera distance and subject framing from the current visible scene.",
+    "Avoid mutually exclusive framing unless multiple subjects or a collage is explicitly requested.",
+    "Prefer concise composition tags: close-up, upper body, cowboy shot, full body, from above, from below."
+  ],
+  "outputBlocks": ["camera", "composition"],
+  "examples": [
+    { "context": "镜头从上方靠近她的脸。", "tags": ["close-up", "from above"] },
+    { "context": "只画她坐在床边的上半身。", "tags": ["upper body", "sitting on bed"] }
+  ]
+}

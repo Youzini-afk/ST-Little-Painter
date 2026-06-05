@@ -6,6 +6,8 @@ import { selectPromptProfile, FALLBACK_PROMPT_PROFILES } from '../src/promptProf
 import { selectSkills } from '../src/skills/skillSelector.js';
 import { compileCuratedReferenceAssets } from '../src/reference/curatedCompiler.js';
 import { searchTags, dictionaryHintsForText } from '../src/dictionary/tagSearch.js';
+import { loadTagDictionary } from '../src/dictionary/tagDictionary.js';
+import { loadSkillRegistry } from '../src/skills/skillRegistry.js';
 import { buildTaggerPrompt, buildTaggerPromptHints } from '../src/tagger/buildTaggerPrompt.js';
 
 const ROOT = dirname(dirname(fileURLToPath(import.meta.url)));
@@ -95,6 +97,33 @@ function testDictionarySearchZhAlias() {
   assert(!falseHints.some((hit) => hit.tag === 'hat'));
   assert(!falseHints.some((hit) => hit.tag === 'man'));
   assert(!falseHints.some((hit) => hit.tag === 'tan'));
+}
+
+async function testCuratedRuntimeAssets() {
+  installLocalFetch();
+  const dictionary = await loadTagDictionary();
+  const hits = dictionaryHintsForText('她红着脸坐在床边，银发被雨夜的月光照亮，白衬衫已经湿透。', { dictionary, limit: 20 });
+  const tags = hits.map((hit) => hit.tag);
+  assert(tags.includes('blush'));
+  assert(tags.includes('sitting on bed'));
+  assert(tags.includes('silver hair'));
+  assert(tags.includes('rainy night'));
+  assert(tags.includes('moonlight'));
+  assert(tags.includes('wet clothes'));
+
+  const skills = await loadSkillRegistry();
+  const selected = selectSkills({
+    context: { text: '她红着脸避开视线，湿透的衬衫露出肩膀。镜头是上半身特写。' },
+    settings: { backend: { type: 'novelai' } },
+    promptProfile: { id: 'novelai', backendTypes: ['novelai'], requiredSkills: ['backend_novelai_pack'] },
+    skills,
+    limit: 8,
+  });
+  const ids = selected.skills.map((skill) => skill.id);
+  assert(ids.includes('expression_gaze_resolver'));
+  assert(ids.includes('clothing_state_resolver'));
+  assert(ids.includes('scene_composition_director'));
+  assert(ids.includes('backend_novelai_pack'));
 }
 
 async function testBuildTaggerPrompt() {
@@ -187,6 +216,7 @@ await testProfileSelection();
 testSkillSelector();
 testCuratedCompiler();
 testDictionarySearchZhAlias();
+await testCuratedRuntimeAssets();
 await testBuildTaggerPrompt();
 
 console.log(JSON.stringify({ ok: true, test: 'prompt-knowledge', root: ROOT }, null, 2));

@@ -66,3 +66,59 @@
 {"tag":"text","category":"negative","aliases":["caption","watermark text"],"weight":1}
 {"tag":"watermark","category":"negative","aliases":["signature"],"weight":1}
 {"tag":"jpeg artifacts","category":"negative","aliases":["compression artifacts"],"weight":1}
+{"tag":"best quality","category":"quality","aliases":["premium quality"],"zhAliases":["最佳质量","高品质"],"keywords":["质量好","高质量"],"weight":1.2,"source":"curated-visual-pack"}
+{"tag":"amazing quality","category":"quality","aliases":["excellent quality"],"zhAliases":["惊人质量","精致"],"keywords":["精致画面","细节精致"],"weight":1.1,"source":"curated-visual-pack"}
+{"tag":"delicate details","category":"quality","aliases":["fine details"],"zhAliases":["精细细节","细节丰富"],"keywords":["细节","精细"],"weight":1.05,"source":"curated-visual-pack"}
+{"tag":"solo","category":"subject","aliases":["single subject"],"zhAliases":["单人","一个人"],"keywords":["只有她","只有他","独自"],"weight":1.1,"source":"curated-visual-pack"}
+{"tag":"1girl","category":"subject","aliases":["one girl"],"zhAliases":["一名少女","一个女孩","女生"],"keywords":["她","少女","女孩"],"weight":1.1,"source":"curated-visual-pack"}
+{"tag":"1boy","category":"subject","aliases":["one boy"],"zhAliases":["一名少年","一个男孩","男生"],"keywords":["他","少年","男孩"],"weight":1.1,"source":"curated-visual-pack"}
+{"tag":"two people","category":"subject","aliases":["couple","duo"],"zhAliases":["两人","双人","二人"],"keywords":["他们两人","两个人","情侣"],"weight":1,"source":"curated-visual-pack"}
+{"tag":"silver hair","category":"hair","aliases":["white silver hair"],"zhAliases":["银发","银色头发"],"keywords":["银白发","银色长发"],"weight":1.2,"source":"curated-visual-pack"}
+{"tag":"white hair","category":"hair","aliases":["pale hair"],"zhAliases":["白发","白色头发"],"keywords":["雪白头发","白色长发"],"weight":1.15,"source":"curated-visual-pack"}
+{"tag":"black hair","category":"hair","aliases":["dark hair"],"zhAliases":["黑发","黑色头发"],"keywords":["乌黑头发","黑长直"],"weight":1.15,"source":"curated-visual-pack"}
+{"tag":"blonde hair","category":"hair","aliases":["golden hair"],"zhAliases":["金发","金色头发"],"keywords":["金色长发","金毛"],"weight":1.15,"source":"curated-visual-pack"}
+{"tag":"pink hair","category":"hair","aliases":["rose hair"],"zhAliases":["粉发","粉色头发"],"keywords":["粉色长发"],"weight":1.1,"source":"curated-visual-pack"}
+{"tag":"long hair","category":"hair","aliases":["lengthy hair"],"zhAliases":["长发","长头发"],"keywords":["头发很长","披肩长发"],"weight":1.1,"source":"curated-visual-pack"}
+{"tag":"short hair","category":"hair","aliases":["cropped hair"],"zhAliases":["短发","短头发"],"keywords":["齐耳短发"],"weight":1.1,"source":"curated-visual-pack"}
+{"tag":"red eyes","category":"eyes","aliases":["crimson eyes"],"zhAliases":["红眼","红色眼睛"],"keywords":["猩红眼睛","红瞳"],"weight":1.15,"source":"curated-visual-pack"}
+{"tag":"blue eyes","category":"eyes","aliases":["azure eyes"],"zhAliases":["蓝眼","蓝色眼睛"],"keywords":["蓝瞳"],"weight":1.15,"source":"curated-visual-pack"}
+{"tag":"golden eyes","category":"eyes","aliases":["amber eyes"],"zhAliases":["金眼","金色眼睛","琥珀眼"],"keywords":["金瞳","琥珀色眼睛"],"weight":1.15,"source":"curated-visual-pack"}
+{"tag":"green eyes","category":"eyes","aliases":["emerald eyes"],"zhAliases":["绿眼","绿色眼睛"],"keywords":["绿瞳"],"weight":1.1,"source":"curated-visual-pack"}
+{"tag":"looking at viewer","category":"expression","aliases":["eye contact"],"zhAliases":["看向观众","直视镜头"],"keywords":["看着你","看向你","对视"],"weight":1.25,"source":"curated-visual-pack"}
+{"tag":"looking away","category":"expression","aliases":["averting eyes"],"zhAliases":["移开视线","看向别处"],"keywords":["不敢看你","别过眼"],"weight":1.1,"source":"curated-visual-pack"}
+{"tag":"blush","category":"expression","aliases":["blushing"],"zhAliases":["脸红","红着脸"],"keywords":["羞红","脸颊泛红"],"weight":1.2,"source":"curated-visual-pack"}
+{"tag":"tears","category":"expression","aliases":["crying"],"zhAliases":["流泪","眼泪"],"keywords":["哭","泪水"],"weight":1.1,"source":"curated-visual-pack"}
+{"tag":"smile","category":"expression","aliases":["smiling"],"zhAliases":["微笑","笑容"],"keywords":["笑了","浅笑"],"weight":1.05,"source":"curated-visual-pack"}
+{"tag":"open mouth","category":"expression","aliases":["mouth open"],"zhAliases":["张嘴","嘴微张"],"keywords":["喘息","惊讶地张口"],"weight":1.05,"source":"curated-visual-pack"}
+{"tag":"school uniform","category":"clothing","aliases":["student uniform"],"zhAliases":["校服","学生制服"],"keywords":["制服裙","学生装"],"weight":1.15,"source":"curated-visual-pack"}
+{"tag":"kimono","category":"clothing","aliases":["japanese clothes"],"zhAliases":["和服","浴衣"],"keywords":["日式衣服"],"weight":1.1,"source":"curated-visual-pack"}
+{"tag":"dress","category":"clothing","aliases":["one-piece dress"],"zhAliases":["连衣裙","裙子"],"keywords":["长裙","短裙"],"weight":1.1,"source":"curated-visual-pack"}
+{"tag":"shirt","category":"clothing","aliases":["top"],"zhAliases":["衬衫","上衣"],"keywords":["白衬衫"],"weight":1,"source":"curated-visual-pack"}
+{"tag":"thighhighs","category":"clothing","aliases":["thigh highs"],"zhAliases":["过膝袜","长筒袜"],"keywords":["黑丝","白丝"],"weight":1.05,"source":"curated-visual-pack"}
+{"tag":"bare shoulders","category":"clothingState","aliases":["shoulders exposed"],"zhAliases":["露肩","裸肩"],"keywords":["肩膀露出"],"weight":1.15,"source":"curated-visual-pack"}
+{"tag":"clothes lift","category":"clothingState","aliases":["lifted clothes"],"zhAliases":["掀起衣服","衣服被掀起"],"keywords":["撩起衣服","衣摆掀起"],"weight":1.05,"source":"curated-visual-pack"}
+{"tag":"wet hair","category":"hair","aliases":["damp hair"],"zhAliases":["湿发","头发湿了"],"keywords":["被雨淋湿的头发"],"weight":1.05,"source":"curated-visual-pack"}
+{"tag":"wet clothes","category":"clothingState","aliases":["soaked clothes"],"zhAliases":["湿衣","衣服湿透","湿透的衣服"],"keywords":["湿透","被雨淋湿","衣服湿了"],"weight":1.15,"source":"curated-visual-pack"}
+{"tag":"on bed","category":"environment","aliases":["bed scene"],"zhAliases":["在床上","床上"],"keywords":["躺在床上","坐在床上"],"weight":1.2,"source":"curated-visual-pack"}
+{"tag":"rainy night","category":"environment","aliases":["night rain"],"zhAliases":["雨夜","下雨的夜晚"],"keywords":["夜雨","雨声"],"weight":1.2,"source":"curated-visual-pack"}
+{"tag":"window","category":"environment","aliases":["by the window"],"zhAliases":["窗边","窗户"],"keywords":["靠窗","窗前"],"weight":1.1,"source":"curated-visual-pack"}
+{"tag":"tatami","category":"environment","aliases":["tatami room"],"zhAliases":["榻榻米","和室"],"keywords":["日式房间"],"weight":1,"source":"curated-visual-pack"}
+{"tag":"night","category":"environment","aliases":["night scene"],"zhAliases":["夜晚","晚上"],"keywords":["深夜","夜色"],"weight":1.05,"source":"curated-visual-pack"}
+{"tag":"from above","category":"camera","aliases":["high angle view"],"zhAliases":["俯视","从上方"],"keywords":["高角度","向下看"],"weight":1.1,"source":"curated-visual-pack"}
+{"tag":"from below","category":"camera","aliases":["low angle view"],"zhAliases":["仰视","从下方"],"keywords":["低角度","向上看"],"weight":1.1,"source":"curated-visual-pack"}
+{"tag":"cowboy shot","category":"composition","aliases":["thigh up"],"zhAliases":["七分身","大腿以上"],"keywords":["半全身"],"weight":1.1,"source":"curated-visual-pack"}
+{"tag":"close-up","category":"camera","aliases":["closeup"],"zhAliases":["特写","近景"],"keywords":["脸部特写","靠近镜头"],"weight":1.15,"source":"curated-visual-pack"}
+{"tag":"upper body","category":"composition","aliases":["bust shot"],"zhAliases":["上半身","半身"],"keywords":["胸像","半身像"],"weight":1.2,"source":"curated-visual-pack"}
+{"tag":"soft light","category":"lighting","aliases":["soft lighting"],"zhAliases":["柔光","柔和光线"],"keywords":["柔和灯光"],"weight":1.1,"source":"curated-visual-pack"}
+{"tag":"moonlight","category":"lighting","aliases":["moonlit"],"zhAliases":["月光","月色"],"keywords":["月光照亮","月光下"],"weight":1.1,"source":"curated-visual-pack"}
+{"tag":"candlelight","category":"lighting","aliases":["candle lit"],"zhAliases":["烛光","蜡烛光"],"keywords":["蜡烛照明"],"weight":1.05,"source":"curated-visual-pack"}
+{"tag":"shadow","category":"lighting","aliases":["shadows"],"zhAliases":["阴影","影子"],"keywords":["光影","暗部"],"weight":1.05,"source":"curated-visual-pack"}
+{"tag":"sitting on bed","category":"pose","aliases":["seated on bed"],"zhAliases":["坐在床上"],"keywords":["床边坐着","坐在床边"],"weight":1.2,"source":"curated-visual-pack"}
+{"tag":"lying on bed","category":"pose","aliases":["reclining on bed"],"zhAliases":["躺在床上"],"keywords":["床上躺着","仰躺"],"weight":1.15,"source":"curated-visual-pack"}
+{"tag":"hand on own chest","category":"pose","aliases":["hand to chest"],"zhAliases":["手放胸前","按着胸口"],"keywords":["捂着胸口"],"weight":1.05,"source":"curated-visual-pack"}
+{"tag":"hand on another's shoulder","category":"interaction","aliases":["touching shoulder"],"zhAliases":["搭肩","手放在肩上"],"keywords":["扶住肩膀"],"weight":1.05,"source":"curated-visual-pack"}
+{"tag":"face close","category":"interaction","aliases":["close faces"],"zhAliases":["脸靠得很近","贴近脸"],"keywords":["靠近对方的脸"],"weight":1.1,"source":"curated-visual-pack"}
+{"tag":"bad hands","category":"negative","aliases":["poorly drawn hands"],"zhAliases":["坏手","手部错误"],"keywords":["手崩","手指错误"],"weight":1.1,"source":"curated-visual-pack"}
+{"tag":"extra limbs","category":"negative","aliases":["too many limbs"],"zhAliases":["多余肢体","多手多脚"],"keywords":["多胳膊","多腿"],"weight":1.05,"source":"curated-visual-pack"}
+{"tag":"deformed","category":"negative","aliases":["deformed body"],"zhAliases":["畸形","变形"],"keywords":["身体变形","脸变形"],"weight":1.05,"source":"curated-visual-pack"}
+{"tag":"censored","category":"negative","aliases":["mosaic censoring"],"zhAliases":["打码","遮挡码"],"keywords":["马赛克"],"weight":1.05,"source":"curated-visual-pack"}

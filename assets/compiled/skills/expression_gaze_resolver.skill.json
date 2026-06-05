@@ -1,0 +1,16 @@
+{
+  "id": "expression_gaze_resolver",
+  "label": "Expression & Gaze Resolver",
+  "keywords": ["smile", "cry", "blush", "tears", "look", "gaze", "expression", "微笑", "哭", "脸红", "流泪", "视线", "表情", "看着", "对视"],
+  "patterns": ["\\b(smile|cry(?:ing)?|blush(?:ing)?|tears?|gaze|looking (?:at|away)|eye contact)\\b"],
+  "instructions": [
+    "Translate emotional prose only into visible facial cues: gaze, mouth, blush, tears, eyelids.",
+    "Do not output internal emotions unless they have visible evidence in the current scene.",
+    "Prefer tags such as looking at viewer, looking away, blush, tears, smile, open mouth."
+  ],
+  "outputBlocks": ["expression", "eyes", "face"],
+  "examples": [
+    { "context": "她红着脸避开了视线。", "tags": ["blush", "looking away"] },
+    { "context": "tears gather in her red eyes", "tags": ["tears", "red eyes"] }
+  ]
+}

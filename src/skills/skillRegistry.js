@@ -101,6 +101,56 @@ export const FALLBACK_SKILLS = Object.freeze([
     outputBlocks: ['quality', 'backendSpecific'],
     examples: [{ context: 'NovelAI anime image', tags: ['best quality', 'anime style'] }],
   },
+  {
+    id: 'expression_gaze_resolver',
+    label: 'Expression & Gaze Resolver',
+    category: 'expression',
+    priority: 58,
+    keywords: ['smile', 'cry', 'blush', 'tears', 'look', 'gaze', 'expression', '微笑', '哭', '脸红', '视线', '表情', '看着'],
+    patterns: ['\\b(smile|cry(?:ing)?|blush(?:ing)?|tears?|gaze|looking (?:at|away))\\b'],
+    instructions: ['Translate emotional prose only into visible facial cues: gaze, mouth, blush, tears, eyelids.', 'Do not output internal emotions unless they have visible evidence.'],
+    outputBlocks: ['expression', 'eyes', 'face'],
+  },
+  {
+    id: 'clothing_state_resolver',
+    label: 'Clothing State Resolver',
+    category: 'clothing',
+    priority: 56,
+    keywords: ['clothes', 'dress', 'shirt', 'wet', 'open', 'torn', 'bare shoulders', '衣服', '裙子', '衬衫', '湿衣', '露肩', '凌乱'],
+    patterns: ['\\b(wet clothes|open clothes|torn clothes|bare shoulders|shirt|dress|kimono|uniform)\\b'],
+    instructions: ['Separate clothing items from temporary clothing states.', 'Prefer visible state tags such as wet clothes, open clothes, bare shoulders only when currently visible.'],
+    outputBlocks: ['clothing', 'clothingState'],
+  },
+  {
+    id: 'scene_composition_director',
+    label: 'Scene Composition Director',
+    category: 'camera',
+    priority: 54,
+    keywords: ['composition', 'close-up', 'upper body', 'full body', 'angle', 'lens', '构图', '特写', '上半身', '全身', '俯视', '仰视'],
+    patterns: ['\\b(close-up|upper body|full body|cowboy shot|from above|from below|wide shot)\\b'],
+    instructions: ['Choose camera distance and subject framing from current visible scene.', 'Avoid conflicting framing unless multiple shots are explicitly requested.'],
+    outputBlocks: ['camera', 'composition'],
+  },
+  {
+    id: 'nsfw_visibility_boundary',
+    label: 'NSFW Visibility Boundary',
+    category: 'safety',
+    priority: 60,
+    keywords: ['nude', 'nsfw', 'sexual', 'breasts', 'thighs', '裸', '色情', '乳', '大腿', '露出'],
+    patterns: ['\\b(nude|nsfw|sexual|breasts?|thighs?|underwear)\\b'],
+    instructions: ['Only output NSFW/body exposure tags when the latest scene visibly contains them.', 'Do not infer nudity or sexual content from mood, desire, or past events alone.'],
+    outputBlocks: ['body', 'clothingState', 'negative'],
+  },
+  {
+    id: 'negative_guardrail',
+    label: 'Negative Prompt Guardrail',
+    category: 'negative',
+    priority: 52,
+    keywords: ['negative', 'bad hands', 'low quality', 'watermark', 'text', '负面', '坏手', '水印', '文字'],
+    patterns: ['\\b(negative prompt|bad hands|bad anatomy|watermark|low quality|extra fingers)\\b'],
+    instructions: ['Keep negative tags compact and generation-focused.', 'Do not move visible desired facts into negative tags.'],
+    outputBlocks: ['negative'],
+  },
 ]);
 
 const SKILL_FILES = [
@@ -113,6 +163,11 @@ const SKILL_FILES = [
   'interaction_resolver',
   'backend_sd_pack',
   'backend_novelai_pack',
+  'expression_gaze_resolver',
+  'clothing_state_resolver',
+  'scene_composition_director',
+  'nsfw_visibility_boundary',
+  'negative_guardrail',
 ];
 
 const REFERENCE_SKILL_FILES = [

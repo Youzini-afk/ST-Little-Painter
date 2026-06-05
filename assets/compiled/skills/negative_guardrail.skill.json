@@ -1,0 +1,15 @@
+{
+  "id": "negative_guardrail",
+  "label": "Negative Prompt Guardrail",
+  "keywords": ["negative", "bad hands", "low quality", "watermark", "text", "负面", "坏手", "水印", "文字", "畸形"],
+  "patterns": ["\\b(negative prompt|bad hands|bad anatomy|watermark|low quality|extra fingers|missing fingers|deformed)\\b"],
+  "instructions": [
+    "Keep negative tags compact and generation-focused.",
+    "Use anatomical/artifact negatives when useful: bad hands, bad anatomy, extra fingers, missing fingers, watermark, text, blurry.",
+    "Never move desired visible facts into negative tags."
+  ],
+  "outputBlocks": ["negative"],
+  "examples": [
+    { "context": "standard anime illustration", "tags": ["bad hands", "bad anatomy", "watermark", "text"] }
+  ]
+}

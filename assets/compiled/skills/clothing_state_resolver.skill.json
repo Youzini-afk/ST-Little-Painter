@@ -1,0 +1,16 @@
+{
+  "id": "clothing_state_resolver",
+  "label": "Clothing State Resolver",
+  "keywords": ["clothes", "dress", "shirt", "wet", "open", "torn", "bare shoulders", "衣服", "裙子", "衬衫", "湿衣", "湿透", "露肩", "凌乱", "掀起"],
+  "patterns": ["\\b(wet clothes|open clothes|torn clothes|bare shoulders|shirt|dress|kimono|uniform|thighhighs)\\b"],
+  "instructions": [
+    "Separate stable clothing items from temporary clothing states.",
+    "Use clothingState only for current visible states such as wet clothes, open clothes, torn clothes, bare shoulders, clothes lift.",
+    "Current outfit overrides default outfit only when the latest context supports it."
+  ],
+  "outputBlocks": ["clothing", "clothingState"],
+  "examples": [
+    { "context": "雨水打湿了她的白衬衫。", "tags": ["shirt", "wet clothes"] },
+    { "context": "她穿着黑色和服，肩膀微露。", "tags": ["black kimono", "bare shoulders"] }
+  ]
+}
