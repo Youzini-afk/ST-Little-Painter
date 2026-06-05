@@ -212,15 +212,23 @@ function renderDashboardPanel(settings = {}) {
   `;
 }
 
-function renderField(label, value, { type = 'text', datalist = '', mono = false, path = '', step = '', min = '', placeholder = '' } = {}) {
+function renderField(label, value, { type = 'text', datalist = '', options = [], mono = false, path = '', step = '', min = '', placeholder = '' } = {}) {
   const settingAttr = path ? ` data-stlp-setting="${escapeHtml(path)}"` : '';
   const stepAttr = step !== '' ? ` step="${escapeHtml(step)}"` : '';
   const minAttr = min !== '' ? ` min="${escapeHtml(min)}"` : '';
   const placeholderAttr = placeholder ? ` placeholder="${escapeHtml(placeholder)}"` : '';
+  const optionValues = mergeOptions(options);
+  const input = `<input class="stlp-console-input${mono ? ' stlp-mono-input' : ''}${(datalist || optionValues.length) ? ' stlp-combo-input' : ''}" type="${type}" value="${escapeHtml(value ?? '')}"${settingAttr}${stepAttr}${minAttr}${placeholderAttr} ${datalist && !optionValues.length ? `list="${escapeHtml(datalist)}"` : ''} />`;
+  const picker = optionValues.length && path ? `
+        <select class="stlp-combo-select" data-stlp-combo-setting="${escapeHtml(path)}" aria-label="${escapeHtml(label)} options">
+          <option value="" selected>⌄</option>
+          ${optionValues.map((option) => `<option value="${escapeHtml(option)}">${escapeHtml(option)}</option>`).join('')}
+        </select>
+      ` : '';
   return `
     <label class="stlp-field">
       <span>${escapeHtml(label)}</span>
-      <input class="stlp-console-input${mono ? ' stlp-mono-input' : ''}${datalist ? ' stlp-combo-input' : ''}" type="${type}" value="${escapeHtml(value ?? '')}"${settingAttr}${stepAttr}${minAttr}${placeholderAttr} ${datalist ? `list="${escapeHtml(datalist)}"` : ''} />
+      ${picker ? `<span class="stlp-combo-shell">${input}${picker}</span>` : input}
     </label>
   `;
 }
@@ -238,6 +246,7 @@ function renderBackendField(field) {
   return renderField(field.label, field.value, {
     type: field.type || (typeof field.value === 'number' ? 'number' : 'text'),
     datalist: field.datalist || '',
+    options: field.options || [],
     mono: field.mono !== false,
     path: field.path || '',
     step: field.step || '',
@@ -251,7 +260,13 @@ function renderSizePresetField(label, pathPrefix, width, height, datalistId) {
   return `
     <label class="stlp-field">
       <span>${escapeHtml(label)}</span>
-      <input class="stlp-console-input stlp-combo-input stlp-mono-input" type="text" value="${escapeHtml(value)}" list="${escapeHtml(datalistId)}" data-stlp-size-preset="${escapeHtml(pathPrefix)}" />
+      <span class="stlp-combo-shell">
+        <input class="stlp-console-input stlp-combo-input stlp-mono-input" type="text" value="${escapeHtml(value)}" list="${escapeHtml(datalistId)}" data-stlp-size-preset="${escapeHtml(pathPrefix)}" />
+        <select class="stlp-combo-select" data-stlp-size-preset-select="${escapeHtml(pathPrefix)}" aria-label="${escapeHtml(label)} options">
+          <option value="" selected>⌄</option>
+          ${SIZE_PRESETS.map((option) => `<option value="${escapeHtml(option)}">${escapeHtml(option)}</option>`).join('')}
+        </select>
+      </span>
     </label>
   `;
 }
@@ -316,9 +331,9 @@ function renderGenericBackendPanel(settings = {}, backendType = 'novelai') {
     novelai: [
       { label: t('apiUrl'), path: 'novelai.url', value: backend.url || 'https://image.novelai.net' },
       { label: t('apiKey'), path: 'novelai.apiKey', value: backend.apiKey || '', type: 'password', mono: false, placeholder: backend.apiKey ? '••••••••' : '' },
-      { label: t('model'), path: 'novelai.model', value: backend.model || 'nai-diffusion-3', datalist: datalistId('models') },
-      { label: t('sampler'), path: 'novelai.sampler', value: backend.sampler || 'k_euler_ancestral', datalist: datalistId('samplers') },
-      { label: t('scheduler'), path: 'novelai.scheduler', value: backend.scheduler || 'native', datalist: datalistId('schedulers') },
+      { label: t('model'), path: 'novelai.model', value: backend.model || 'nai-diffusion-3', options: NAI_MODEL_PRESETS },
+      { label: t('sampler'), path: 'novelai.sampler', value: backend.sampler || 'k_euler_ancestral', options: NAI_SAMPLER_PRESETS },
+      { label: t('scheduler'), path: 'novelai.scheduler', value: backend.scheduler || 'native', options: NAI_SCHEDULER_PRESETS },
       { label: t('width'), path: 'novelai.width', value: backend.width ?? 832, type: 'number', min: 64 },
       { label: t('height'), path: 'novelai.height', value: backend.height ?? 1216, type: 'number', min: 64 },
       { label: t('steps'), path: 'novelai.steps', value: backend.steps ?? 28, type: 'number', min: 1 },
@@ -329,11 +344,11 @@ function renderGenericBackendPanel(settings = {}, backendType = 'novelai') {
     ],
     comfyui: [
       { label: t('apiUrl'), path: 'comfyui.url', value: backend.url || 'http://127.0.0.1:8188' },
-      { label: t('model'), path: 'comfyui.model', value: backend.model || '', datalist: datalistId('models') },
-      { label: t('vae'), path: 'comfyui.vae', value: backend.vae || '', datalist: datalistId('vaes') },
+      { label: t('model'), path: 'comfyui.model', value: backend.model || '', options: [] },
+      { label: t('vae'), path: 'comfyui.vae', value: backend.vae || '', options: [] },
       { label: 'CLIP', path: 'comfyui.clip', value: backend.clip || '' },
-      { label: t('sampler'), path: 'comfyui.sampler', value: backend.sampler || 'euler', datalist: datalistId('samplers') },
-      { label: t('scheduler'), path: 'comfyui.scheduler', value: backend.scheduler || 'normal', datalist: datalistId('schedulers') },
+      { label: t('sampler'), path: 'comfyui.sampler', value: backend.sampler || 'euler', options: COMFY_SAMPLER_PRESETS },
+      { label: t('scheduler'), path: 'comfyui.scheduler', value: backend.scheduler || 'normal', options: COMFY_SCHEDULER_PRESETS },
       { label: t('width'), path: 'comfyui.width', value: backend.width ?? 768, type: 'number', min: 64 },
       { label: t('height'), path: 'comfyui.height', value: backend.height ?? 1024, type: 'number', min: 64 },
       { label: t('steps'), path: 'comfyui.steps', value: backend.steps ?? 28, type: 'number', min: 1 },
@@ -345,14 +360,14 @@ function renderGenericBackendPanel(settings = {}, backendType = 'novelai') {
     naturalImage: [
       { label: t('apiUrl'), path: 'naturalImage.url', value: backend.url || 'https://api.openai.com/v1' },
       { label: t('apiKey'), path: 'naturalImage.apiKey', value: backend.apiKey || '', type: 'password', mono: false, placeholder: backend.apiKey ? '••••••••' : '' },
-      { label: 'providerMode', path: 'naturalImage.providerMode', value: backend.providerMode || 'openaiImages', datalist: datalistId('providerModes') },
-      { label: t('model'), path: 'naturalImage.model', value: backend.model || 'gpt-image-1', datalist: datalistId('models') },
-      { label: 'chatModel', path: 'naturalImage.chatModel', value: backend.chatModel || 'gpt-4.1', datalist: datalistId('chatModels') },
-      { label: 'size', path: 'naturalImage.size', value: backend.size || `${backend.width ?? 1024}x${backend.height ?? 1024}`, datalist: datalistId('sizes') },
+      { label: 'providerMode', path: 'naturalImage.providerMode', value: backend.providerMode || 'openaiImages', options: NATURAL_PROVIDER_MODES },
+      { label: t('model'), path: 'naturalImage.model', value: backend.model || 'gpt-image-1', options: NATURAL_MODEL_PRESETS },
+      { label: 'chatModel', path: 'naturalImage.chatModel', value: backend.chatModel || 'gpt-4.1', options: NATURAL_CHAT_MODEL_PRESETS },
+      { label: 'size', path: 'naturalImage.size', value: backend.size || `${backend.width ?? 1024}x${backend.height ?? 1024}`, options: SIZE_PRESETS },
       { label: t('width'), path: 'naturalImage.width', value: backend.width ?? 1024, type: 'number', min: 64 },
       { label: t('height'), path: 'naturalImage.height', value: backend.height ?? 1024, type: 'number', min: 64 },
-      { label: 'quality', path: 'naturalImage.quality', value: backend.quality || '', datalist: datalistId('qualities') },
-      { label: 'responseFormat', path: 'naturalImage.responseFormat', value: backend.responseFormat || '', datalist: datalistId('responseFormats') },
+      { label: 'quality', path: 'naturalImage.quality', value: backend.quality || '', options: NATURAL_QUALITY_PRESETS },
+      { label: 'responseFormat', path: 'naturalImage.responseFormat', value: backend.responseFormat || '', options: NATURAL_RESPONSE_FORMAT_PRESETS },
     ],
   }[backendType] || [];
   const chips = {
@@ -441,12 +456,12 @@ function renderBackendsPanel(settings = {}, resources = {}) {
           ${renderDatalist('stlp-sd-size-options', SIZE_PRESETS)}
           <div class="stlp-form-grid stlp-form-grid-3">
             ${renderSizePresetField('预设尺寸 / Size preset', 'sdWebui', sd.width || 768, sd.height || 1024, 'stlp-sd-size-options')}
-            ${renderField(t('model'), sd.model || '', { datalist: 'stlp-sd-model-options', mono: true, path: 'sdWebui.model' })}
-            ${renderField(t('vae'), sd.vae || '', { datalist: 'stlp-sd-vae-options', mono: true, path: 'sdWebui.vae' })}
-            ${renderField(t('sampler'), sd.sampler || 'Euler a', { datalist: 'stlp-sd-sampler-options', mono: true, path: 'sdWebui.sampler' })}
-            ${renderField(t('scheduler'), sd.scheduler || '', { datalist: 'stlp-sd-scheduler-options', mono: true, path: 'sdWebui.scheduler' })}
-            ${renderField(t('upscaler'), sd.upscaler || '', { datalist: 'stlp-sd-upscaler-options', mono: true, path: 'sdWebui.upscaler' })}
-            ${renderField(t('loraSearch'), '', { datalist: 'stlp-sd-lora-options', mono: true, path: 'sdWebui.loraSearch' })}
+            ${renderField(t('model'), sd.model || '', { options: resourceLists.models, mono: true, path: 'sdWebui.model' })}
+            ${renderField(t('vae'), sd.vae || '', { options: resourceLists.vaes, mono: true, path: 'sdWebui.vae' })}
+            ${renderField(t('sampler'), sd.sampler || 'Euler a', { options: resourceLists.samplers, mono: true, path: 'sdWebui.sampler' })}
+            ${renderField(t('scheduler'), sd.scheduler || '', { options: resourceLists.schedulers, mono: true, path: 'sdWebui.scheduler' })}
+            ${renderField(t('upscaler'), sd.upscaler || '', { options: resourceLists.upscalers, mono: true, path: 'sdWebui.upscaler' })}
+            ${renderField(t('loraSearch'), '', { options: resourceLists.loras, mono: true, path: 'sdWebui.loraSearch' })}
           </div>
         </section>
 
@@ -787,6 +802,19 @@ export function bindConsoleShell(root = document.querySelector(SELECTORS.console
     }
   });
   root.addEventListener('change', (event) => {
+    const sizeSelect = event.target.closest('[data-stlp-size-preset-select]');
+    if (sizeSelect?.value) {
+      const pathPrefix = sizeSelect.dataset.stlpSizePresetSelect;
+      const input = root.querySelector(`[data-stlp-size-preset="${pathPrefix}"]`);
+      if (input) input.value = sizeSelect.value;
+      applySizePreset(root, options, pathPrefix);
+      return;
+    }
+    const comboSelect = event.target.closest('[data-stlp-combo-setting]');
+    if (comboSelect?.value) {
+      updateConsoleSetting(root, options, comboSelect.dataset.stlpComboSetting, comboSelect.value);
+      return;
+    }
     const sizeInput = event.target.closest('[data-stlp-size-preset]');
     if (sizeInput) {
       if (applySizePreset(root, options, sizeInput.dataset.stlpSizePreset)) return;

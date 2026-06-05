@@ -789,17 +789,47 @@ body.stlp-console-open {
 }
 
 .stlp-combo-input {
-  padding-right: 1.8rem;
+  padding-right: 2.35rem;
+}
+
+.stlp-combo-shell {
+  position: relative;
+  display: block;
+  width: 100%;
+}
+
+.stlp-combo-shell .stlp-console-input {
+  display: block;
+}
+
+.stlp-combo-select {
+  position: absolute;
+  top: 1px;
+  right: 1px;
+  width: 2.25rem;
+  height: calc(100% - 2px);
+  border: 0;
+  border-left: 1px solid rgba(217, 138, 78, 0.18);
+  border-radius: 0 var(--stlp-radius-well) var(--stlp-radius-well) 0;
+  color: transparent;
+  cursor: pointer;
   background-image:
     linear-gradient(45deg, transparent 50%, rgba(217, 138, 78, 0.72) 50%),
     linear-gradient(135deg, rgba(217, 138, 78, 0.72) 50%, transparent 50%),
     linear-gradient(180deg, rgba(255, 255, 255, 0.025), transparent);
   background-position:
-    calc(100% - 0.92rem) 50%,
-    calc(100% - 0.62rem) 50%,
+    calc(50% - 0.15rem) 50%,
+    calc(50% + 0.15rem) 50%,
     0 0;
   background-size: 0.32rem 0.32rem, 0.32rem 0.32rem, 100% 100%;
   background-repeat: no-repeat;
+  background-color: rgba(217, 138, 78, 0.055);
+  outline: none;
+}
+
+.stlp-combo-select option {
+  color: #f0f2f8;
+  background: #1b1c20;
 }
 
 .stlp-combo-input::-webkit-calendar-picker-indicator {
