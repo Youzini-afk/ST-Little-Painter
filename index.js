@@ -1,11 +1,10 @@
 import {
   extension_settings,
   getContext,
-  renderExtensionTemplateAsync,
 } from '../../../extensions.js';
 import { saveSettingsDebounced } from '../../../../script.js';
 
-import { EXTENSION_ID, SELECTORS } from './src/core/constants.js';
+import { SELECTORS } from './src/core/constants.js';
 import {
   configureSettingsStore,
   getSettings,
@@ -19,6 +18,33 @@ import { registerWandMenuButton } from './src/ui/consoleShell.js';
 import { runGenerationPipeline } from './src/pipeline/runGenerationPipeline.js';
 
 const worldbookContextProvider = createWorldbookContextProvider();
+
+const SETTINGS_TEMPLATE_FALLBACK = `
+  <div id="st-little-painter-settings" class="stlp-settings">
+    <div class="inline-drawer">
+      <div class="inline-drawer-toggle inline-drawer-header">
+        <b>ST-Little Painter</b>
+        <div class="inline-drawer-icon fa-solid fa-circle-chevron-down down"></div>
+      </div>
+      <div class="inline-drawer-content">
+        <section class="stlp-section">
+          <h4>主要设置</h4>
+          <label class="checkbox_label" for="stlp-enabled">
+            <input id="stlp-enabled" type="checkbox" />
+            启用 ST-Little Painter
+          </label>
+          <label for="stlp-ui-language">界面语言 / UI Language</label>
+          <select id="stlp-ui-language" class="text_pole">
+            <option value="auto">自动（跟随酒馆）</option>
+            <option value="zh">中文</option>
+            <option value="en">English</option>
+          </select>
+          <p class="stlp-muted">完整设置模板加载失败时会显示此精简面板；主控制台仍可从输入栏魔棒菜单打开。</p>
+        </section>
+      </div>
+    </div>
+  </div>
+`;
 
 function setControlValue(selector, value) {
   const element = document.querySelector(selector);
@@ -307,10 +333,17 @@ function renderTraceOutput(forceExport = false) {
 }
 
 async function renderSettings() {
-  const html = await renderExtensionTemplateAsync(EXTENSION_ID, 'settings');
-  if (!html) {
-    console.error('[ST-Little Painter] Failed to render settings template. Check SillyTavern template errors above.');
-    return;
+  let html = '';
+  try {
+    const settingsTemplateUrl = new URL('./settings.html', import.meta.url);
+    const response = await fetch(settingsTemplateUrl);
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status} while loading ${settingsTemplateUrl.pathname}`);
+    }
+    html = await response.text();
+  } catch (error) {
+    console.warn('[ST-Little Painter] Failed to load settings.html next to index.js; using fallback settings panel.', error);
+    html = SETTINGS_TEMPLATE_FALLBACK;
   }
   document.querySelector('#extensions_settings')?.insertAdjacentHTML('beforeend', html);
 }
