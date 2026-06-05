@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { compile as compileBackend, generate as generateBackend, getBackendTypes } from '../src/backend/backendRegistry.js';
+import * as sdWebuiAdapter from '../src/backend/sdWebuiAdapter.js';
 import * as novelaiAdapter from '../src/backend/novelaiAdapter.js';
 import * as comfyuiAdapter from '../src/backend/comfyuiAdapter.js';
 import * as naturalImageAdapter from '../src/backend/naturalImageAdapter.js';
@@ -49,6 +50,94 @@ try {
   assert.deepEqual(getBackendTypes().sort(), ['comfyui', 'naturalImage', 'novelai', 'sdWebui'].sort());
 
   const finalPrompt = { positive: '1girl, forest', negative: 'bad hands' };
+
+  const sdCompiled = sdWebuiAdapter.compile(finalPrompt, {
+    sdWebui: {
+      url: 'http://sd.test/',
+      width: 640,
+      height: 960,
+      steps: 24,
+      cfgScale: 6.5,
+      sampler: 'DPM++ 2M',
+      seed: 456,
+      clipSkip: 2,
+      hiresFix: {
+        enabled: true,
+        upscaler: 'Latent',
+        steps: 10,
+        denoisingStrength: 0.42,
+        scale: 1.5,
+      },
+      adetailer: {
+        enabled: true,
+        model: 'face_yolov8n.pt',
+      },
+    },
+  });
+  assert.equal(sdCompiled.endpoint, 'http://sd.test/sdapi/v1/txt2img');
+  assert.equal(sdCompiled.payload.prompt, '1girl, forest');
+  assert.equal(sdCompiled.payload.negative_prompt, 'bad hands');
+  assert.equal(sdCompiled.payload.width, 640);
+  assert.equal(sdCompiled.payload.height, 960);
+  assert.equal(sdCompiled.payload.sampler_name, 'DPM++ 2M');
+  assert.equal(sdCompiled.payload.override_settings?.CLIP_stop_at_last_layers, 2);
+  assert.equal(sdCompiled.payload.enable_hr, true);
+  assert.equal(sdCompiled.payload.hr_upscaler, 'Latent');
+  assert.equal(sdCompiled.payload.hr_second_pass_steps, 10);
+  assert.equal(sdCompiled.payload.denoising_strength, 0.42);
+  assert.equal(sdCompiled.payload.hr_scale, 1.5);
+  assert.deepEqual(sdCompiled.payload.alwayson_scripts?.ADetailer, {
+    args: [{ ad_model: 'face_yolov8n.pt' }],
+  });
+
+  assert.equal(typeof sdWebuiAdapter.listResources, 'function');
+  const sdResourceCalls = [];
+  globalThis.fetch = async (url, options = {}) => {
+    sdResourceCalls.push({ url, options });
+    if (url === 'http://sd.test/sdapi/v1/sd-models') {
+      return jsonResponse([
+        { title: 'anime-final.safetensors [abc123]' },
+        { model_name: 'fallback-model' },
+      ]);
+    }
+    if (url === 'http://sd.test/sdapi/v1/samplers') {
+      return jsonResponse([{ name: 'Euler a' }, { name: 'DPM++ 2M' }]);
+    }
+    if (url === 'http://sd.test/sdapi/v1/sd-vae') {
+      return jsonResponse([
+        { model_name: 'vae-ft-mse-840000-ema-pruned' },
+        { filename: '/models/VAE/clearvae.safetensors' },
+      ]);
+    }
+    if (url === 'http://sd.test/sdapi/v1/schedulers') {
+      return jsonResponse([{ name: 'Automatic' }, { label: 'Karras' }]);
+    }
+    if (url === 'http://sd.test/sdapi/v1/upscalers') {
+      return jsonResponse([{ name: 'Latent' }, { name: 'R-ESRGAN 4x+' }]);
+    }
+    if (url === 'http://sd.test/sdapi/v1/loras') {
+      return jsonResponse([
+        { name: 'character-lora', alias: 'char' },
+        { alias: 'style-alias', path: '/models/Lora/style.safetensors' },
+      ]);
+    }
+    throw new Error(`Unexpected SD resource URL: ${url}`);
+  };
+  const sdResources = await sdWebuiAdapter.listResources({ sdWebui: { url: 'http://sd.test/' }, timeoutMs: 1000 });
+  assert.deepEqual(sdResourceCalls.map((call) => call.url), [
+    'http://sd.test/sdapi/v1/sd-models',
+    'http://sd.test/sdapi/v1/samplers',
+    'http://sd.test/sdapi/v1/sd-vae',
+    'http://sd.test/sdapi/v1/schedulers',
+    'http://sd.test/sdapi/v1/upscalers',
+    'http://sd.test/sdapi/v1/loras',
+  ]);
+  assert.deepEqual(sdResources.models, ['anime-final.safetensors [abc123]', 'fallback-model']);
+  assert.deepEqual(sdResources.samplers, ['Euler a', 'DPM++ 2M']);
+  assert.deepEqual(sdResources.vaes, ['vae-ft-mse-840000-ema-pruned', 'clearvae.safetensors']);
+  assert.deepEqual(sdResources.schedulers, ['Automatic', 'Karras']);
+  assert.deepEqual(sdResources.upscalers, ['Latent', 'R-ESRGAN 4x+']);
+  assert.deepEqual(sdResources.loras, ['character-lora', 'style-alias']);
 
   const novelCompiled = novelaiAdapter.compile(finalPrompt, {
     novelai: {

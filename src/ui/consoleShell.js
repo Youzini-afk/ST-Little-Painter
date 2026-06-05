@@ -1,4 +1,5 @@
 import { EXTENSION_NAME, SELECTORS } from '../core/constants.js';
+import { compile as compileBackendRequest, listResources as listBackendResources } from '../backend/backendRegistry.js';
 
 const TABS = [
   { id: 'dashboard', label: 'Dashboard', badge: '' },
@@ -133,7 +134,119 @@ function renderDashboardPanel() {
   `;
 }
 
-function renderPlaceholderPanel(tab) {
+function renderField(label, value, { type = 'text', datalist = '', mono = false } = {}) {
+  return `
+    <label class="stlp-field">
+      <span>${escapeHtml(label)}</span>
+      <input class="stlp-console-input${mono ? ' stlp-mono-input' : ''}" type="${type}" value="${escapeHtml(value ?? '')}" ${datalist ? `list="${escapeHtml(datalist)}"` : ''} />
+    </label>
+  `;
+}
+
+function renderDatalist(id, values = []) {
+  return `<datalist id="${escapeHtml(id)}">${values.map((value) => `<option value="${escapeHtml(value)}"></option>`).join('')}</datalist>`;
+}
+
+function safeBackendPayloadPreview(settings = {}) {
+  try {
+    const request = compileBackendRequest({ positive: '1girl, rainy bedroom, backlighting', negative: 'lowres, watermark' }, settings);
+    const payload = request.payload ?? {};
+    return JSON.stringify({
+      prompt: payload.prompt,
+      negative_prompt: payload.negative_prompt,
+      width: payload.width,
+      height: payload.height,
+      steps: payload.steps,
+      cfg_scale: payload.cfg_scale,
+      sampler_name: payload.sampler_name,
+      scheduler: payload.scheduler,
+      seed: payload.seed,
+      override_settings: payload.override_settings,
+      enable_hr: payload.enable_hr,
+      alwayson_scripts: payload.alwayson_scripts ? Object.keys(payload.alwayson_scripts) : undefined,
+    }, null, 2);
+  } catch (error) {
+    return JSON.stringify({ error: error?.message || String(error) }, null, 2);
+  }
+}
+
+function renderBackendsPanel(settings = {}, resources = {}) {
+  const sd = settings.sdWebui ?? {};
+  const resourceLists = {
+    models: resources.models ?? [],
+    vaes: resources.vaes ?? [],
+    samplers: resources.samplers ?? [],
+    schedulers: resources.schedulers ?? [],
+    upscalers: resources.upscalers ?? [],
+    loras: resources.loras ?? [],
+  };
+  return `
+    <section class="stlp-tab-panel" data-stlp-console-panel="backends" hidden>
+      <div class="stlp-grid-12">
+        <section class="stlp-module stlp-col-12">
+          <div class="stlp-module-head">
+            <div><p class="stlp-kicker">Backend Configuration</p><h2>SD WebUI / Forge adapter</h2></div>
+            <div class="stlp-chip-row"><span class="stlp-chip stlp-chip-active">${escapeHtml(settings.backend?.type || 'sdWebui')}</span><span class="stlp-chip">editable comboboxes</span></div>
+          </div>
+          <div class="stlp-form-grid stlp-form-grid-4">
+            ${renderField('API URL', sd.url || 'http://127.0.0.1:7860', { mono: true })}
+            ${renderField('Username', sd.username || '')}
+            ${renderField('Password', sd.password ? '••••••••' : '', { type: 'password' })}
+            ${renderField('Timeout', settings.timeoutMs || 30000, { type: 'number', mono: true })}
+          </div>
+          <div class="stlp-actions-row"><button class="stlp-button stlp-primary" type="button" data-stlp-action="refresh-sd-resources">Refresh resources</button><span id="stlp-sd-resource-status" class="stlp-muted">Fetch model / sampler / VAE / scheduler / upscaler / LoRA lists from the active SD endpoint.</span></div>
+        </section>
+
+        <section class="stlp-module stlp-col-8">
+          <div class="stlp-module-head"><h2>Resources</h2><span class="stlp-mini-pill">${resourceLists.models.length + resourceLists.samplers.length + resourceLists.vaes.length} loaded</span></div>
+          ${renderDatalist('stlp-sd-model-options', resourceLists.models)}
+          ${renderDatalist('stlp-sd-vae-options', resourceLists.vaes)}
+          ${renderDatalist('stlp-sd-sampler-options', resourceLists.samplers)}
+          ${renderDatalist('stlp-sd-scheduler-options', resourceLists.schedulers)}
+          ${renderDatalist('stlp-sd-upscaler-options', resourceLists.upscalers)}
+          ${renderDatalist('stlp-sd-lora-options', resourceLists.loras)}
+          <div class="stlp-form-grid stlp-form-grid-3">
+            ${renderField('Model', sd.model || '', { datalist: 'stlp-sd-model-options', mono: true })}
+            ${renderField('VAE', sd.vae || '', { datalist: 'stlp-sd-vae-options', mono: true })}
+            ${renderField('Sampler', sd.sampler || 'Euler a', { datalist: 'stlp-sd-sampler-options', mono: true })}
+            ${renderField('Scheduler', sd.scheduler || '', { datalist: 'stlp-sd-scheduler-options', mono: true })}
+            ${renderField('Upscaler', sd.upscaler || '', { datalist: 'stlp-sd-upscaler-options', mono: true })}
+            ${renderField('LoRA search', '', { datalist: 'stlp-sd-lora-options', mono: true })}
+          </div>
+        </section>
+
+        <section class="stlp-module stlp-col-4">
+          <h2>Connection</h2>
+          <div class="stlp-status-card"><i class="stlp-dot stlp-green"></i><strong>READY</strong><span>txt2img route</span><code>/sdapi/v1/txt2img</code></div>
+          <div class="stlp-chip-row"><span class="stlp-chip">Forge compatible</span><span class="stlp-chip">Basic Auth</span></div>
+        </section>
+
+        <section class="stlp-module stlp-col-8">
+          <div class="stlp-module-head"><h2>Generation defaults</h2><span class="stlp-mini-pill">settings-owned params</span></div>
+          <div class="stlp-form-grid stlp-form-grid-4">
+            ${renderField('Width', sd.width || 768, { type: 'number', mono: true })}
+            ${renderField('Height', sd.height || 1024, { type: 'number', mono: true })}
+            ${renderField('Steps', sd.steps || 28, { type: 'number', mono: true })}
+            ${renderField('CFG', sd.cfgScale || 7, { type: 'number', mono: true })}
+            ${renderField('Seed', sd.seed ?? -1, { type: 'number', mono: true })}
+            ${renderField('CLIP skip', sd.clipSkip || 1, { type: 'number', mono: true })}
+            ${renderField('Hires scale', sd.hiresFix?.scale ?? 1.8, { type: 'number', mono: true })}
+            ${renderField('Denoise', sd.hiresFix?.denoisingStrength ?? 0.45, { type: 'number', mono: true })}
+          </div>
+          <div class="stlp-chip-row"><span class="stlp-chip${sd.hiresFix?.enabled ? ' stlp-chip-active' : ''}">hires fix ${sd.hiresFix?.enabled ? 'on' : 'off'}</span><span class="stlp-chip${sd.adetailer?.enabled ? ' stlp-chip-active' : ''}">ADetailer ${sd.adetailer?.enabled ? 'on' : 'off'}</span><span class="stlp-chip">restore faces ${sd.restoreFaces ? 'on' : 'off'}</span></div>
+        </section>
+
+        <section class="stlp-module stlp-col-4">
+          <div class="stlp-module-head"><h2>Payload preview</h2></div>
+          <pre class="stlp-code-well">${escapeHtml(safeBackendPayloadPreview({ ...settings, backend: { ...(settings.backend ?? {}), type: 'sdWebui' } }))}</pre>
+        </section>
+      </div>
+    </section>
+  `;
+}
+
+function renderPlaceholderPanel(tab, settings = {}, resources = {}) {
+  if (tab.id === 'backends') return renderBackendsPanel(settings, resources.sdWebui ?? resources);
   const summaries = {
     'tag-api': 'Second API profiles, JSON fallback, model behavior, and live tagger tests.',
     compiler: 'Prompt profiles, mode controls, fixed prompts, insertion defaults, and CompiledPrompt preview.',
@@ -156,7 +269,7 @@ function renderPlaceholderPanel(tab) {
   `;
 }
 
-function renderShell(settings = {}, activeTab = 'dashboard') {
+function renderShell(settings = {}, activeTab = 'dashboard', resources = {}) {
   return `
     <div id="stlp-console-backdrop" class="stlp-console-backdrop"></div>
     <div class="stlp-console" role="dialog" aria-modal="true" aria-label="${EXTENSION_NAME} console">
@@ -165,7 +278,7 @@ function renderShell(settings = {}, activeTab = 'dashboard') {
         ${renderCommandShelf(settings)}
         <main class="stlp-console-content">
           ${renderDashboardPanel()}
-          ${TABS.filter((tab) => tab.id !== 'dashboard').map(renderPlaceholderPanel).join('')}
+          ${TABS.filter((tab) => tab.id !== 'dashboard').map((tab) => renderPlaceholderPanel(tab, settings, resources)).join('')}
         </main>
       </div>
     </div>
@@ -226,6 +339,11 @@ export function bindConsoleShell(root = document.querySelector(SELECTORS.console
     const tabButton = event.target.closest(SELECTORS.consoleTabs);
     if (tabButton) {
       setActiveTab(root, tabButton.dataset.stlpConsoleTab);
+      return;
+    }
+    const actionButton = event.target.closest('[data-stlp-action="refresh-sd-resources"]');
+    if (actionButton) {
+      refreshSdResources(root, options.getSettings);
     }
   });
   document.addEventListener('keydown', (event) => {
@@ -234,6 +352,23 @@ export function bindConsoleShell(root = document.querySelector(SELECTORS.console
     }
   });
   root.dataset.stlpOptions = Boolean(options.getSettings) ? 'settings' : 'static';
+}
+
+async function refreshSdResources(root, getSettings) {
+  const status = root.querySelector('#stlp-sd-resource-status');
+  try {
+    if (status) status.textContent = 'Refreshing SD WebUI resources…';
+    const settings = typeof getSettings === 'function' ? getSettings() : {};
+    const resources = await listBackendResources({ ...settings, backend: { ...(settings.backend ?? {}), type: 'sdWebui' } }, 'sdWebui');
+    const open = !root.classList.contains('stlp-hidden');
+    root.innerHTML = renderShell(settings, 'backends', { sdWebui: resources });
+    root.classList.toggle('stlp-hidden', !open);
+    document.body.classList.toggle('stlp-console-open', open);
+    setActiveTab(root, 'backends');
+    root.querySelector('#stlp-sd-resource-status').textContent = `Loaded ${Object.values(resources).reduce((sum, list) => sum + (Array.isArray(list) ? list.length : 0), 0)} resources.`;
+  } catch (error) {
+    if (status) status.textContent = error?.message || String(error);
+  }
 }
 
 export function registerWandMenuButton({ getSettings } = {}) {

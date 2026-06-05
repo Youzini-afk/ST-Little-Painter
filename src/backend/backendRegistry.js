@@ -38,8 +38,16 @@ export async function generate(compiledRequest = {}, settings = {}) {
   return adapter.generate(compiledRequest, settings);
 }
 
+export async function listResources(settings = {}, explicitType) {
+  const { adapter } = resolveAdapter(settings, explicitType);
+  if (typeof adapter.listResources !== 'function') {
+    return {};
+  }
+  return adapter.listResources(settings);
+}
+
 export function getBackendTypes() {
   return Object.keys(adapters);
 }
 
-export default { compile, generate, getBackendTypes };
+export default { compile, generate, getBackendTypes, listResources };
