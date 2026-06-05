@@ -83,20 +83,20 @@ export const defaultSettings = Object.freeze({
   novelai: {
     url: 'https://image.novelai.net',
     apiKey: '',
-    model: 'nai-diffusion-3',
-    sampler: 'k_euler_ancestral',
-    scheduler: 'native',
+    model: 'nai-diffusion-4-5-full',
+    sampler: 'Euler Ancestral',
+    scheduler: 'karras',
     width: 832,
     height: 1216,
     steps: 28,
-    scale: 5,
+    scale: 7,
     seed: -1,
     ucPreset: 0,
     qualityToggle: true,
     sm: false,
     smDyn: false,
-    dynamicThresholding: false,
-    cfgRescale: 0,
+    dynamicThresholding: true,
+    cfgRescale: '',
     negativePrompt: '',
   },
   comfyui: {
@@ -162,6 +162,9 @@ export const defaultSettings = Object.freeze({
   replacements: {},
   blocklist: [],
   allowlist: [],
+  _migrations: {
+    novelaiDefaults202606: false,
+  },
 });
 
 function isPlainObject(value) {
@@ -187,6 +190,22 @@ function clone(value) {
   return JSON.parse(JSON.stringify(value));
 }
 
+function migrateSettings(settings) {
+  const next = settings;
+  next._migrations = { ...(next._migrations ?? {}) };
+  if (!next._migrations.novelaiDefaults202606) {
+    next.novelai = { ...(next.novelai ?? {}) };
+    if (next.novelai.model === 'nai-diffusion-3') next.novelai.model = 'nai-diffusion-4-5-full';
+    if (next.novelai.sampler === 'k_euler_ancestral') next.novelai.sampler = 'Euler Ancestral';
+    if (next.novelai.scheduler === 'native') next.novelai.scheduler = 'karras';
+    if (next.novelai.scale === 5) next.novelai.scale = 7;
+    if (next.novelai.dynamicThresholding === false) next.novelai.dynamicThresholding = true;
+    if (next.novelai.cfgRescale === 0) next.novelai.cfgRescale = '';
+    next._migrations.novelaiDefaults202606 = true;
+  }
+  return next;
+}
+
 export function configureSettingsStore({ extension_settings, saveSettingsDebounced } = {}) {
   extensionSettingsRef = extension_settings ?? extensionSettingsRef;
   saveSettingsDebouncedRef = saveSettingsDebounced ?? saveSettingsDebouncedRef;
@@ -198,7 +217,7 @@ function ensureSettings() {
     return clone(defaultSettings);
   }
 
-  const merged = mergeDefaults(defaultSettings, extensionSettingsRef[SETTINGS_KEY]);
+  const merged = migrateSettings(mergeDefaults(defaultSettings, extensionSettingsRef[SETTINGS_KEY]));
   extensionSettingsRef[SETTINGS_KEY] = merged;
   return merged;
 }

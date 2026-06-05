@@ -27,13 +27,13 @@ const NAI_MODEL_PRESETS = [
 ];
 
 const NAI_SAMPLER_PRESETS = [
-  'k_euler',
-  'ddim_v3',
-  'k_dpmpp_2s_ancestral',
-  'k_dpmpp_2m',
-  'k_euler_ancestral',
-  'k_dpmpp_2m_sde',
-  'k_dpmpp_sde',
+  'Euler',
+  'DDIM',
+  'DPM++ 2S Ancestral',
+  'DPM++ 2M',
+  'Euler Ancestral',
+  'DPM++ 2M SDE',
+  'DPM++ SDE',
 ];
 
 const NAI_SCHEDULER_PRESETS = ['native', 'exponential', 'polyexponential', 'karras'];
@@ -336,16 +336,16 @@ function renderGenericBackendPanel(settings = {}, backendType = 'novelai') {
     novelai: [
       { label: t('apiUrl'), path: 'novelai.url', value: backend.url || 'https://image.novelai.net' },
       { label: t('apiKey'), path: 'novelai.apiKey', value: backend.apiKey || '', type: 'password', mono: false, placeholder: backend.apiKey ? '••••••••' : '' },
-      { label: t('model'), path: 'novelai.model', value: backend.model || 'nai-diffusion-3', options: NAI_MODEL_PRESETS },
-      { label: t('sampler'), path: 'novelai.sampler', value: backend.sampler || 'k_euler_ancestral', options: NAI_SAMPLER_PRESETS },
-      { label: t('scheduler'), path: 'novelai.scheduler', value: backend.scheduler || 'native', options: NAI_SCHEDULER_PRESETS },
+      { label: t('model'), path: 'novelai.model', value: backend.model || 'nai-diffusion-4-5-full', options: NAI_MODEL_PRESETS },
+      { label: t('sampler'), path: 'novelai.sampler', value: backend.sampler || 'Euler Ancestral', options: NAI_SAMPLER_PRESETS },
+      { label: t('scheduler'), path: 'novelai.scheduler', value: backend.scheduler || 'karras', options: NAI_SCHEDULER_PRESETS },
       { label: t('width'), path: 'novelai.width', value: backend.width ?? 832, type: 'number', min: 64 },
       { label: t('height'), path: 'novelai.height', value: backend.height ?? 1216, type: 'number', min: 64 },
       { label: t('steps'), path: 'novelai.steps', value: backend.steps ?? 28, type: 'number', min: 1 },
-      { label: t('cfg'), path: 'novelai.scale', value: backend.scale ?? 5, type: 'number', step: '0.1' },
+      { label: t('cfg'), path: 'novelai.scale', value: backend.scale ?? 7, type: 'number', step: '0.1' },
       { label: t('seed'), path: 'novelai.seed', value: backend.seed ?? -1, type: 'number' },
       { label: 'ucPreset', path: 'novelai.ucPreset', value: backend.ucPreset ?? 0, type: 'number' },
-      { label: 'cfgRescale', path: 'novelai.cfgRescale', value: backend.cfgRescale ?? 0, type: 'number', step: '0.01' },
+      { label: 'cfgRescale', path: 'novelai.cfgRescale', value: backend.cfgRescale ?? '', type: 'number', step: '0.01' },
     ],
     comfyui: [
       { label: t('apiUrl'), path: 'comfyui.url', value: backend.url || 'http://127.0.0.1:8188' },

@@ -18,27 +18,42 @@ import {
 const DEFAULTS = Object.freeze({
   url: 'https://image.novelai.net',
   apiKey: '',
-  model: 'nai-diffusion-3',
-  sampler: 'k_euler_ancestral',
-  scheduler: 'native',
+  model: 'nai-diffusion-4-5-full',
+  sampler: 'Euler Ancestral',
+  scheduler: 'karras',
   width: 832,
   height: 1216,
   steps: 28,
-  scale: 5,
+  scale: 7,
   seed: -1,
   ucPreset: 0,
   qualityToggle: true,
   sm: false,
   smDyn: false,
-  dynamicThresholding: false,
-  cfgRescale: 0,
+  dynamicThresholding: true,
+  cfgRescale: '',
   negativePrompt: '',
+});
+
+const SAMPLER_ALIASES = Object.freeze({
+  euler: 'k_euler',
+  'euler ancestral': 'k_euler_ancestral',
+  ddim: 'ddim_v3',
+  'dpm++ 2s ancestral': 'k_dpmpp_2s_ancestral',
+  'dpm++ 2m': 'k_dpmpp_2m',
+  'dpm++ 2m sde': 'k_dpmpp_2m_sde',
+  'dpm++ sde': 'k_dpmpp_sde',
 });
 
 function normalizeSeed(value) {
   const seed = numberOr(value, DEFAULTS.seed);
   if (seed >= 0) return seed;
   return Math.floor(Math.random() * 4294967295);
+}
+
+function normalizeSampler(value) {
+  const sampler = String(value || DEFAULTS.sampler).trim();
+  return SAMPLER_ALIASES[sampler.toLowerCase()] || sampler;
 }
 
 function resolveJSZip() {
@@ -94,7 +109,7 @@ export function compile(finalPrompt = {}, settings = {}) {
       height: numberOr(novelai.height, DEFAULTS.height),
       steps: numberOr(novelai.steps, DEFAULTS.steps),
       scale: numberOr(novelai.scale, DEFAULTS.scale),
-      sampler: String(novelai.sampler || DEFAULTS.sampler),
+      sampler: normalizeSampler(novelai.sampler),
       scheduler: String(novelai.scheduler || DEFAULTS.scheduler),
       seed: normalizeSeed(novelai.seed),
       n_samples: 1,

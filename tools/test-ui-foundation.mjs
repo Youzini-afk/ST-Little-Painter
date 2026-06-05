@@ -17,6 +17,21 @@ assert.equal(settings.tagApi.jsonMode, 'auto');
 assert.equal(settings.sdWebui.hiresFix.enabled, false);
 assert.equal(settings.knowledge.dictionaryHints, true);
 assert.equal(defaultSettings.novelai.qualityToggle, true);
+assert.equal(defaultSettings.novelai.model, 'nai-diffusion-4-5-full');
+assert.equal(defaultSettings.novelai.sampler, 'Euler Ancestral');
+assert.equal(defaultSettings.novelai.scheduler, 'karras');
+assert.equal(defaultSettings.novelai.scale, 7);
+assert.equal(defaultSettings.novelai.dynamicThresholding, true);
+
+const migrationStore = { STLittlePainter: { novelai: { model: 'nai-diffusion-3', sampler: 'k_euler_ancestral', scheduler: 'native', scale: 5, dynamicThresholding: false, cfgRescale: 0 } } };
+configureSettingsStore({ extension_settings: migrationStore, saveSettingsDebounced: () => {} });
+assert.equal(getSettings().novelai.model, 'nai-diffusion-4-5-full');
+assert.equal(getSettings().novelai.sampler, 'Euler Ancestral');
+assert.equal(getSettings().novelai.scheduler, 'karras');
+assert.equal(getSettings().novelai.scale, 7);
+assert.equal(getSettings().novelai.dynamicThresholding, true);
+assert.equal(getSettings().novelai.cfgRescale, '');
+configureSettingsStore({ extension_settings, saveSettingsDebounced: () => {} });
 
 let next = saveProfile(settings, 'profiles', 'portrait', { compilerProfileId: 'sd', fixedPositive: ['portrait'] });
 assert.equal(next.profiles.active, 'portrait');

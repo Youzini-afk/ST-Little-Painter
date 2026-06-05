@@ -144,7 +144,7 @@ try {
       url: 'https://novel.test/',
       apiKey: 'nai-key',
       model: 'nai-test',
-      sampler: 'k_euler',
+      sampler: 'Euler Ancestral',
       scheduler: 'karras',
       width: 640,
       height: 960,
@@ -165,6 +165,7 @@ try {
   assert.equal(novelCompiled.payload.model, 'nai-test');
   assert.equal(novelCompiled.payload.parameters.negative_prompt, 'low quality, bad hands');
   assert.equal(novelCompiled.payload.parameters.width, 640);
+  assert.equal(novelCompiled.payload.parameters.sampler, 'k_euler_ancestral');
   assert.equal(novelCompiled.payload.parameters.seed, 123);
   assert.equal(novelCompiled.payload.parameters.sm_dyn, true);
   assert.equal(novelCompiled.payload.parameters.dynamic_thresholding, true);
