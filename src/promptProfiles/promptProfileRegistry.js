@@ -134,7 +134,7 @@ export async function loadPromptProfiles() {
 }
 
 export function selectPromptProfile(profiles = FALLBACK_PROMPT_PROFILES, settings = {}) {
-  const explicitId = settings?.promptProfileId || settings?.promptProfile?.id;
+  const explicitId = settings?.compilerProfileId || settings?.promptProfileId || settings?.promptProfile?.id;
   if (explicitId) {
     const explicit = profiles.find((profile) => profile.id === explicitId);
     if (explicit) return explicit;

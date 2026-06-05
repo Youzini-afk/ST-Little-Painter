@@ -5,6 +5,7 @@ import { deleteProfile, getActiveProfile, importProfileGroup, saveProfile } from
 import { bindFields, populateFields } from '../src/ui/bindFields.js';
 import { addTraceStep, createTrace, finalizeTrace, getTraceById, getTraceHistory } from '../src/debug/trace.js';
 import { TRACE_STATUS } from '../src/core/constants.js';
+import { SETTINGS_KEY } from '../src/core/constants.js';
 import { createTranslator, getLanguage, getSillyTavernLocale, resolveAutoLanguage } from '../src/ui/i18n.js';
 
 const extension_settings = {};
@@ -23,7 +24,7 @@ assert.equal(defaultSettings.novelai.scheduler, 'karras');
 assert.equal(defaultSettings.novelai.scale, 7);
 assert.equal(defaultSettings.novelai.dynamicThresholding, true);
 
-const migrationStore = { STLittlePainter: { novelai: { model: 'nai-diffusion-3', sampler: 'k_euler_ancestral', scheduler: 'native', scale: 5, dynamicThresholding: false, cfgRescale: 0 } } };
+const migrationStore = { [SETTINGS_KEY]: { novelai: { model: 'nai-diffusion-3', sampler: 'k_euler_ancestral', scheduler: 'native', scale: 5, dynamicThresholding: false, cfgRescale: 0 } } };
 configureSettingsStore({ extension_settings: migrationStore, saveSettingsDebounced: () => {} });
 assert.equal(getSettings().novelai.model, 'nai-diffusion-4-5-full');
 assert.equal(getSettings().novelai.sampler, 'Euler Ancestral');
@@ -31,6 +32,10 @@ assert.equal(getSettings().novelai.scheduler, 'karras');
 assert.equal(getSettings().novelai.scale, 7);
 assert.equal(getSettings().novelai.dynamicThresholding, true);
 assert.equal(getSettings().novelai.cfgRescale, '');
+
+const profileMigrationStore = { [SETTINGS_KEY]: { backend: { type: 'novelai' }, compilerProfileId: 'sd' } };
+configureSettingsStore({ extension_settings: profileMigrationStore, saveSettingsDebounced: () => {} });
+assert.equal(getSettings().compilerProfileId, 'novelai');
 configureSettingsStore({ extension_settings, saveSettingsDebounced: () => {} });
 
 let next = saveProfile(settings, 'profiles', 'portrait', { compilerProfileId: 'sd', fixedPositive: ['portrait'] });

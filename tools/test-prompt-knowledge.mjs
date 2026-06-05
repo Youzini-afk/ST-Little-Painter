@@ -31,6 +31,7 @@ async function testProfileSelection() {
   assert.equal(selectPromptProfile(FALLBACK_PROMPT_PROFILES, { backend: { type: 'novelai' } }).id, 'novelai');
   assert.equal(selectPromptProfile(FALLBACK_PROMPT_PROFILES, { backend: { type: 'comfyui' } }).id, 'comfyui');
   assert.equal(selectPromptProfile(FALLBACK_PROMPT_PROFILES, { backend: { type: 'naturalImage' } }).id, 'naturalImage');
+  assert.equal(selectPromptProfile(FALLBACK_PROMPT_PROFILES, { backend: { type: 'novelai' }, compilerProfileId: 'comfyui' }).id, 'comfyui');
 }
 
 function testSkillSelector() {

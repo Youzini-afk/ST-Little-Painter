@@ -52,6 +52,15 @@ const NATURAL_CHAT_MODEL_PRESETS = ['gpt-4.1', 'gpt-4.1-mini', 'gpt-4o', 'gpt-4o
 const NATURAL_QUALITY_PRESETS = ['auto', 'low', 'medium', 'high', 'standard', 'hd'];
 const NATURAL_RESPONSE_FORMAT_PRESETS = ['b64_json', 'url'];
 
+const PROMPT_PROFILE_PRESETS = ['generic', 'sd', 'novelai', 'comfyui', 'naturalImage'];
+
+const BACKEND_PROFILE_DEFAULTS = Object.freeze({
+  sdWebui: 'sd',
+  novelai: 'novelai',
+  comfyui: 'comfyui',
+  naturalImage: 'naturalImage',
+});
+
 const runtimeResources = {
   tagApiModels: [],
 };
@@ -86,6 +95,10 @@ function backendShortLabel(type = 'sdWebui') {
     comfyui: 'Comfy',
     naturalImage: 'Natural',
   }[type] || String(type || 'SD');
+}
+
+function promptProfileForBackend(backendType = 'sdWebui') {
+  return BACKEND_PROFILE_DEFAULTS[backendType] || 'generic';
 }
 
 function resolveTabBadge(tab, settings = {}) {
@@ -126,7 +139,8 @@ function renderCommandShelf(settings = {}) {
   const t = createTranslator(settings);
   const backendType = settings.backend?.type || 'sdWebui';
   const mode = settings.mode || 'fast';
-  const profileLabel = settings.profiles?.list?.[settings.profiles?.active]?.label || 'anime-default / SD';
+  const profileId = settings.compilerProfileId || promptProfileForBackend(backendType);
+  const profileLabel = `${settings.profiles?.active || 'anime-default'} / ${backendShortLabel(backendType)} · ${profileId}`;
   return `
     <header class="stlp-command-shelf">
       <button class="stlp-command-group stlp-command-clickable" type="button" data-stlp-command-toggle="enabled" aria-pressed="${settings.enabled !== false ? 'true' : 'false'}">
@@ -545,9 +559,9 @@ function renderCompilerPanel(settings = {}) {
           <div class="stlp-module-head"><div><p class="stlp-kicker">${escapeHtml(t('promptCompiler'))}</p><h2>${escapeHtml(t('modeAndProfile'))}</h2></div><button class="stlp-button stlp-primary" type="button" data-stlp-action="compile-test">${escapeHtml(t('runCompileTest'))}</button></div>
           <div class="stlp-segmented stlp-wide-segmented">${['fast', 'smart', 'expert'].map((mode) => `<button class="stlp-segment${activeClass((settings.mode || 'fast') === mode)}" type="button" data-stlp-command-set="mode" data-stlp-command-value="${escapeHtml(mode)}" aria-pressed="${(settings.mode || 'fast') === mode ? 'true' : 'false'}">${mode}</button>`).join('')}</div>
           <div class="stlp-form-grid stlp-form-grid-3 stlp-form-offset">
-            ${renderField(t('promptProfile'), profileId, { mono: true })}
-            ${renderField('historyCount', settings.historyCount ?? 8, { type: 'number', mono: true })}
-            ${renderField(t('targetMode'), 'latest_assistant', { mono: true })}
+            ${renderField(t('promptProfile'), profileId, { mono: true, path: 'compilerProfileId', options: PROMPT_PROFILE_PRESETS })}
+            ${renderField('historyCount', settings.historyCount ?? 8, { type: 'number', mono: true, path: 'historyCount', min: 1 })}
+            ${renderField(t('targetMode'), 'latest_assistant', { mono: true, options: ['latest_assistant'] })}
           </div>
           <div class="stlp-form-grid stlp-form-grid-2 stlp-form-offset">
             <label class="stlp-field"><span>${escapeHtml(t('fixedPositive'))}</span><textarea class="stlp-console-input stlp-textarea">${escapeHtml((settings.fixedPositive ?? []).join('\n'))}</textarea></label>
@@ -745,6 +759,9 @@ function setNestedValue(target, path, value) {
 function updateConsoleSetting(root, options = {}, path, value) {
   const settings = updateSettings((current) => {
     setNestedValue(current, path, value);
+    if (path === 'backend.type') {
+      current.compilerProfileId = promptProfileForBackend(value);
+    }
     return current;
   });
   saveSettings();

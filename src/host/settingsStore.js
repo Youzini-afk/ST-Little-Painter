@@ -164,6 +164,7 @@ export const defaultSettings = Object.freeze({
   allowlist: [],
   _migrations: {
     novelaiDefaults202606: false,
+    compilerProfileBackend202606: false,
   },
 });
 
@@ -202,6 +203,20 @@ function migrateSettings(settings) {
     if (next.novelai.dynamicThresholding === false) next.novelai.dynamicThresholding = true;
     if (next.novelai.cfgRescale === 0) next.novelai.cfgRescale = '';
     next._migrations.novelaiDefaults202606 = true;
+  }
+  if (!next._migrations.compilerProfileBackend202606) {
+    const backendProfileDefaults = {
+      sdWebui: 'sd',
+      novelai: 'novelai',
+      comfyui: 'comfyui',
+      naturalImage: 'naturalImage',
+    };
+    const backendType = next.backend?.type;
+    const expectedProfile = backendProfileDefaults[backendType];
+    if (expectedProfile && (!next.compilerProfileId || next.compilerProfileId === 'sd')) {
+      next.compilerProfileId = expectedProfile;
+    }
+    next._migrations.compilerProfileBackend202606 = true;
   }
   return next;
 }
