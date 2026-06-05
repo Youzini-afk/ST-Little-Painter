@@ -17,6 +17,40 @@ const TABS = [
 
 const PIPELINE_STAGE_KEYS = ['stageContext', 'stageWorldbook', 'stagePlanner', 'stageTagger', 'stageCompile', 'stageBackend', 'stageInsert'];
 
+const NAI_MODEL_PRESETS = [
+  'nai-diffusion-3',
+  'nai-diffusion-4-full',
+  'nai-diffusion-4-curated-preview',
+  'nai-diffusion-4-5-curated',
+  'nai-diffusion-4-5-full',
+];
+
+const NAI_SAMPLER_PRESETS = [
+  'k_euler',
+  'ddim_v3',
+  'k_dpmpp_2s_ancestral',
+  'k_dpmpp_2m',
+  'k_euler_ancestral',
+  'k_dpmpp_2m_sde',
+  'k_dpmpp_sde',
+];
+
+const NAI_SCHEDULER_PRESETS = ['native', 'exponential', 'polyexponential', 'karras'];
+
+const SIZE_PRESETS = ['512x512', '640x640', '512x768', '768x512', '1024x1024', '1216x832', '832x1216'];
+
+const SD_SAMPLER_FALLBACKS = ['Euler a', 'Euler', 'DPM++ 2M', 'DPM++ 2M Karras', 'DPM++ SDE', 'DPM++ 2M SDE', 'UniPC'];
+const SD_SCHEDULER_FALLBACKS = ['Automatic', 'Karras', 'Exponential', 'Polyexponential', 'SGM Uniform', 'Simple', 'Normal'];
+const SD_UPSCALER_FALLBACKS = ['Latent', 'Latent (antialiased)', 'R-ESRGAN 4x+', 'R-ESRGAN 4x+ Anime6B', '4x-UltraSharp'];
+
+const COMFY_SAMPLER_PRESETS = ['euler', 'euler_ancestral', 'dpmpp_2m', 'dpmpp_2m_sde', 'dpmpp_sde', 'uni_pc', 'ddim'];
+const COMFY_SCHEDULER_PRESETS = ['normal', 'karras', 'exponential', 'simple', 'sgm_uniform'];
+const NATURAL_PROVIDER_MODES = ['openaiImages', 'openaiChatImage', 'chatMarkdownImage'];
+const NATURAL_MODEL_PRESETS = ['gpt-image-1', 'dall-e-3', 'dall-e-2'];
+const NATURAL_CHAT_MODEL_PRESETS = ['gpt-4.1', 'gpt-4.1-mini', 'gpt-4o', 'gpt-4o-mini'];
+const NATURAL_QUALITY_PRESETS = ['auto', 'low', 'medium', 'high', 'standard', 'hd'];
+const NATURAL_RESPONSE_FORMAT_PRESETS = ['b64_json', 'url'];
+
 const PIPELINE_ICONS = {
   stageContext: `<svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>`,
   stageWorldbook: `<svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"></path></svg>`,
@@ -178,17 +212,70 @@ function renderDashboardPanel(settings = {}) {
   `;
 }
 
-function renderField(label, value, { type = 'text', datalist = '', mono = false } = {}) {
+function renderField(label, value, { type = 'text', datalist = '', mono = false, path = '', step = '', min = '', placeholder = '' } = {}) {
+  const settingAttr = path ? ` data-stlp-setting="${escapeHtml(path)}"` : '';
+  const stepAttr = step !== '' ? ` step="${escapeHtml(step)}"` : '';
+  const minAttr = min !== '' ? ` min="${escapeHtml(min)}"` : '';
+  const placeholderAttr = placeholder ? ` placeholder="${escapeHtml(placeholder)}"` : '';
   return `
     <label class="stlp-field">
       <span>${escapeHtml(label)}</span>
-      <input class="stlp-console-input${mono ? ' stlp-mono-input' : ''}" type="${type}" value="${escapeHtml(value ?? '')}" ${datalist ? `list="${escapeHtml(datalist)}"` : ''} />
+      <input class="stlp-console-input${mono ? ' stlp-mono-input' : ''}${datalist ? ' stlp-combo-input' : ''}" type="${type}" value="${escapeHtml(value ?? '')}"${settingAttr}${stepAttr}${minAttr}${placeholderAttr} ${datalist ? `list="${escapeHtml(datalist)}"` : ''} />
     </label>
   `;
 }
 
 function renderDatalist(id, values = []) {
-  return `<datalist id="${escapeHtml(id)}">${values.map((value) => `<option value="${escapeHtml(value)}"></option>`).join('')}</datalist>`;
+  const uniqueValues = [...new Set(values.map((value) => String(value ?? '').trim()).filter(Boolean))];
+  return `<datalist id="${escapeHtml(id)}">${uniqueValues.map((value) => `<option value="${escapeHtml(value)}"></option>`).join('')}</datalist>`;
+}
+
+function mergeOptions(...groups) {
+  return [...new Set(groups.flat().map((value) => String(value ?? '').trim()).filter(Boolean))];
+}
+
+function renderBackendField(field) {
+  return renderField(field.label, field.value, {
+    type: field.type || (typeof field.value === 'number' ? 'number' : 'text'),
+    datalist: field.datalist || '',
+    mono: field.mono !== false,
+    path: field.path || '',
+    step: field.step || '',
+    min: field.min ?? '',
+    placeholder: field.placeholder || '',
+  });
+}
+
+function renderSizePresetField(label, pathPrefix, width, height, datalistId) {
+  const value = width && height ? `${width}x${height}` : '';
+  return `
+    <label class="stlp-field">
+      <span>${escapeHtml(label)}</span>
+      <input class="stlp-console-input stlp-combo-input stlp-mono-input" type="text" value="${escapeHtml(value)}" list="${escapeHtml(datalistId)}" data-stlp-size-preset="${escapeHtml(pathPrefix)}" />
+    </label>
+  `;
+}
+
+function parseMaybeNumberValue(rawValue, input) {
+  if (input?.type !== 'number') return rawValue;
+  const value = Number(rawValue);
+  return Number.isFinite(value) ? value : 0;
+}
+
+function applySizePreset(root, options = {}, pathPrefix = '') {
+  const input = root.querySelector(`[data-stlp-size-preset="${pathPrefix}"]`);
+  if (!input || !String(input.value).includes('x')) return false;
+  const [width, height] = String(input.value).split('x').map((part) => Number(part.trim()));
+  if (!Number.isFinite(width) || !Number.isFinite(height)) return false;
+  updateSettings((current) => {
+    setNestedValue(current, `${pathPrefix}.width`, width);
+    setNestedValue(current, `${pathPrefix}.height`, height);
+    return current;
+  });
+  saveSettings();
+  const settings = typeof options.getSettings === 'function' ? options.getSettings() : {};
+  rerenderConsole(root, settings, options);
+  return true;
 }
 
 function safeBackendPayloadPreview(settings = {}) {
@@ -224,18 +311,48 @@ function renderGenericBackendPanel(settings = {}, backendType = 'novelai') {
     comfyui: '/prompt + /history + /view',
     naturalImage: backend.providerMode === 'openaiChatImage' || backend.providerMode === 'chatMarkdownImage' ? '/chat/completions' : '/images/generations',
   }[backendType] || 'configured route';
+  const datalistId = (name) => `stlp-${backendType}-${name}-options`;
   const primaryFields = {
     novelai: [
-      [t('apiUrl'), backend.url || 'https://image.novelai.net'], [t('apiKey'), backend.apiKey ? '••••••••' : ''], [t('model'), backend.model || 'nai-diffusion-3'], [t('sampler'), backend.sampler || 'k_euler_ancestral'],
-      [t('scheduler'), backend.scheduler || 'native'], [t('width'), backend.width ?? 832], [t('height'), backend.height ?? 1216], [t('steps'), backend.steps ?? 28], [t('cfg'), backend.scale ?? 5], [t('seed'), backend.seed ?? -1], ['ucPreset', backend.ucPreset ?? 0], ['cfgRescale', backend.cfgRescale ?? 0],
+      { label: t('apiUrl'), path: 'novelai.url', value: backend.url || 'https://image.novelai.net' },
+      { label: t('apiKey'), path: 'novelai.apiKey', value: backend.apiKey || '', type: 'password', mono: false, placeholder: backend.apiKey ? '••••••••' : '' },
+      { label: t('model'), path: 'novelai.model', value: backend.model || 'nai-diffusion-3', datalist: datalistId('models') },
+      { label: t('sampler'), path: 'novelai.sampler', value: backend.sampler || 'k_euler_ancestral', datalist: datalistId('samplers') },
+      { label: t('scheduler'), path: 'novelai.scheduler', value: backend.scheduler || 'native', datalist: datalistId('schedulers') },
+      { label: t('width'), path: 'novelai.width', value: backend.width ?? 832, type: 'number', min: 64 },
+      { label: t('height'), path: 'novelai.height', value: backend.height ?? 1216, type: 'number', min: 64 },
+      { label: t('steps'), path: 'novelai.steps', value: backend.steps ?? 28, type: 'number', min: 1 },
+      { label: t('cfg'), path: 'novelai.scale', value: backend.scale ?? 5, type: 'number', step: '0.1' },
+      { label: t('seed'), path: 'novelai.seed', value: backend.seed ?? -1, type: 'number' },
+      { label: 'ucPreset', path: 'novelai.ucPreset', value: backend.ucPreset ?? 0, type: 'number' },
+      { label: 'cfgRescale', path: 'novelai.cfgRescale', value: backend.cfgRescale ?? 0, type: 'number', step: '0.01' },
     ],
     comfyui: [
-      [t('apiUrl'), backend.url || 'http://127.0.0.1:8188'], [t('model'), backend.model || ''], [t('vae'), backend.vae || ''], ['CLIP', backend.clip || ''],
-      [t('sampler'), backend.sampler || 'euler'], [t('scheduler'), backend.scheduler || 'normal'], [t('width'), backend.width ?? 768], [t('height'), backend.height ?? 1024], [t('steps'), backend.steps ?? 28], [t('cfg'), backend.cfg ?? 7], [t('seed'), backend.seed ?? -1], ['poll/max', `${backend.pollIntervalMs ?? 1000}/${backend.maxPolls ?? 60}`],
+      { label: t('apiUrl'), path: 'comfyui.url', value: backend.url || 'http://127.0.0.1:8188' },
+      { label: t('model'), path: 'comfyui.model', value: backend.model || '', datalist: datalistId('models') },
+      { label: t('vae'), path: 'comfyui.vae', value: backend.vae || '', datalist: datalistId('vaes') },
+      { label: 'CLIP', path: 'comfyui.clip', value: backend.clip || '' },
+      { label: t('sampler'), path: 'comfyui.sampler', value: backend.sampler || 'euler', datalist: datalistId('samplers') },
+      { label: t('scheduler'), path: 'comfyui.scheduler', value: backend.scheduler || 'normal', datalist: datalistId('schedulers') },
+      { label: t('width'), path: 'comfyui.width', value: backend.width ?? 768, type: 'number', min: 64 },
+      { label: t('height'), path: 'comfyui.height', value: backend.height ?? 1024, type: 'number', min: 64 },
+      { label: t('steps'), path: 'comfyui.steps', value: backend.steps ?? 28, type: 'number', min: 1 },
+      { label: t('cfg'), path: 'comfyui.cfg', value: backend.cfg ?? 7, type: 'number', step: '0.1' },
+      { label: t('seed'), path: 'comfyui.seed', value: backend.seed ?? -1, type: 'number' },
+      { label: 'pollIntervalMs', path: 'comfyui.pollIntervalMs', value: backend.pollIntervalMs ?? 1000, type: 'number', min: 100 },
+      { label: 'maxPolls', path: 'comfyui.maxPolls', value: backend.maxPolls ?? 60, type: 'number', min: 1 },
     ],
     naturalImage: [
-      [t('apiUrl'), backend.url || 'https://api.openai.com/v1'], [t('apiKey'), backend.apiKey ? '••••••••' : ''], ['providerMode', backend.providerMode || 'openaiImages'], [t('model'), backend.model || 'gpt-image-1'],
-      ['chatModel', backend.chatModel || 'gpt-4.1'], ['size', backend.size || `${backend.width ?? 1024}x${backend.height ?? 1024}`], [t('width'), backend.width ?? 1024], [t('height'), backend.height ?? 1024], ['quality', backend.quality || ''], ['responseFormat', backend.responseFormat || ''],
+      { label: t('apiUrl'), path: 'naturalImage.url', value: backend.url || 'https://api.openai.com/v1' },
+      { label: t('apiKey'), path: 'naturalImage.apiKey', value: backend.apiKey || '', type: 'password', mono: false, placeholder: backend.apiKey ? '••••••••' : '' },
+      { label: 'providerMode', path: 'naturalImage.providerMode', value: backend.providerMode || 'openaiImages', datalist: datalistId('providerModes') },
+      { label: t('model'), path: 'naturalImage.model', value: backend.model || 'gpt-image-1', datalist: datalistId('models') },
+      { label: 'chatModel', path: 'naturalImage.chatModel', value: backend.chatModel || 'gpt-4.1', datalist: datalistId('chatModels') },
+      { label: 'size', path: 'naturalImage.size', value: backend.size || `${backend.width ?? 1024}x${backend.height ?? 1024}`, datalist: datalistId('sizes') },
+      { label: t('width'), path: 'naturalImage.width', value: backend.width ?? 1024, type: 'number', min: 64 },
+      { label: t('height'), path: 'naturalImage.height', value: backend.height ?? 1024, type: 'number', min: 64 },
+      { label: 'quality', path: 'naturalImage.quality', value: backend.quality || '', datalist: datalistId('qualities') },
+      { label: 'responseFormat', path: 'naturalImage.responseFormat', value: backend.responseFormat || '', datalist: datalistId('responseFormats') },
     ],
   }[backendType] || [];
   const chips = {
@@ -247,19 +364,24 @@ function renderGenericBackendPanel(settings = {}, backendType = 'novelai') {
   return `
     <section class="stlp-tab-panel" data-stlp-console-panel="backends" hidden>
       <div class="stlp-grid-12">
+        ${backendType === 'novelai' ? `${renderDatalist(datalistId('models'), NAI_MODEL_PRESETS)}${renderDatalist(datalistId('samplers'), NAI_SAMPLER_PRESETS)}${renderDatalist(datalistId('schedulers'), NAI_SCHEDULER_PRESETS)}${renderDatalist(datalistId('sizes'), SIZE_PRESETS)}` : ''}
+        ${backendType === 'comfyui' ? `${renderDatalist(datalistId('models'), [])}${renderDatalist(datalistId('vaes'), [])}${renderDatalist(datalistId('samplers'), COMFY_SAMPLER_PRESETS)}${renderDatalist(datalistId('schedulers'), COMFY_SCHEDULER_PRESETS)}${renderDatalist(datalistId('sizes'), SIZE_PRESETS)}` : ''}
+        ${backendType === 'naturalImage' ? `${renderDatalist(datalistId('providerModes'), NATURAL_PROVIDER_MODES)}${renderDatalist(datalistId('models'), NATURAL_MODEL_PRESETS)}${renderDatalist(datalistId('chatModels'), NATURAL_CHAT_MODEL_PRESETS)}${renderDatalist(datalistId('sizes'), SIZE_PRESETS)}${renderDatalist(datalistId('qualities'), NATURAL_QUALITY_PRESETS)}${renderDatalist(datalistId('responseFormats'), NATURAL_RESPONSE_FORMAT_PRESETS)}` : ''}
         <section class="stlp-module stlp-col-12">
           <div class="stlp-module-head">
             <div><p class="stlp-kicker">${escapeHtml(t('backendConfiguration'))}</p><h2>${escapeHtml(title)}</h2></div>
             <div class="stlp-chip-row"><span class="stlp-chip stlp-chip-active">${escapeHtml(backendType)}</span><span class="stlp-chip">${escapeHtml(route)}</span></div>
           </div>
           <div class="stlp-form-grid stlp-form-grid-4">
-            ${primaryFields.slice(0, 8).map(([label, value]) => renderField(label, value, { mono: true, type: typeof value === 'number' ? 'number' : 'text' })).join('')}
+            ${backendType === 'novelai' ? renderSizePresetField('预设尺寸 / Size preset', 'novelai', backend.width ?? 832, backend.height ?? 1216, datalistId('sizes')) : ''}
+            ${backendType === 'comfyui' ? renderSizePresetField('预设尺寸 / Size preset', 'comfyui', backend.width ?? 768, backend.height ?? 1024, datalistId('sizes')) : ''}
+            ${primaryFields.slice(0, 8).map((field) => renderBackendField(field)).join('')}
           </div>
         </section>
         <section class="stlp-module stlp-col-8">
           <div class="stlp-module-head"><h2>${escapeHtml(t('generationDefaults'))}</h2><span class="stlp-mini-pill">${escapeHtml(backendType)}</span></div>
           <div class="stlp-form-grid stlp-form-grid-4">
-            ${primaryFields.slice(8).map(([label, value]) => renderField(label, value, { mono: true, type: typeof value === 'number' ? 'number' : 'text' })).join('')}
+            ${primaryFields.slice(8).map((field) => renderBackendField(field)).join('')}
           </div>
           <div class="stlp-chip-row">${chips.map(([label, active]) => `<span class="stlp-chip${active ? ' stlp-chip-active' : ''}">${escapeHtml(label)} ${active ? 'on' : 'off'}</span>`).join('')}</div>
         </section>
@@ -286,9 +408,9 @@ function renderBackendsPanel(settings = {}, resources = {}) {
   const resourceLists = {
     models: resources.models ?? [],
     vaes: resources.vaes ?? [],
-    samplers: resources.samplers ?? [],
-    schedulers: resources.schedulers ?? [],
-    upscalers: resources.upscalers ?? [],
+    samplers: mergeOptions(resources.samplers ?? [], SD_SAMPLER_FALLBACKS),
+    schedulers: mergeOptions(resources.schedulers ?? [], SD_SCHEDULER_FALLBACKS),
+    upscalers: mergeOptions(resources.upscalers ?? [], SD_UPSCALER_FALLBACKS),
     loras: resources.loras ?? [],
   };
   return `
@@ -300,10 +422,10 @@ function renderBackendsPanel(settings = {}, resources = {}) {
             <div class="stlp-chip-row"><span class="stlp-chip stlp-chip-active">${escapeHtml(settings.backend?.type || 'sdWebui')}</span><span class="stlp-chip">${escapeHtml(t('editableComboboxes'))}</span></div>
           </div>
           <div class="stlp-form-grid stlp-form-grid-4">
-            ${renderField(t('apiUrl'), sd.url || 'http://127.0.0.1:7860', { mono: true })}
-            ${renderField(t('username'), sd.username || '')}
-            ${renderField(t('password'), sd.password ? '••••••••' : '', { type: 'password' })}
-            ${renderField(t('timeout'), settings.timeoutMs || 30000, { type: 'number', mono: true })}
+            ${renderField(t('apiUrl'), sd.url || 'http://127.0.0.1:7860', { mono: true, path: 'sdWebui.url' })}
+            ${renderField(t('username'), sd.username || '', { path: 'sdWebui.username' })}
+            ${renderField(t('password'), sd.password || '', { type: 'password', path: 'sdWebui.password' })}
+            ${renderField(t('timeout'), settings.timeoutMs || 30000, { type: 'number', mono: true, path: 'timeoutMs', min: 1000 })}
           </div>
           <div class="stlp-actions-row"><button class="stlp-button stlp-primary" type="button" data-stlp-action="refresh-sd-resources">${escapeHtml(t('refreshResources'))}</button><span id="stlp-sd-resource-status" class="stlp-muted">${escapeHtml(t('sdResourceHelp'))}</span></div>
         </section>
@@ -316,13 +438,15 @@ function renderBackendsPanel(settings = {}, resources = {}) {
           ${renderDatalist('stlp-sd-scheduler-options', resourceLists.schedulers)}
           ${renderDatalist('stlp-sd-upscaler-options', resourceLists.upscalers)}
           ${renderDatalist('stlp-sd-lora-options', resourceLists.loras)}
+          ${renderDatalist('stlp-sd-size-options', SIZE_PRESETS)}
           <div class="stlp-form-grid stlp-form-grid-3">
-            ${renderField(t('model'), sd.model || '', { datalist: 'stlp-sd-model-options', mono: true })}
-            ${renderField(t('vae'), sd.vae || '', { datalist: 'stlp-sd-vae-options', mono: true })}
-            ${renderField(t('sampler'), sd.sampler || 'Euler a', { datalist: 'stlp-sd-sampler-options', mono: true })}
-            ${renderField(t('scheduler'), sd.scheduler || '', { datalist: 'stlp-sd-scheduler-options', mono: true })}
-            ${renderField(t('upscaler'), sd.upscaler || '', { datalist: 'stlp-sd-upscaler-options', mono: true })}
-            ${renderField(t('loraSearch'), '', { datalist: 'stlp-sd-lora-options', mono: true })}
+            ${renderSizePresetField('预设尺寸 / Size preset', 'sdWebui', sd.width || 768, sd.height || 1024, 'stlp-sd-size-options')}
+            ${renderField(t('model'), sd.model || '', { datalist: 'stlp-sd-model-options', mono: true, path: 'sdWebui.model' })}
+            ${renderField(t('vae'), sd.vae || '', { datalist: 'stlp-sd-vae-options', mono: true, path: 'sdWebui.vae' })}
+            ${renderField(t('sampler'), sd.sampler || 'Euler a', { datalist: 'stlp-sd-sampler-options', mono: true, path: 'sdWebui.sampler' })}
+            ${renderField(t('scheduler'), sd.scheduler || '', { datalist: 'stlp-sd-scheduler-options', mono: true, path: 'sdWebui.scheduler' })}
+            ${renderField(t('upscaler'), sd.upscaler || '', { datalist: 'stlp-sd-upscaler-options', mono: true, path: 'sdWebui.upscaler' })}
+            ${renderField(t('loraSearch'), '', { datalist: 'stlp-sd-lora-options', mono: true, path: 'sdWebui.loraSearch' })}
           </div>
         </section>
 
@@ -335,14 +459,14 @@ function renderBackendsPanel(settings = {}, resources = {}) {
         <section class="stlp-module stlp-col-8">
           <div class="stlp-module-head"><h2>${escapeHtml(t('generationDefaults'))}</h2><span class="stlp-mini-pill">${escapeHtml(t('settingsOwnedParams'))}</span></div>
           <div class="stlp-form-grid stlp-form-grid-4">
-            ${renderField(t('width'), sd.width || 768, { type: 'number', mono: true })}
-            ${renderField(t('height'), sd.height || 1024, { type: 'number', mono: true })}
-            ${renderField(t('steps'), sd.steps || 28, { type: 'number', mono: true })}
-            ${renderField(t('cfg'), sd.cfgScale || 7, { type: 'number', mono: true })}
-            ${renderField(t('seed'), sd.seed ?? -1, { type: 'number', mono: true })}
-            ${renderField(t('clipSkip'), sd.clipSkip || 1, { type: 'number', mono: true })}
-            ${renderField(t('hiresScale'), sd.hiresFix?.scale ?? 1.8, { type: 'number', mono: true })}
-            ${renderField(t('denoise'), sd.hiresFix?.denoisingStrength ?? 0.45, { type: 'number', mono: true })}
+            ${renderField(t('width'), sd.width || 768, { type: 'number', mono: true, path: 'sdWebui.width', min: 64 })}
+            ${renderField(t('height'), sd.height || 1024, { type: 'number', mono: true, path: 'sdWebui.height', min: 64 })}
+            ${renderField(t('steps'), sd.steps || 28, { type: 'number', mono: true, path: 'sdWebui.steps', min: 1 })}
+            ${renderField(t('cfg'), sd.cfgScale || 7, { type: 'number', mono: true, path: 'sdWebui.cfgScale', step: '0.1' })}
+            ${renderField(t('seed'), sd.seed ?? -1, { type: 'number', mono: true, path: 'sdWebui.seed' })}
+            ${renderField(t('clipSkip'), sd.clipSkip || 1, { type: 'number', mono: true, path: 'sdWebui.clipSkip', min: 1 })}
+            ${renderField(t('hiresScale'), sd.hiresFix?.scale ?? 1.8, { type: 'number', mono: true, path: 'sdWebui.hiresFix.scale', step: '0.1' })}
+            ${renderField(t('denoise'), sd.hiresFix?.denoisingStrength ?? 0.45, { type: 'number', mono: true, path: 'sdWebui.hiresFix.denoisingStrength', step: '0.01' })}
           </div>
           <div class="stlp-chip-row"><span class="stlp-chip${sd.hiresFix?.enabled ? ' stlp-chip-active' : ''}">${escapeHtml(t('hiresFix'))} ${sd.hiresFix?.enabled ? 'on' : 'off'}</span><span class="stlp-chip${sd.adetailer?.enabled ? ' stlp-chip-active' : ''}">ADetailer ${sd.adetailer?.enabled ? 'on' : 'off'}</span><span class="stlp-chip">${escapeHtml(t('restoreFaces'))} ${sd.restoreFaces ? 'on' : 'off'}</span></div>
         </section>
@@ -660,6 +784,16 @@ export function bindConsoleShell(root = document.querySelector(SELECTORS.console
     const generationButton = event.target.closest('[data-stlp-action="generate"], [data-stlp-action="compile-test"]');
     if (generationButton) {
       runConsolePipelineAction(root, options, generationButton.dataset.stlpAction);
+    }
+  });
+  root.addEventListener('change', (event) => {
+    const sizeInput = event.target.closest('[data-stlp-size-preset]');
+    if (sizeInput) {
+      if (applySizePreset(root, options, sizeInput.dataset.stlpSizePreset)) return;
+    }
+    const settingInput = event.target.closest('[data-stlp-setting]');
+    if (settingInput) {
+      updateConsoleSetting(root, options, settingInput.dataset.stlpSetting, parseMaybeNumberValue(settingInput.value, settingInput));
     }
   });
   document.addEventListener('keydown', (event) => {

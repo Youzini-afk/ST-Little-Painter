@@ -788,6 +788,24 @@ body.stlp-console-open {
   padding: 0.55rem 0.7rem;
 }
 
+.stlp-combo-input {
+  padding-right: 1.8rem;
+  background-image:
+    linear-gradient(45deg, transparent 50%, rgba(217, 138, 78, 0.72) 50%),
+    linear-gradient(135deg, rgba(217, 138, 78, 0.72) 50%, transparent 50%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.025), transparent);
+  background-position:
+    calc(100% - 0.92rem) 50%,
+    calc(100% - 0.62rem) 50%,
+    0 0;
+  background-size: 0.32rem 0.32rem, 0.32rem 0.32rem, 100% 100%;
+  background-repeat: no-repeat;
+}
+
+.stlp-combo-input::-webkit-calendar-picker-indicator {
+  opacity: 0;
+}
+
 .stlp-textarea {
   min-height: 7rem;
   resize: vertical;
