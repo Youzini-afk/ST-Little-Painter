@@ -5,13 +5,14 @@ import { deleteProfile, getActiveProfile, importProfileGroup, saveProfile } from
 import { bindFields, populateFields } from '../src/ui/bindFields.js';
 import { addTraceStep, createTrace, finalizeTrace, getTraceById, getTraceHistory } from '../src/debug/trace.js';
 import { TRACE_STATUS } from '../src/core/constants.js';
-import { createTranslator, getLanguage } from '../src/ui/i18n.js';
+import { createTranslator, getLanguage, getSillyTavernLocale, resolveAutoLanguage } from '../src/ui/i18n.js';
 
 const extension_settings = {};
 configureSettingsStore({ extension_settings, saveSettingsDebounced: () => {} });
 
 const settings = getSettings();
 assert.equal(settings.ui.activeTab, 'dashboard');
+assert.equal(settings.ui.language, 'auto');
 assert.equal(settings.tagApi.jsonMode, 'auto');
 assert.equal(settings.sdWebui.hiresFix.enabled, false);
 assert.equal(settings.knowledge.dictionaryHints, true);
@@ -73,7 +74,15 @@ assert.equal(getTraceById(history[0].id).summary.message, 'done');
 
 const zh = createTranslator({ ui: { language: 'zh' } });
 const en = createTranslator({ ui: { language: 'en' } });
-assert.equal(getLanguage({}), 'zh');
+globalThis.localStorage = { getItem: (key) => (key === 'language' ? 'en-us' : null) };
+assert.equal(getSillyTavernLocale(), 'en-us');
+assert.equal(getLanguage({}), 'en');
+assert.equal(resolveAutoLanguage('zh-cn'), 'zh');
+assert.equal(resolveAutoLanguage('en-gb'), 'en');
+delete globalThis.localStorage;
+globalThis.document = { documentElement: { lang: 'zh-cn' } };
+assert.equal(getLanguage({ ui: { language: 'auto' } }), 'zh');
+delete globalThis.document;
 assert.equal(zh('generateReply'), '生成配图');
 assert.equal(en('generateReply'), 'Generate reply');
 assert.equal(zh('loadedResources', { count: 6 }), '已加载 6 个资源。');

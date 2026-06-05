@@ -1,4 +1,5 @@
 export const UI_LANGUAGES = Object.freeze({
+  AUTO: 'auto',
   ZH: 'zh',
   EN: 'en',
 });
@@ -158,12 +159,33 @@ const STRINGS = Object.freeze({
 
 export function normalizeLanguage(language) {
   const value = String(language || '').toLowerCase();
+  if (!value || value === 'auto') return UI_LANGUAGES.AUTO;
+  if (value.startsWith('en')) return UI_LANGUAGES.EN;
+  return UI_LANGUAGES.ZH;
+}
+
+export function getSillyTavernLocale() {
+  try {
+    const stored = globalThis.localStorage?.getItem?.('language');
+    if (stored) return stored;
+  } catch (_error) {
+    // localStorage can be unavailable in restricted contexts.
+  }
+  return globalThis.document?.documentElement?.lang
+    || globalThis.navigator?.language
+    || globalThis.navigator?.userLanguage
+    || 'zh';
+}
+
+export function resolveAutoLanguage(locale = getSillyTavernLocale()) {
+  const value = String(locale || '').toLowerCase();
   if (value.startsWith('en')) return UI_LANGUAGES.EN;
   return UI_LANGUAGES.ZH;
 }
 
 export function getLanguage(settings = {}) {
-  return normalizeLanguage(settings.ui?.language || 'zh');
+  const configured = normalizeLanguage(settings.ui?.language || 'auto');
+  return configured === UI_LANGUAGES.AUTO ? resolveAutoLanguage() : configured;
 }
 
 export function createTranslator(settings = {}) {

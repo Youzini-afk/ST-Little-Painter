@@ -76,7 +76,7 @@ function populateSettingsForm() {
   const settings = getSettings();
   setControlValue(SELECTORS.enabled, settings.enabled);
   setControlValue(SELECTORS.autoGenerate, settings.autoGenerate);
-  setControlValue(SELECTORS.uiLanguage, settings.ui?.language || 'zh');
+  setControlValue(SELECTORS.uiLanguage, settings.ui?.language || 'auto');
   setControlValue(SELECTORS.mode, settings.mode);
   setControlValue(SELECTORS.tagApiUrl, settings.tagApi.url);
   setControlValue(SELECTORS.tagApiKey, settings.tagApi.key);
@@ -156,7 +156,7 @@ function bindSettingsForm() {
   bindSetting(SELECTORS.autoGenerate, (settings, value) => ({ ...settings, autoGenerate: value }));
   bindSetting(SELECTORS.uiLanguage, (settings, value) => ({
     ...settings,
-    ui: { ...settings.ui, language: value || 'zh' },
+    ui: { ...settings.ui, language: value || 'auto' },
   }));
   bindSetting(SELECTORS.mode, (settings, value) => ({ ...settings, mode: value }));
   bindSetting(SELECTORS.tagApiUrl, (settings, value) => ({
