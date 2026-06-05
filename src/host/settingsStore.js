@@ -9,6 +9,7 @@ export const defaultSettings = Object.freeze({
   mode: 'fast',
   historyCount: 8,
   ui: {
+    language: 'zh',
     activeTab: 'dashboard',
     consoleOpen: false,
   },

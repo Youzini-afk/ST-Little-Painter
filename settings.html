@@ -6,49 +6,54 @@
     </div>
     <div class="inline-drawer-content">
       <section class="stlp-section">
-        <h4>Main</h4>
+        <h4>主要设置</h4>
         <label class="checkbox_label" for="stlp-enabled">
           <input id="stlp-enabled" type="checkbox" />
-          Enable ST-Little Painter
+          启用 ST-Little Painter
         </label>
         <label class="checkbox_label" for="stlp-auto-generate">
           <input id="stlp-auto-generate" type="checkbox" />
-          Auto generate after supported chat events
+          支持的聊天事件后自动生成
         </label>
+        <label for="stlp-ui-language">界面语言 / UI Language</label>
+        <select id="stlp-ui-language" class="text_pole">
+          <option value="zh">中文</option>
+          <option value="en">English</option>
+        </select>
       </section>
 
       <section class="stlp-section">
-        <h4>Tag API</h4>
-        <label for="stlp-tag-api-url">Endpoint URL</label>
+        <h4>标签 API</h4>
+        <label for="stlp-tag-api-url">端点 URL</label>
         <input id="stlp-tag-api-url" class="text_pole" type="url" placeholder="https://api.example.com/v1/chat/completions" />
 
         <label for="stlp-tag-api-key">API Key</label>
-        <input id="stlp-tag-api-key" class="text_pole" type="password" autocomplete="off" placeholder="Stored in SillyTavern extension settings" />
+        <input id="stlp-tag-api-key" class="text_pole" type="password" autocomplete="off" placeholder="保存在 SillyTavern 扩展设置中" />
 
-        <label for="stlp-tag-api-model">Model</label>
+        <label for="stlp-tag-api-model">模型</label>
         <input id="stlp-tag-api-model" class="text_pole" type="text" placeholder="tagger-model-name" />
 
-        <label for="stlp-temperature">Temperature</label>
+        <label for="stlp-temperature">温度</label>
         <input id="stlp-temperature" class="text_pole" type="number" min="0" max="2" step="0.1" />
 
-        <label for="stlp-max-tokens">Max Tokens</label>
+        <label for="stlp-max-tokens">最大 Token</label>
         <input id="stlp-max-tokens" class="text_pole" type="number" min="128" step="128" />
 
-        <label for="stlp-timeout-ms">Timeout (ms)</label>
+        <label for="stlp-timeout-ms">超时（毫秒）</label>
         <input id="stlp-timeout-ms" class="text_pole" type="number" min="1000" step="1000" />
 
-        <label for="stlp-retry-count">Retry Count</label>
+        <label for="stlp-retry-count">重试次数</label>
         <input id="stlp-retry-count" class="text_pole" type="number" min="0" max="5" step="1" />
       </section>
 
       <section class="stlp-section">
-        <h4>Backend</h4>
+        <h4>图像后端</h4>
         <label class="checkbox_label" for="stlp-backend-enabled">
           <input id="stlp-backend-enabled" type="checkbox" />
-          Generate Image After Tags
+          标签生成后调用图像后端
         </label>
 
-        <label for="stlp-backend-type">Backend type</label>
+        <label for="stlp-backend-type">后端类型</label>
         <select id="stlp-backend-type" class="text_pole">
           <option value="sdWebui">SD WebUI</option>
           <option value="novelai">NovelAI</option>
@@ -125,7 +130,7 @@
         <label for="stlp-comfyui-url">ComfyUI URL</label>
         <input id="stlp-comfyui-url" class="text_pole" type="url" placeholder="http://127.0.0.1:8188" />
         <label for="stlp-comfyui-workflow-json">API workflow JSON</label>
-        <textarea id="stlp-comfyui-workflow-json" class="text_pole stlp-code-input" rows="8" placeholder="Use ComfyUI Save API Format. Placeholders: {{positive}}, {{negative}}, {{width}}, {{height}}, {{steps}}, {{cfg}}, {{seed}}, {{sampler}}, {{scheduler}}, {{model}}, {{vae}}, {{clip}}"></textarea>
+        <textarea id="stlp-comfyui-workflow-json" class="text_pole stlp-code-input" rows="8" placeholder="使用 ComfyUI Save API Format。占位符: &#123;&#123;positive&#125;&#125;, &#123;&#123;negative&#125;&#125;, &#123;&#123;width&#125;&#125;, &#123;&#123;height&#125;&#125;, &#123;&#123;steps&#125;&#125;, &#123;&#123;cfg&#125;&#125;, &#123;&#123;seed&#125;&#125;, &#123;&#123;sampler&#125;&#125;, &#123;&#123;scheduler&#125;&#125;, &#123;&#123;model&#125;&#125;, &#123;&#123;vae&#125;&#125;, &#123;&#123;clip&#125;&#125;"></textarea>
         <div class="stlp-grid">
           <label>Width <input id="stlp-comfyui-width" class="text_pole" type="number" min="64" step="8" /></label>
           <label>Height <input id="stlp-comfyui-height" class="text_pole" type="number" min="64" step="8" /></label>
@@ -178,39 +183,39 @@
       </section>
 
       <section class="stlp-section">
-        <h4>Image Preview</h4>
+        <h4>图像预览</h4>
         <div id="stlp-image-preview-list" class="stlp-image-preview-list"></div>
       </section>
 
       <section class="stlp-section">
-        <h4>Mode</h4>
-        <label for="stlp-mode">Runtime mode</label>
+        <h4>运行模式</h4>
+        <label for="stlp-mode">运行模式</label>
         <select id="stlp-mode" class="text_pole">
           <option value="fast">Fast</option>
           <option value="smart">Smart</option>
           <option value="expert">Expert</option>
         </select>
 
-        <label for="stlp-history-count">Recent message count</label>
+        <label for="stlp-history-count">最近聊天楼层数</label>
         <input id="stlp-history-count" class="text_pole" type="number" min="1" max="100" step="1" />
 
         <div class="stlp-actions">
-          <button id="stlp-manual-generate" class="menu_button" type="button">Manual Generate</button>
+          <button id="stlp-manual-generate" class="menu_button" type="button">手动生成</button>
         </div>
       </section>
 
       <section class="stlp-section">
-        <h4>Debug</h4>
+        <h4>调试</h4>
         <label class="checkbox_label" for="stlp-debug-enabled">
           <input id="stlp-debug-enabled" type="checkbox" />
-          Enable debug trace capture
+          启用调试 trace 捕获
         </label>
 
         <div class="stlp-actions">
-          <button id="stlp-export-trace" class="menu_button" type="button">Export Trace</button>
+          <button id="stlp-export-trace" class="menu_button" type="button">导出 Trace</button>
         </div>
 
-        <label for="stlp-trace-output">Latest trace</label>
+        <label for="stlp-trace-output">最新 trace</label>
         <textarea id="stlp-trace-output" class="text_pole stlp-trace-output" readonly></textarea>
       </section>
     </div>

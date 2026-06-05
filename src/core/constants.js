@@ -7,6 +7,7 @@ export const SELECTORS = Object.freeze({
   settingsRoot: '#st-little-painter-settings',
   enabled: '#stlp-enabled',
   autoGenerate: '#stlp-auto-generate',
+  uiLanguage: '#stlp-ui-language',
   mode: '#stlp-mode',
   tagApiUrl: '#stlp-tag-api-url',
   tagApiKey: '#stlp-tag-api-key',

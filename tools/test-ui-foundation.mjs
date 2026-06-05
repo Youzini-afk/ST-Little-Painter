@@ -5,6 +5,7 @@ import { deleteProfile, getActiveProfile, importProfileGroup, saveProfile } from
 import { bindFields, populateFields } from '../src/ui/bindFields.js';
 import { addTraceStep, createTrace, finalizeTrace, getTraceById, getTraceHistory } from '../src/debug/trace.js';
 import { TRACE_STATUS } from '../src/core/constants.js';
+import { createTranslator, getLanguage } from '../src/ui/i18n.js';
 
 const extension_settings = {};
 configureSettingsStore({ extension_settings, saveSettingsDebounced: () => {} });
@@ -69,5 +70,12 @@ assert.equal(history.length, 1);
 assert.equal(history[0].metadata.apiKey, '[REDACTED]');
 assert.equal(history[0].steps[0].payload.dataUrl, '[REDACTED]');
 assert.equal(getTraceById(history[0].id).summary.message, 'done');
+
+const zh = createTranslator({ ui: { language: 'zh' } });
+const en = createTranslator({ ui: { language: 'en' } });
+assert.equal(getLanguage({}), 'zh');
+assert.equal(zh('generateReply'), '生成配图');
+assert.equal(en('generateReply'), 'Generate reply');
+assert.equal(zh('loadedResources', { count: 6 }), '已加载 6 个资源。');
 
 console.log('test-ui-foundation passed');

@@ -76,6 +76,7 @@ function populateSettingsForm() {
   const settings = getSettings();
   setControlValue(SELECTORS.enabled, settings.enabled);
   setControlValue(SELECTORS.autoGenerate, settings.autoGenerate);
+  setControlValue(SELECTORS.uiLanguage, settings.ui?.language || 'zh');
   setControlValue(SELECTORS.mode, settings.mode);
   setControlValue(SELECTORS.tagApiUrl, settings.tagApi.url);
   setControlValue(SELECTORS.tagApiKey, settings.tagApi.key);
@@ -153,6 +154,10 @@ function bindSetting(selector, updater) {
 function bindSettingsForm() {
   bindSetting(SELECTORS.enabled, (settings, value) => ({ ...settings, enabled: value }));
   bindSetting(SELECTORS.autoGenerate, (settings, value) => ({ ...settings, autoGenerate: value }));
+  bindSetting(SELECTORS.uiLanguage, (settings, value) => ({
+    ...settings,
+    ui: { ...settings.ui, language: value || 'zh' },
+  }));
   bindSetting(SELECTORS.mode, (settings, value) => ({ ...settings, mode: value }));
   bindSetting(SELECTORS.tagApiUrl, (settings, value) => ({
     ...settings,
@@ -298,11 +303,15 @@ function renderTraceOutput(forceExport = false) {
   const latest = getLatestTrace();
   output.value = latest || forceExport
     ? JSON.stringify(latest, null, 2)
-    : 'No trace yet. Click “Manual Generate” to create a Phase 1 placeholder trace.';
+    : '暂无 trace。点击“手动生成”后会在这里显示最新流水线记录。';
 }
 
 async function renderSettings() {
   const html = await renderExtensionTemplateAsync(EXTENSION_ID, 'settings');
+  if (!html) {
+    console.error('[ST-Little Painter] Failed to render settings template. Check SillyTavern template errors above.');
+    return;
+  }
   document.querySelector('#extensions_settings')?.insertAdjacentHTML('beforeend', html);
 }
 
